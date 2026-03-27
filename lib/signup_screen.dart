@@ -1,14 +1,225 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
+import 'splash_screen.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isObscured = true;
+  String? _passwordError;
+
+  void _validatePassword(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        _passwordError = null;
+      } else if (value.length < 8) {
+        _passwordError = "Minimum 8 characters required";
+      } else if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>0-9]'))) {
+        _passwordError = "Requires a symbol or number";
+      } else {
+        _passwordError = null;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Signup')),
-      body: const Center(
-        child: Text('Signup Screen'),
+      backgroundColor: Colors.black, // Changed from transparent to avoid white flash
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/signup_screen.png'),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          // Username Field
+          Positioned(
+            left: 260,
+            top: 150,
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 100,
+                  child: Text(
+                    "Username:",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFF542E2E),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    Image.asset('assets/input-box.png', width: 240),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: _usernameController,
+                          maxLength: 10,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            isDense: true,
+                            counterText: "",
+                          ),
+                          style: const TextStyle(fontSize: 16, color: Color(0xFF542E2E)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Password Field
+          Positioned(
+            left: 260,
+            top: 210,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 100,
+                      child: Text(
+                        "Password:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF542E2E),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        Image.asset('assets/input-box.png', width: 240),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 40.0),
+                          child: SizedBox(
+                            width: 160,
+                            child: TextField(
+                              controller: _passwordController,
+                              obscureText: _isObscured,
+                              onChanged: _validatePassword,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                              ),
+                              style: const TextStyle(fontSize: 16, color: Color(0xFF542E2E)),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 15,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isObscured = !_isObscured;
+                              });
+                            },
+                            child: Icon(
+                              _isObscured ? Icons.visibility_off : Icons.visibility,
+                              color: const Color(0xFF542E2E),
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (_passwordError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 110.0, top: 4),
+                    child: Text(
+                      _passwordError!,
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Login Button
+          Positioned(
+            left: 400,
+            top: 290,
+            child: GestureDetector(
+              onTap: () {
+                print("Signup Inner button pressed");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+              },
+              child: Image.asset(
+                'assets/signupInner-btn.png',
+                width: 120,
+              ),
+            ),
+          ),
+          // Back Button
+          Positioned(
+            left: 20,
+            top: 20,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration: const Duration(milliseconds: 500),
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const SplashScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(-1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+                      var tween = Tween(
+                        begin: begin,
+                        end: end,
+                      ).chain(CurveTween(curve: curve));
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: Image.asset(
+                'assets/back-btn.png',
+                width: 50,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

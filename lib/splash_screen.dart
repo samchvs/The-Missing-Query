@@ -2,13 +2,26 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-cache the background image of the next screen to avoid flickering
+    precacheImage(const AssetImage('assets/login_screen.png'), context);
+    precacheImage(const AssetImage('assets/signup_screen.png'), context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           Container(
@@ -29,8 +42,14 @@ class SplashScreen extends StatelessWidget {
                   print("Login button clicked - navigating to LoginScreen");
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 600),
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const LoginScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                     ),
                   );
                 },
@@ -48,8 +67,14 @@ class SplashScreen extends StatelessWidget {
                   print("Signup button clicked - navigating to SignupScreen");
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignupScreen(),
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 600),
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const SignupScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                     ),
                   );
                 },
