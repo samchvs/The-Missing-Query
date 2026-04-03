@@ -40,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black, // Changed from transparent to avoid white flash
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Container(
@@ -52,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Username Field
           Positioned(
-            left: 260,
-            top: 150,
+            left: MediaQuery.of(context).size.width * (260 / 896.0),
+            top: MediaQuery.of(context).size.height * (150 / 414.0),
             child: Row(
               children: [
                 const SizedBox(
@@ -94,8 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Password Field
           Positioned(
-            left: 260,
-            top: 210,
+            left: MediaQuery.of(context).size.width * (260 / 896.0),
+            top: MediaQuery.of(context).size.height * (210 / 414.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -168,14 +169,28 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Login Button
           Positioned(
-            left: 400,
-            top: 290,
+            left: MediaQuery.of(context).size.width * (400 / 896.0),
+            top: MediaQuery.of(context).size.height * (290 / 414.0),
             child: GestureDetector(
               onTap: () {
+                FocusScope.of(context).unfocus();
+                if (_usernameController.text.isEmpty ||
+                    _passwordController.text.isEmpty ||
+                    _passwordError != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please enter a valid username and password"),
+                      backgroundColor: Colors.redAccent,
+                      padding: EdgeInsets.symmetric(vertical: 1, horizontal: 20),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                  return;
+                }
                 print("Login Inner button pressed");
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  MaterialPageRoute(builder: (context) => HomeScreen(username: _usernameController.text)),
                 );
               },
               child: Image.asset(

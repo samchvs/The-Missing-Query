@@ -34,9 +34,9 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
           // Login Button
           Align(
-            alignment: Alignment.bottomCenter,
+            alignment: const Alignment(0.0, 0.4),
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 120.0, left: 15.0),
+              padding: const EdgeInsets.only(left: 8.0),
               child: BouncingButton(
                 onPressed: () {
                   print("Login button clicked - navigating to LoginScreen");
@@ -59,9 +59,9 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
           // Signup Button
           Align(
-            alignment: Alignment.bottomCenter,
+            alignment: const Alignment(0.0, 0.7),
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 65.0, left: 15.0),
+              padding: const EdgeInsets.only(left: 8.0),
               child: BouncingButton(
                 onPressed: () {
                   print("Signup button clicked - navigating to SignupScreen");
