@@ -171,8 +171,8 @@ class _SignupScreenState extends State<SignupScreen> {
           Positioned(
             left: MediaQuery.of(context).size.width * (400 / 896.0),
             top: MediaQuery.of(context).size.height * (290 / 414.0),
-            child: GestureDetector(
-              onTap: () {
+            child: BouncingButton(
+              onPressed: () {
                 FocusScope.of(context).unfocus();
                 if (_usernameController.text.isEmpty ||
                     _passwordController.text.isEmpty ||
@@ -203,8 +203,8 @@ class _SignupScreenState extends State<SignupScreen> {
           Positioned(
             left: 20,
             top: 20,
-            child: GestureDetector(
-              onTap: () {
+            child: BouncingButton(
+              onPressed: () {
                 Navigator.push(
                   context,
                   PageRouteBuilder(

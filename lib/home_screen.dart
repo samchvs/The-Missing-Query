@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'splash_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -29,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     precacheImage(const AssetImage('assets/yes-btn.png'), context);
     precacheImage(const AssetImage('assets/signoutDisplay.png'), context);
     precacheImage(const AssetImage('assets/quitDisplay.png'), context);
+    precacheImage(const AssetImage('assets/settings_screen.png'), context);
   }
 
   @override
@@ -46,9 +49,21 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             top: 20,
             left: 20,
-            child: GestureDetector(
-              onTap: () {
+            child: BouncingButton(
+              onPressed: () {
                 debugPrint('Settings button tapped');
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration: const Duration(milliseconds: 500),
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const SettingsScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
+                );
               },
               child: Image.asset('assets/settings-btn.png', width: 50),
             ),
@@ -78,8 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
+                BouncingButton(
+                  onPressed: () {
                     debugPrint('User button tapped');
                     setState(() {
                       _isUserDisplayVisible = true;
@@ -94,8 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
             alignment: const Alignment(0.0, 0.4),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 3.0),
-              child: GestureDetector(
-                onTap: () {
+              child: BouncingButton(
+                onPressed: () {
                   debugPrint('Play button tapped');
                 },
                 child: Image.asset('assets/play-btn.png', width: 110),
@@ -104,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Align(
             alignment: const Alignment(0.0, 0.6),
-            child: GestureDetector(
-              onTap: () {
+            child: BouncingButton(
+              onPressed: () {
                 debugPrint('Tutorial button tapped');
               },
               child: Image.asset('assets/tutorial-btn.png', width: 140),
@@ -113,8 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Align(
             alignment: const Alignment(0.0, 0.8),
-            child: GestureDetector(
-              onTap: () {
+            child: BouncingButton(
+              onPressed: () {
                 debugPrint('Quit button tapped');
                 setState(() {
                   _isQuitConfirmationVisible = true;
@@ -164,8 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: GestureDetector(
-                        onTap: () {
+                      child: BouncingButton(
+                        onPressed: () {
                           debugPrint('Sign out button tapped');
                           setState(() {
                             _isUserDisplayVisible = false;
@@ -210,8 +225,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            GestureDetector(
-                              onTap: () {
+                            BouncingButton(
+                              onPressed: () {
                                 setState(() {
                                   _isSignoutConfirmationVisible = false;
                                 });
@@ -219,12 +234,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Image.asset('assets/no-btn.png', width: 120),
                             ),
                             const SizedBox(width: 5), // Reduced gap to 5 to bring buttons closer
-                            GestureDetector(
-                              onTap: () {
+                            BouncingButton(
+                              onPressed: () {
                                 debugPrint('Sign out confirmed');
-                                Navigator.pushNamedAndRemoveUntil(
+                                Navigator.pushAndRemoveUntil(
                                   context,
-                                  '/',
+                                  PageRouteBuilder(
+                                    transitionDuration: const Duration(milliseconds: 600),
+                                    pageBuilder: (context, animation, secondaryAnimation) =>
+                                        const SplashScreen(),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(opacity: animation, child: child);
+                                    },
+                                  ),
                                   (route) => false,
                                 );
                               },
@@ -266,8 +288,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            GestureDetector(
-                              onTap: () {
+                            BouncingButton(
+                              onPressed: () {
                                 setState(() {
                                   _isQuitConfirmationVisible = false;
                                 });
@@ -275,8 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Image.asset('assets/no-btn.png', width: 120),
                             ),
                             const SizedBox(width: 5),
-                            GestureDetector(
-                              onTap: () {
+                            BouncingButton(
+                              onPressed: () {
                                 debugPrint('Quit confirmed');
                                 SystemNavigator.pop();
                               },
