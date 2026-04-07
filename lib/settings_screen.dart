@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
-import 'profile_tab.dart'; // Import your new short file here!
+import 'profile_tab.dart'; 
 
 class SettingsScreen extends StatefulWidget {
   final String username;
+  final String characterPath;
   final Function(String) onUsernameChanged;
-  const SettingsScreen({super.key, required this.username, required this.onUsernameChanged});
+  final Function(String) onCharacterChanged;
+
+  const SettingsScreen({
+    super.key, 
+    required this.username, 
+    required this.characterPath,
+    required this.onUsernameChanged,
+    required this.onCharacterChanged,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Track the currently active tab. Default is 'profile'
   String _activeTab = 'profile';
+  late String _localUsername;
+  late String _localCharacterPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _localUsername = widget.username;
+    _localCharacterPath = widget.characterPath;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents the keyboard from crushing the graphic!
+      resizeToAvoidBottomInset: false, 
       backgroundColor: Colors.black,
       body: Stack(
         children: [
@@ -31,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           Align(
-            alignment: const Alignment(0.0, 0.4), // Adjust to move everything up or down
+            alignment: const Alignment(0.0, 0.4), 
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -41,7 +58,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   fit: BoxFit.contain,
                 ),
                 
-                // Draw ALL inactive tabs first (in the background, tinted)
                 if (_activeTab != 'profile')
                   Positioned.fill(
                     child: Align(
@@ -86,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Align(
                       alignment: const Alignment(0.0, 0.0), 
                       child: Image.asset(
-                        'assets/about-tab.png', // Fallback to leaderboard if about doesn't exist, but assuming it does
+                        'assets/about-tab.png', 
                         width: 600, 
                         fit: BoxFit.contain,
                         color: const Color(0xFFE2E2BE),
@@ -95,7 +111,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
 
-                // Now draw the ACTIVE tab on TOP (drawn last = top layer)
                 if (_activeTab == 'profile')
                   Positioned.fill(
                     child: Align(
@@ -140,20 +155,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-
                 // --------- ACTIVE TAB CONTENT AREA ---------
                 Positioned.fill(
                   child: Align(
-                    alignment: const Alignment(0.0, 0.3), // Pushes content into the main body of the settings box
+                    alignment: const Alignment(0.0, 0.3), 
                     child: SizedBox(
-                      width: 550, // Bounds it perfectly to the inside of your graphic
+                      width: 550, 
                       height: 250, 
                       child: Builder(
                         builder: (context) {
-                          // This acts as your mini-router!
-                          if (_activeTab == 'profile') return ProfileTab(username: widget.username, onUsernameChanged: widget.onUsernameChanged);
-                          
-                          // Placeholder for tabs you haven't built files for yet
+                          if (_activeTab == 'profile') {
+                            return ProfileTab(
+                              username: _localUsername, 
+                              characterPath: _localCharacterPath,
+                              onUsernameChanged: (newName) {
+                                setState(() {
+                                  _localUsername = newName;
+                                });
+                                widget.onUsernameChanged(newName);
+                              },
+                              onCharacterChanged: (newChar) {
+                                setState(() {
+                                  _localCharacterPath = newChar;
+                                });
+                                widget.onCharacterChanged(newChar);
+                              }
+                            );
+                          }
                           return const Center(
                             child: Text(
                               "More tabs coming soon!",
@@ -170,7 +198,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
 
                 // --------- TEXT BUTTONS ---------
-                
                 Positioned.fill(
                   child: Align(
                     alignment: const Alignment(-0.8, -0.8), 
@@ -211,8 +238,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Positioned.fill(
                   child: Align(
-                    // Y-axis stays -0.8 so it's perfectly aligned vertically
-                    // Decrease X-axis to move it left (from 0.1 down to 0.0, or -0.1)
                     alignment: const Alignment(0.0, -0.8), 
                     child: BouncingButton(
                       onPressed: () {
@@ -232,8 +257,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Positioned.fill(
                   child: Align(
-                    // Y-axis stays -0.8 so it's perfectly aligned vertically
-                    // Using 0.45 gets you exactly in between 0.4 and 0.5!
                     alignment: const Alignment(0.42, -0.8), 
                     child: BouncingButton(
                       onPressed: () {

@@ -17,11 +17,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSignoutConfirmationVisible = false;
   bool _isQuitConfirmationVisible = false;
   late String _currentUsername;
+  late String _currentCharacter;
 
   @override
   void initState() {
     super.initState();
     _currentUsername = widget.username;
+    _currentCharacter = 'assets/Beanie.png'; // Default graphic
   }
 
   @override
@@ -66,9 +68,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         SettingsScreen(
                           username: _currentUsername,
+                          characterPath: _currentCharacter,
                           onUsernameChanged: (newName) {
                             setState(() {
                               _currentUsername = newName;
+                            });
+                          },
+                          onCharacterChanged: (newChar) {
+                            setState(() {
+                              _currentCharacter = newChar;
                             });
                           },
                         ),
@@ -175,7 +183,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset('assets/innerUserDisplay.png', width: 60),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.asset('assets/innerUserDisplay.png', width: 60),
+                            // Slightly smaller to fit inside perfectly!
+                            Image.asset(_currentCharacter, width: 45), 
+                          ],
+                        ),
                         const SizedBox(width: 15),
                         Text(
                           _currentUsername,
