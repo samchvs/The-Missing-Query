@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
+import 'profile_tab.dart'; // Import your new short file here!
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final String username;
+  final Function(String) onUsernameChanged;
+  const SettingsScreen({super.key, required this.username, required this.onUsernameChanged});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -15,6 +18,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, // Prevents the keyboard from crushing the graphic!
       backgroundColor: Colors.black,
       body: Stack(
         children: [
@@ -136,6 +140,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+
+                // --------- ACTIVE TAB CONTENT AREA ---------
+                Positioned.fill(
+                  child: Align(
+                    alignment: const Alignment(0.0, 0.3), // Pushes content into the main body of the settings box
+                    child: SizedBox(
+                      width: 550, // Bounds it perfectly to the inside of your graphic
+                      height: 250, 
+                      child: Builder(
+                        builder: (context) {
+                          // This acts as your mini-router!
+                          if (_activeTab == 'profile') return ProfileTab(username: widget.username, onUsernameChanged: widget.onUsernameChanged);
+                          
+                          // Placeholder for tabs you haven't built files for yet
+                          return const Center(
+                            child: Text(
+                              "More tabs coming soon!",
+                              style: TextStyle(
+                                color: Colors.grey, 
+                                fontSize: 18,
+                              ),
+                            )
+                          );
+                        }
+                      ),
+                    ),
+                  ),
+                ),
 
                 // --------- TEXT BUTTONS ---------
                 

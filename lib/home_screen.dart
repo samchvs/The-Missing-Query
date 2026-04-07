@@ -16,6 +16,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isUserDisplayVisible = false;
   bool _isSignoutConfirmationVisible = false;
   bool _isQuitConfirmationVisible = false;
+  late String _currentUsername;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentUsername = widget.username;
+  }
 
   @override
   void didChangeDependencies() {
@@ -57,7 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   PageRouteBuilder(
                     transitionDuration: const Duration(milliseconds: 500),
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        const SettingsScreen(),
+                        SettingsScreen(
+                          username: _currentUsername,
+                          onUsernameChanged: (newName) {
+                            setState(() {
+                              _currentUsername = newName;
+                            });
+                          },
+                        ),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return FadeTransition(opacity: animation, child: child);
@@ -82,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       TextSpan(
-                        text: '${widget.username}!',
+                        text: '$_currentUsername!',
                         style: const TextStyle(color: Colors.yellow),
                       ),
                     ],
@@ -164,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Image.asset('assets/innerUserDisplay.png', width: 60),
                         const SizedBox(width: 15),
                         Text(
-                          widget.username,
+                          _currentUsername,
                           style: const TextStyle(
                             color: Color(0xFF542E2E),
                             fontSize: 18,
