@@ -23,7 +23,6 @@ class _ProfileTabState extends State<ProfileTab> {
   late String _localUsername;
   late String _localCharacter;
 
-  // Global map defining specific graphics layout bounds for BOTH the modal and the mini-badge
   final List<Map<String, dynamic>> characters = [
     {
       'path': 'assets/Beanie.png',
@@ -57,9 +56,9 @@ class _ProfileTabState extends State<ProfileTab> {
       'height': 75.0,
       'top': 95.0,
       'name': 'Tomathomas',
-      'badgeLeft': -10.0,
-      'badgeTop': -30.0,
-      'badgeWidth': 70.0,
+      'badgeLeft': 12.0,
+      'badgeTop': 6.0,
+      'badgeWidth': 55.0,
     },
   ];
 
@@ -186,7 +185,6 @@ class _ProfileTabState extends State<ProfileTab> {
       barrierColor: Colors.black87,
       useSafeArea: false,
       builder: (BuildContext context) {
-        // StatefulBuilder allows the modal to redraw ITSELF without redrawing the whole screen!
         return StatefulBuilder(
           builder: (context, setModalState) {
             return MediaQuery(
@@ -204,14 +202,14 @@ class _ProfileTabState extends State<ProfileTab> {
                         alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: [
-                          // Your Character Modal Graphic
+                          // Character modal
                           Image.asset(
                             'assets/characterModal.png',
                             width: 300,
                             fit: BoxFit.contain,
                           ),
 
-                          // THE SELECTED CHARACTER
+                          // Selected character
                           Positioned(
                             top: characters[_currentCharacterIndex]['top'],
                             child: Image.asset(
@@ -222,25 +220,23 @@ class _ProfileTabState extends State<ProfileTab> {
                             ),
                           ),
 
-                          // THE CHARACTER NAME
+                          // Character name
                           Positioned(
                             top:
-                                190, // Adjust this 'top' to place the text directly under the character!
+                                190, 
                             child: Text(
                               characters[_currentCharacterIndex]['name'],
                               style: const TextStyle(
-                                color: Colors
-                                    .white, // Matches your app's brown text palette
+                                color: Colors.white, 
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
 
-                          // LEFT ARROW Button
+                          // Left arrow button
                           Positioned(
                             left: 60,
-                            // Adjust 'top' to perfectly center the arrow vertically!
                             top: 140,
                             child: BouncingButton(
                               onPressed: () {
@@ -248,19 +244,19 @@ class _ProfileTabState extends State<ProfileTab> {
                                   _currentCharacterIndex--;
                                   if (_currentCharacterIndex < 0) {
                                     _currentCharacterIndex =
-                                        characters.length - 1; // loop to back
+                                        characters.length - 1; 
                                   }
                                 });
                               },
                               child: Image.asset(
                                 'assets/arrowLeft-btn.png',
-                                width: 30, // Adjust arrow size here
+                                width: 30, 
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
 
-                          // RIGHT ARROW Button
+                          // Right arrow button
                           Positioned(
                             right: 60,
                             top: 140,
@@ -270,7 +266,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                   _currentCharacterIndex++;
                                   if (_currentCharacterIndex >=
                                       characters.length) {
-                                    _currentCharacterIndex = 0; // loop to front
+                                    _currentCharacterIndex = 0;
                                   }
                                 });
                               },
@@ -282,7 +278,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             ),
                           ),
 
-                          // CANCEL Button
+                          // Cancel Button
                           Positioned(
                             bottom: 35,
                             left: 40,
@@ -298,13 +294,12 @@ class _ProfileTabState extends State<ProfileTab> {
                             ),
                           ),
 
-                          // CONFIRM Button
+                          // Confirm Button
                           Positioned(
                             bottom: 35,
                             right: 40,
                             child: BouncingButton(
                               onPressed: () {
-                                // Broadcasting the chosen character path entirely upward into App state
                                 widget.onCharacterChanged(
                                   characters[_currentCharacterIndex]['path'],
                                 );
@@ -344,7 +339,7 @@ class _ProfileTabState extends State<ProfileTab> {
             fit: BoxFit.contain,
           ),
 
-          // DISPLAY CHOSEN CHARACTER BADGE OVER USERNAME BAR
+          // Display chosen character to username-edit
           Builder(
             builder: (context) {
               final Map<String, dynamic> charData = characters.firstWhere(
@@ -354,11 +349,11 @@ class _ProfileTabState extends State<ProfileTab> {
 
               return Positioned(
                 left:
-                    charData['badgeLeft'], // Tweak left placement per-character
-                top: charData['badgeTop'], // Tweak top height per-character
+                    charData['badgeLeft'], 
+                top: charData['badgeTop'], 
                 child: Image.asset(
                   _localCharacter,
-                  width: charData['badgeWidth'], // Rendered size per-character
+                  width: charData['badgeWidth'], 
                   fit: BoxFit.contain,
                 ),
               );
