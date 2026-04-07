@@ -19,6 +19,29 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _currentUsername;
   late String _currentCharacter;
 
+  final List<Map<String, dynamic>> innerDisplayConfigs = [
+    {
+      'path': 'assets/Beanie.png',
+      'width': 62.0, // Adjust width to fit perfectly
+      //'offsetY': 0.0, // Nudge up (negative) or down (positive) if needed
+    },
+    {
+      'path': 'assets/Carrotino.png',
+      'width': 30.0, 
+      //'offsetY': 0.0, 
+    },
+    {
+      'path': 'assets/Broccoliandro.png',
+      'width': 43.0, 
+      //'offsetY': 0.0, 
+    },
+    {
+      'path': 'assets/Tomathomas.png',
+      'width': 52.0, 
+      //'offsetY': 0.0, 
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -187,8 +210,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           alignment: Alignment.center,
                           children: [
                             Image.asset('assets/innerUserDisplay.png', width: 60),
-                            // Slightly smaller to fit inside perfectly!
-                            Image.asset(_currentCharacter, width: 45), 
+                            // Fetch character-specific constraints to fit perfectly!
+                            Builder(
+                              builder: (context) {
+                                final Map<String, dynamic> config = innerDisplayConfigs.firstWhere(
+                                  (c) => c['path'] == _currentCharacter,
+                                  orElse: () => {'width': 45.0, 'offsetY': 0.0},
+                                );
+                                return Transform.translate(
+                                  offset: Offset(0, config['offsetY'] ?? 0.0),
+                                  child: Image.asset(
+                                    _currentCharacter,
+                                    width: config['width'],
+                                    fit: BoxFit.contain,
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                         const SizedBox(width: 15),
