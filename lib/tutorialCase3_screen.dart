@@ -12,6 +12,13 @@ class TutorialCase3Screen extends StatefulWidget {
 class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     with TickerProviderStateMixin {
   static const String _targetQuery = 'SELECT * FROM Hallway_Logs;';
+  final List<Map<String, String>> _tableData = const [
+    {'id': '101', 'name': 'Beanie', 'time': '11:55'},
+    {'id': '102', 'name': 'Professor Hall', 'time': '12:01'},
+    {'id': '103', 'name': 'Carrotino', 'time': '12:05'},
+    {'id': '104', 'name': 'Broccoliandro', 'time': '12:05'},
+    {'id': '105', 'name': 'Tomathomas', 'time': '12:05'},
+  ];
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -41,6 +48,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   late Animation<double> _runHintOpacity;
   late Animation<double> _runHintScale;
   bool _isRunHintFinished = false;
+  bool _showQueryDisplay = true;
+  bool _isTableShown = false;
 
   @override
   void initState() {
@@ -63,7 +72,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     );
 
     // Moves from off-screen left to target position
-    child:
     _walkAnimation = Tween<Offset>(
       begin: const Offset(-1.2, 0.0),
       end: Offset.zero,
@@ -389,216 +397,337 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               alignment: Alignment.topCenter,
               child: Padding(
                 padding: const EdgeInsets.only(top: 90.0),
-                child: FadeTransition(
-                  opacity: _userFadeAnimation,
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    clipBehavior: Clip.none,
-                    children: [
-                      Image.asset(
-                        'assets/tutorialQuery-display.png',
-                        width: 450,
-                      ),
-                      // Query Input Field - completely hidden until hint is dismissed
-                      Visibility(
-                        visible: _isHintDismissed,
-                        child: Positioned(
-                          top: 55,
-                          left: 25,
-                          right: 25,
-                          bottom: 45,
-                          child: Stack(
-                            children: [
-                              ValueListenableBuilder<TextEditingValue>(
-                                valueListenable: _queryController,
-                                builder: (context, value, _) {
-                                  final String userInput = value.text;
-                                  String ghostText = '';
+                child: IgnorePointer(
+                  ignoring: !_showQueryDisplay,
+                  child: AnimatedOpacity(
+                    opacity: _showQueryDisplay ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 500),
+                    child: FadeTransition(
+                      opacity: _userFadeAnimation,
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        clipBehavior: Clip.none,
+                        children: [
+                          Image.asset(
+                            'assets/tutorialQuery-display.png',
+                            width: 450,
+                          ),
+                          // Query Input Field - completely hidden until hint is dismissed
+                          Visibility(
+                            visible: _isHintDismissed,
+                            child: Positioned(
+                              top: 55,
+                              left: 25,
+                              right: 25,
+                              bottom: 45,
+                              child: Stack(
+                                children: [
+                                  ValueListenableBuilder<TextEditingValue>(
+                                    valueListenable: _queryController,
+                                    builder: (context, value, _) {
+                                      final String userInput = value.text;
+                                      String ghostText = '';
 
-                                  if (userInput.length < _targetQuery.length) {
-                                    // Create a string of spaces for matched length,
-                                    // followed by the remaining hint portion.
-                                    final spaces = ' ' * userInput.length;
-                                    ghostText =
-                                        spaces +
-                                        _targetQuery.substring(
-                                          userInput.length,
-                                        );
-                                  }
+                                      if (userInput.length <
+                                          _targetQuery.length) {
+                                        // Create a string of spaces for matched length,
+                                        // followed by the remaining hint portion.
+                                        final spaces = ' ' * userInput.length;
+                                        ghostText =
+                                            spaces +
+                                            _targetQuery.substring(
+                                              userInput.length,
+                                            );
+                                      }
 
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 10,
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 10,
+                                        ),
+                                        child: Text(
+                                          ghostText,
+                                          style: GoogleFonts.inconsolata(
+                                            fontSize: 18,
+                                            color: const Color(
+                                              0xFF542E2E,
+                                            ).withOpacity(0.3),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  TextField(
+                                    controller: _queryController,
+                                    maxLines: null,
+                                    style: GoogleFonts.inconsolata(
+                                      fontSize: 18,
+                                      color: const Color(0xFF542E2E),
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    child: Text(
-                                      ghostText,
-                                      style: GoogleFonts.inconsolata(
-                                        fontSize: 18,
-                                        color: const Color(
-                                          0xFF542E2E,
-                                        ).withOpacity(0.3),
-                                        fontWeight: FontWeight.bold,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 10,
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
-                              TextField(
-                                controller: _queryController,
-                                maxLines: null,
-                                style: GoogleFonts.inconsolata(
-                                  fontSize: 18,
-                                  color: const Color(0xFF542E2E),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 10,
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 9,
-                        right: 25,
-                        child: BouncingButton(
-                          onPressed: () {
-                            _popupUserFadeController.reverse();
-                            _userFadeController.reverse().then((_) {
-                              if (mounted) {
-                                setState(() {
-                                  _isQueryClicked = false;
-                                  _isHintDismissed = false;
-                                  _runHintController.reset();
-                                  _isRunHintFinished = false;
-                                });
-                              }
-                            });
-                          },
-                          child: Image.asset('assets/close-btn.png', width: 20),
-                        ),
-                      ),
-                      // Tables button
-                      Positioned(
-                        bottom: 5,
-                        left: 15,
-                        child: BouncingButton(
-                          onPressed: () => debugPrint('Tables button pressed'),
-                          child: Image.asset(
-                            'assets/tables-btn.png',
-                            width: 80,
-                          ),
-                        ),
-                      ),
-                      // Clear and Run Query buttons
-                      Positioned(
-                        bottom: 5,
-                        right: 10,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            BouncingButton(
-                              onPressed: () =>
-                                  debugPrint('Clear button pressed'),
-                              child: Image.asset(
-                                'assets/clear-btn.png',
-                                width: 75,
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            BouncingButton(
+                          ),
+                          Positioned(
+                            top: 9,
+                            right: 25,
+                            child: BouncingButton(
                               onPressed: () {
-                                debugPrint('Run button pressed');
-                                setState(() {
-                                  _isRunHintFinished = true;
+                                _popupUserFadeController.reverse();
+                                _userFadeController.reverse().then((_) {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isQueryClicked = false;
+                                      _isHintDismissed = false;
+                                      _runHintController.reset();
+                                      _isRunHintFinished = false;
+                                    });
+                                  }
                                 });
                               },
                               child: Image.asset(
-                                'assets/run-btn.png',
-                                width: 100,
+                                'assets/close-btn.png',
+                                width: 20,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      // Sequenced userDisplay - bottom middle-right area
-                      Positioned(
-                        top: 60,
-                        right: -30,
-                        child: FadeTransition(
-                          opacity: _popupUserFadeAnimation,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/tutorialSelectHint-box.png',
-                                width: 300,
+                          ),
+                          // Tables button
+                          Positioned(
+                            bottom: 5,
+                            left: 15,
+                            child: BouncingButton(
+                              onPressed: () =>
+                                  debugPrint('Tables button pressed'),
+                              child: Image.asset(
+                                'assets/tables-btn.png',
+                                width: 80,
                               ),
-                              // OKAY Button - expanded hit area and better positioning
-                              Positioned(
-                                bottom: 20,
-                                right: 35,
-                                child: BouncingButton(
+                            ),
+                          ),
+                          // Clear and Run Query buttons
+                          Positioned(
+                            bottom: 5,
+                            right: 10,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BouncingButton(
+                                  onPressed: () =>
+                                      debugPrint('Clear button pressed'),
+                                  child: Image.asset(
+                                    'assets/clear-btn.png',
+                                    width: 75,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                BouncingButton(
                                   onPressed: () {
-                                    _popupUserFadeController.reverse().then((
-                                      _,
-                                    ) {
-                                      if (mounted) {
-                                        setState(() {
-                                          _isHintDismissed = true;
-                                        });
-                                      }
+                                    debugPrint('Run button pressed');
+                                    setState(() {
+                                      _isRunHintFinished = true;
+                                      _showQueryDisplay = false;
+                                      _isTableShown = true;
                                     });
                                   },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    color: Colors.transparent,
-                                    child: Image.asset(
-                                      'assets/okay-btn.png',
-                                      width: 75,
+                                  child: Image.asset(
+                                    'assets/run-btn.png',
+                                    width: 100,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Sequenced userDisplay - bottom middle-right area
+                          Positioned(
+                            top: 60,
+                            right: -30,
+                            child: FadeTransition(
+                              opacity: _popupUserFadeAnimation,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/tutorialSelectHint-box.png',
+                                    width: 300,
+                                  ),
+                                  // OKAY Button - expanded hit area and better positioning
+                                  Positioned(
+                                    bottom: 20,
+                                    right: 35,
+                                    child: BouncingButton(
+                                      onPressed: () {
+                                        _popupUserFadeController.reverse().then(
+                                          (_) {
+                                            if (mounted) {
+                                              setState(() {
+                                                _isHintDismissed = true;
+                                              });
+                                            }
+                                          },
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        color: Colors.transparent,
+                                        child: Image.asset(
+                                          'assets/okay-btn.png',
+                                          width: 75,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Second mouse pointer hint (Run Query)
+                          Positioned(
+                            bottom: -2,
+                            right: 80,
+                            child: AnimatedBuilder(
+                              animation: _runHintController,
+                              builder: (context, child) {
+                                return Opacity(
+                                  opacity: _isRunHintFinished
+                                      ? 0.0
+                                      : _runHintOpacity.value,
+                                  child: Transform.translate(
+                                    offset: _runHintOffset.value,
+                                    child: Transform.scale(
+                                      scale: _runHintScale.value,
+                                      child: child,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Image.asset(
+                                'assets/mousePointer.png',
+                                width: 40,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // tutorialTable.png centered on screen
+          IgnorePointer(
+            ignoring: !_isTableShown,
+            child: AnimatedOpacity(
+              opacity: _isTableShown ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 500),
+              child: Center(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Image.asset('assets/tutorialTable.png', width: 500),
+                    // Table Data Overlay
+                    Positioned(
+                      top: 105,
+                      left: 23,
+                      right: 21,
+                      child: Column(
+                        children: _tableData.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final data = entry.value;
+                          final bool isLast = index == _tableData.length - 1;
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              border: isLast
+                                  ? null
+                                  : const Border(
+                                      bottom: BorderSide(
+                                        color: Color(0xFFECECBE),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    data['id']!,
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.inconsolata(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF542E2E),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Second mouse pointer hint (Run Query)
-                      Positioned(
-                        bottom: -2,
-                        right: 80,
-                        child: AnimatedBuilder(
-                          animation: _runHintController,
-                          builder: (context, child) {
-                            return Opacity(
-                              opacity: _isRunHintFinished
-                                  ? 0.0
-                                  : _runHintOpacity.value,
-                              child: Transform.translate(
-                                offset: _runHintOffset.value,
-                                child: Transform.scale(
-                                  scale: _runHintScale.value,
-                                  child: child,
+                                Expanded(
+                                  flex: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 60.0),
+                                    child: Text(
+                                      data['name']!,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inconsolata(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF542E2E),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          child: Image.asset(
-                            'assets/mousePointer.png',
-                            width: 40,
-                          ),
-                        ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 30.0),
+                                    child: Text(
+                                      data['time']!,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inconsolata(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF542E2E),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    ],
-                  ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: BouncingButton(
+                        onPressed: () {
+                          debugPrint('Close button clicked');
+                          setState(() {
+                            _isTableShown = false;
+                            _isQueryClicked = false;
+                            _showQueryDisplay =
+                                true; // reset for next time if needed
+                          });
+                          _userFadeController.reverse();
+                        },
+                        child: Image.asset('assets/close-btn.png', width: 25),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
