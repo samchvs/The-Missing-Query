@@ -190,7 +190,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 print("Login Inner button pressed");
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeScreen(username: _usernameController.text)),
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(username: _usernameController.text),
+                    settings: const RouteSettings(name: '/home'),
+                  ),
                 );
               },
               child: Image.asset(

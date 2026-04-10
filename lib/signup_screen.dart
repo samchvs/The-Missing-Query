@@ -190,7 +190,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 print("Signup Inner button pressed");
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomeScreen(username: _usernameController.text)),
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(username: _usernameController.text),
+                    settings: const RouteSettings(name: '/home'),
+                  ),
                 );
               },
               child: Image.asset(

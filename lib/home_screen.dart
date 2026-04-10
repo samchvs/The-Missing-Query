@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'splash_screen.dart';
 import 'settings_screen.dart';
+import 'tutorial_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -167,6 +168,19 @@ class _HomeScreenState extends State<HomeScreen> {
             child: BouncingButton(
               onPressed: () {
                 debugPrint('Tutorial button tapped');
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration: const Duration(milliseconds: 500),
+                    reverseTransitionDuration: Duration.zero,
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        TutorialScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
+                );
               },
               child: Image.asset('assets/tutorial-btn.png', width: 140),
             ),
