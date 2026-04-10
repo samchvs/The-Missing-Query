@@ -110,7 +110,7 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
                             color: const Color(0xFF542E2E),
                             fontSize: 14,
                           ),
-                          duration: const Duration(seconds: 1),
+                          duration: const Duration(seconds: 7),
                         ),
                       ),
                     ),

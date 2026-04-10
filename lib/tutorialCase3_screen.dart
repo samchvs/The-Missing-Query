@@ -24,7 +24,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   late Animation<double> _fadeAnimation;
 
   late AnimationController _walkController;
-  late Animation<Offset> _walkAnimation;
+  late Animation<double> _walkAnimation;
   late AnimationController _spriteController;
 
   late AnimationController _hintController;
@@ -72,9 +72,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     );
 
     // Moves from off-screen left to target position
-    _walkAnimation = Tween<Offset>(
-      begin: const Offset(-1.2, 0.0),
-      end: Offset.zero,
+    _walkAnimation = Tween<double>(
+      begin: -0.6,
+      end: 0.0,
     ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
 
     // Start walk animation immediately
@@ -238,6 +238,20 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     super.dispose();
   }
 
+  bool _isQueryCorrect() {
+    final text = _queryController.text.trim();
+    if (text.length != _targetQuery.length) return false;
+
+    // Keywords (SELECT * FROM ) - Case insensitive
+    final textPart1 = text.substring(0, 14).toUpperCase();
+    final targetPart1 = _targetQuery.substring(0, 14).toUpperCase();
+    // Table (Hallway_Logs;) - Case sensitive
+    final textPart2 = text.substring(14);
+    final targetPart2 = _targetQuery.substring(14);
+
+    return textPart1 == targetPart1 && textPart2 == targetPart2;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -332,56 +346,69 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
           ),
 
           // sadBeanie
-          SlideTransition(
-            position: _walkAnimation,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 100.0, top: 90.0),
-                child: SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: AnimatedBuilder(
-                    animation: _spriteController,
-                    builder: (context, child) {
-                      String currentImage;
-                      double imageWidth;
-                      if (_walkController.isCompleted) {
-                        currentImage = 'assets/sadBeanie.png';
-                        imageWidth = 150;
-                      } else {
-                        currentImage = _spriteController.value < 0.5
-                            ? 'assets/BeanieWalking1.png'
-                            : 'assets/BeanieWalking2.png';
-                        imageWidth = 70;
-                      }
-                      return Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Transform.translate(
-                          offset: Offset(
-                            0,
-                            _walkController.isCompleted
-                                ? 0
-                                : -15 +
-                                      (Curves.easeInOut
-                                              .transform(
+          AnimatedBuilder(
+            animation: _walkAnimation,
+            builder: (context, child) {
+              final double screenWidth = MediaQuery.of(context).size.width;
+              // We calculate the arrival position based on screen width
+              final double walkTranslation = _walkAnimation.value * screenWidth;
+
+              return Transform.translate(
+                offset: Offset(walkTranslation, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: screenWidth * 0.135,
+                      top: 90.0,
+                    ),
+                    child: SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: AnimatedBuilder(
+                        animation: _spriteController,
+                        builder: (context, child) {
+                          String currentImage;
+                          double imageWidth;
+                          if (_walkController.isCompleted) {
+                            currentImage = 'assets/sadBeanie.png';
+                            imageWidth = 150;
+                          } else {
+                            currentImage = _spriteController.value < 0.5
+                                ? 'assets/BeanieWalking1.png'
+                                : 'assets/BeanieWalking2.png';
+                            imageWidth = 70;
+                          }
+                          return Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Transform.translate(
+                              offset: Offset(
+                                -25.0, // Consistent offset to align with shadow center
+                                _walkController.isCompleted
+                                    ? 0
+                                    : -15 +
+                                          (Curves.easeInOut.transform(
                                                 (_spriteController.value * 2) %
                                                     1.0,
-                                              )
-                                              .abs() *
-                                          -8),
-                          ),
-                          child: Image.asset(currentImage, width: imageWidth),
-                        ),
-                      );
-                    },
+                                              ) *
+                                              10),
+                              ),
+                              child: Image.asset(
+                                currentImage,
+                                width: imageWidth,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
 
-          // Dark overlay for focus/emphasis (placed here to dim everything beneath)
+          // Dark overlay for focus
           IgnorePointer(
             ignoring: !_isQueryClicked,
             child: FadeTransition(
@@ -507,8 +534,19 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                             bottom: 5,
                             left: 15,
                             child: BouncingButton(
-                              onPressed: () =>
-                                  debugPrint('Tables button pressed'),
+                              onPressed: () {
+                                debugPrint('Tables button pressed');
+                                if (_isQueryCorrect()) {
+                                  setState(() {
+                                    _showQueryDisplay = false;
+                                    _isTableShown = true;
+                                  });
+                                } else {
+                                  debugPrint(
+                                    'Query incorrect: Tables button blocked',
+                                  );
+                                }
+                              },
                               child: Image.asset(
                                 'assets/tables-btn.png',
                                 width: 80,
@@ -523,8 +561,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 BouncingButton(
-                                  onPressed: () =>
-                                      debugPrint('Clear button pressed'),
+                                  onPressed: () {
+                                    debugPrint('Clear button pressed');
+                                    _queryController.clear();
+                                  },
                                   child: Image.asset(
                                     'assets/clear-btn.png',
                                     width: 75,
@@ -534,11 +574,18 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 BouncingButton(
                                   onPressed: () {
                                     debugPrint('Run button pressed');
-                                    setState(() {
-                                      _isRunHintFinished = true;
-                                      _showQueryDisplay = false;
-                                      _isTableShown = true;
-                                    });
+                                    if (_isQueryCorrect()) {
+                                      setState(() {
+                                        _isRunHintFinished = true;
+                                        _showQueryDisplay = false;
+                                        _isTableShown = true;
+                                      });
+                                    } else {
+                                      debugPrint(
+                                        'Query incorrect: Run button blocked',
+                                      );
+                                      _runHintController.stop();
+                                    }
                                   },
                                   child: Image.asset(
                                     'assets/run-btn.png',
@@ -561,7 +608,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                     'assets/tutorialSelectHint-box.png',
                                     width: 300,
                                   ),
-                                  // OKAY Button - expanded hit area and better positioning
+                                  // Okay Button
                                   Positioned(
                                     bottom: 20,
                                     right: 35,
@@ -711,8 +758,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       ),
                     ),
                     Positioned(
-                      top: 10,
-                      right: 10,
+                      top: 20,
+                      right: 20,
                       child: BouncingButton(
                         onPressed: () {
                           debugPrint('Close button clicked');
