@@ -119,7 +119,7 @@ class _TutorialScreenState extends State<TutorialScreen>
                               color: const Color(0xFF542E2E),
                               fontSize: 22,
                             ),
-                            duration: const Duration(seconds: 7),
+                            duration: const Duration(seconds: 1),
                             onFinished: () {
                               setState(() {
                                 _showMeetButton = true;

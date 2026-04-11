@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'splash_screen.dart';
+import 'keyboard_accessory_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
   bool _isObscured = true;
   String? _passwordError;
 
@@ -33,6 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _usernameFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -78,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 200,
                         child: TextField(
                           controller: _usernameController,
+                          focusNode: _usernameFocus,
                           maxLength: 10,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
@@ -123,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 160,
                             child: TextField(
                               controller: _passwordController,
+                              focusNode: _passwordFocus,
                               obscureText: _isObscured,
                               onChanged: _validatePassword,
                               decoration: const InputDecoration(
@@ -236,6 +243,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 50,
               ),
             ),
+          ),
+          KeyboardAccessoryBar(
+            controller: _usernameController,
+            focusNode: _usernameFocus,
+          ),
+          KeyboardAccessoryBar(
+            controller: _passwordController,
+            focusNode: _passwordFocus,
           ),
         ],
       ),

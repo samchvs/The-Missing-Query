@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'splash_screen.dart';
+import 'keyboard_accessory_bar.dart';
+import 'tutorialCase4_screen.dart';
 
 class TutorialCase3Screen extends StatefulWidget {
   const TutorialCase3Screen({super.key});
@@ -26,6 +28,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   late AnimationController _walkController;
   late Animation<double> _walkAnimation;
   late AnimationController _spriteController;
+  late AnimationController _darkenController;
+  late Animation<double> _darkenAnimation;
 
   late AnimationController _hintController;
   late Animation<double> _hintOpacity;
@@ -50,6 +54,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   bool _isRunHintFinished = false;
   bool _showQueryDisplay = true;
   bool _isTableShown = false;
+  bool _isTableUnlocked = false;
+  bool _isTransitioning = false;
 
   @override
   void initState() {
@@ -223,6 +229,15 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
         }
       }
     });
+
+    _darkenController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _darkenAnimation = CurvedAnimation(
+      parent: _darkenController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -235,6 +250,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     _popupUserFadeController.dispose();
     _queryController.dispose();
     _runHintController.dispose();
+    _darkenController.dispose();
     super.dispose();
   }
 
@@ -312,7 +328,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         ),
                         const SizedBox(height: 10),
                         AnimatedOpacity(
-                          opacity: _isQueryClicked ? 0.0 : 1.0,
+                          opacity: (_isQueryClicked || _isTableUnlocked)
+                              ? 0.0
+                              : 1.0,
                           duration: const Duration(milliseconds: 600),
                           child: Image.asset(
                             'assets/tutorialCase3-pop.png',
@@ -326,7 +344,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       animation: _hintController,
                       builder: (context, child) {
                         return AnimatedOpacity(
-                          opacity: _hintMarkedAsDone ? 0.0 : _hintOpacity.value,
+                          opacity: (_hintMarkedAsDone || _isTableUnlocked)
+                              ? 0.0
+                              : _hintOpacity.value,
                           duration: const Duration(milliseconds: 500),
                           child: Transform.translate(
                             offset: _hintOffset.value,
@@ -540,6 +560,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   setState(() {
                                     _showQueryDisplay = false;
                                     _isTableShown = true;
+                                    _isTableUnlocked = true;
                                   });
                                 } else {
                                   debugPrint(
@@ -579,6 +600,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                         _isRunHintFinished = true;
                                         _showQueryDisplay = false;
                                         _isTableShown = true;
+                                        _isTableUnlocked = true;
                                       });
                                     } else {
                                       debugPrint(
@@ -770,6 +792,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 true; // reset for next time if needed
                           });
                           _userFadeController.reverse();
+
+                          // Transition to Case 4 removed as per user request
                         },
                         child: Image.asset('assets/close-btn.png', width: 25),
                       ),
@@ -803,8 +827,117 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               ],
             ),
           ),
+
+          // Keyboard Accessory Bar
+          KeyboardAccessoryBar(controller: _queryController),
+
+          // Darken transition overlay
+          IgnorePointer(
+            ignoring: !_isTransitioning,
+            child: FadeTransition(
+              opacity: _darkenAnimation,
+              child: Container(color: Colors.black),
+            ),
+          ),
+
+          // Next button (Bottom Right) - appears once successfully unlocked
+          if (_isTableUnlocked)
+            Positioned(
+              bottom: 30,
+              right: 30,
+              child: BouncingButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration.zero,
+                      reverseTransitionDuration: Duration.zero,
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const TutorialCase4Screen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            return child;
+                          },
+                    ),
+                  );
+                },
+                child: ShakeWidget(
+                  child: Image.asset('assets/next-btn.png', width: 100),
+                ),
+              ),
+            ),
         ],
       ),
+    );
+  }
+}
+
+class ShakeWidget extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  final Duration duration;
+
+  const ShakeWidget({
+    super.key,
+    required this.child,
+    this.delay = const Duration(seconds: 3),
+    this.duration = const Duration(milliseconds: 500),
+  });
+
+  @override
+  State<ShakeWidget> createState() => _ShakeWidgetState();
+}
+
+class _ShakeWidgetState extends State<ShakeWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _animation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 2.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 2.0, end: -2.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -2.0, end: 2.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 2.0, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            _controller.forward(from: 0.0);
+          }
+        });
+      }
+    });
+
+    Future.delayed(widget.delay, () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(_animation.value, 0),
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

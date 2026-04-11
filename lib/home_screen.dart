@@ -28,18 +28,18 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'path': 'assets/Carrotino.png',
-      'width': 30.0, 
-      //'offsetY': 0.0, 
+      'width': 30.0,
+      //'offsetY': 0.0,
     },
     {
       'path': 'assets/Broccoliandro.png',
-      'width': 43.0, 
-      //'offsetY': 0.0, 
+      'width': 43.0,
+      //'offsetY': 0.0,
     },
     {
       'path': 'assets/Tomathomas.png',
-      'width': 52.0, 
-      //'offsetY': 0.0, 
+      'width': 52.0,
+      //'offsetY': 0.0,
     },
   ];
 
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _currentUsername = widget.username;
-    _currentCharacter = 'assets/Beanie.png'; // Default graphic
+    _currentCharacter = 'assets/Beanie.png'; 
   }
 
   @override
@@ -106,8 +106,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
                   ),
                 );
               },
@@ -177,8 +180,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         TutorialScreen(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
                   ),
                 );
               },
@@ -223,14 +229,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset('assets/innerUserDisplay.png', width: 60),
+                            Image.asset(
+                              'assets/innerUserDisplay.png',
+                              width: 60,
+                            ),
                             // Fetch character-specific constraints to fit perfectly!
                             Builder(
                               builder: (context) {
-                                final Map<String, dynamic> config = innerDisplayConfigs.firstWhere(
-                                  (c) => c['path'] == _currentCharacter,
-                                  orElse: () => {'width': 45.0, 'offsetY': 0.0},
-                                );
+                                final Map<String, dynamic> config =
+                                    innerDisplayConfigs.firstWhere(
+                                      (c) => c['path'] == _currentCharacter,
+                                      orElse: () => {
+                                        'width': 45.0,
+                                        'offsetY': 0.0,
+                                      },
+                                    );
                                 return Transform.translate(
                                   offset: Offset(0, config['offsetY'] ?? 0.0),
                                   child: Image.asset(
@@ -302,7 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const SizedBox(height: 50),
                       Padding(
-                        padding: const EdgeInsets.only(left: 45.0), // Shifted further right for balance
+                        padding: const EdgeInsets.only(
+                          left: 45.0,
+                        ), // Shifted further right for balance
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -312,26 +327,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _isSignoutConfirmationVisible = false;
                                 });
                               },
-                              child: Image.asset('assets/no-btn.png', width: 120),
+                              child: Image.asset(
+                                'assets/no-btn.png',
+                                width: 120,
+                              ),
                             ),
-                            const SizedBox(width: 5), // Reduced gap to 5 to bring buttons closer
+                            const SizedBox(
+                              width: 5,
+                            ), // Reduced gap to 5 to bring buttons closer
                             BouncingButton(
                               onPressed: () {
                                 debugPrint('Sign out confirmed');
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   PageRouteBuilder(
-                                    transitionDuration: const Duration(milliseconds: 600),
-                                    pageBuilder: (context, animation, secondaryAnimation) =>
-                                        const SplashScreen(),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      return FadeTransition(opacity: animation, child: child);
-                                    },
+                                    transitionDuration: const Duration(
+                                      milliseconds: 600,
+                                    ),
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) => const SplashScreen(),
+                                    transitionsBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child,
+                                        ) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
                                   ),
                                   (route) => false,
                                 );
                               },
-                              child: Image.asset('assets/yes-btn.png', width: 120),
+                              child: Image.asset(
+                                'assets/yes-btn.png',
+                                width: 120,
+                              ),
                             ),
                           ],
                         ),
@@ -365,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const SizedBox(height: 50),
                       Padding(
-                        padding: const EdgeInsets.only(left: 45.0), 
+                        padding: const EdgeInsets.only(left: 45.0),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -375,7 +413,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _isQuitConfirmationVisible = false;
                                 });
                               },
-                              child: Image.asset('assets/no-btn.png', width: 120),
+                              child: Image.asset(
+                                'assets/no-btn.png',
+                                width: 120,
+                              ),
                             ),
                             const SizedBox(width: 5),
                             BouncingButton(
@@ -383,7 +424,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 debugPrint('Quit confirmed');
                                 SystemNavigator.pop();
                               },
-                              child: Image.asset('assets/yes-btn.png', width: 120),
+                              child: Image.asset(
+                                'assets/yes-btn.png',
+                                width: 120,
+                              ),
                             ),
                           ],
                         ),

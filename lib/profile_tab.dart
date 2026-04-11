@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
+import 'keyboard_accessory_bar.dart';
 
 class ProfileTab extends StatefulWidget {
   final String username;
@@ -91,10 +92,8 @@ class _ProfileTabState extends State<ProfileTab> {
       barrierColor: Colors.black87,
       useSafeArea: false,
       builder: (BuildContext context) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(viewInsets: EdgeInsets.zero),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
+        return Scaffold(
+          backgroundColor: Colors.transparent,
             resizeToAvoidBottomInset: false,
             body: Stack(
               children: [
@@ -168,13 +167,20 @@ class _ProfileTabState extends State<ProfileTab> {
                     ],
                   ),
                 ),
+                KeyboardAccessoryBar(
+                  controller: modalController,
+                  textStyle: const TextStyle(
+                    color: Color(0xFF542E2E),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
+    }
 
   // --- CHARACTER MODAL POPUP LOGIC ---
   Future<void> _showCharacterModal(BuildContext context) async {
