@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'splash_screen.dart';
-import 'tutorialCase2_screen.dart';
+import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/core/constants/app_colors.dart';
+import 'package:graphics_project/presentation/screens/tutorial/tutorial_case2_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 
 class TutorialCaseScreen extends StatefulWidget {
   const TutorialCaseScreen({super.key});
@@ -25,33 +28,22 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4));
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
 
-    _charCount = StepTween(
-      begin: 0,
-      end: _caseText.length,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
-
-    _characterFade = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
+    _charCount = StepTween(begin: 0, end: _caseText.length).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
     );
 
-    // Trigger fade-in when typing finishes
+    _characterFade = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+
     _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _fadeController.forward();
-      }
+      if (status == AnimationStatus.completed) _fadeController.forward();
     });
 
-    // Short delay before typing starts
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) _controller.forward();
     });
@@ -71,16 +63,14 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/tutorialCase_screen.png', fit: BoxFit.fill),
-
+          Image.asset(AppAssets.tutorialCaseScreen, fit: BoxFit.fill),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 20.0),
-              child: Image.asset('assets/tutorialCase-title.png', width: 420),
+              child: Image.asset(AppAssets.tutorialCaseTitle, width: 420),
             ),
           ),
-
           Positioned(
             top: 60,
             left: 0,
@@ -90,7 +80,7 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
-                  Image.asset('assets/caseDisplay-box.png', width: 650),
+                  Image.asset(AppAssets.caseDisplayBox, width: 650),
                   Positioned(
                     right: -80,
                     top: 120,
@@ -100,17 +90,11 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                         alignment: Alignment.topCenter,
                         clipBehavior: Clip.none,
                         children: [
-                          // Background character
                           Positioned(
                             top: -60,
-                            child: Image.asset(
-                              'assets/Tomathomas.png',
-                              width: 80,
-                            ),
+                            child: Image.asset(AppAssets.tomathomas, width: 80),
                           ),
-                          // Foreground display
-                          Image.asset('assets/userDisplay.png', width: 100),
-                          // 'click NEXT' text overlay
+                          Image.asset(AppAssets.userDisplay, width: 100),
                           Positioned.fill(
                             child: Center(
                               child: Text.rich(
@@ -126,7 +110,7 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                                   ],
                                 ),
                                 style: GoogleFonts.londrinaSolid(
-                                  color: const Color(0xFF542E2E),
+                                  color: AppColors.primary,
                                   fontSize: 13,
                                 ),
                                 textAlign: TextAlign.center,
@@ -152,14 +136,13 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                               pageBuilder: (context, animation, secondaryAnimation) =>
                                   const TutorialCase2Screen(),
                               transitionsBuilder:
-                                  (context, animation, secondaryAnimation, child) {
-                                return child;
-                              },
+                                  (context, animation, secondaryAnimation, child) =>
+                                      child,
                             ),
                           );
                         },
                         child: ShakeWidget(
-                          child: Image.asset('assets/next-btn.png', width: 80),
+                          child: Image.asset(AppAssets.nextBtn, width: 80),
                         ),
                       ),
                     ),
@@ -180,11 +163,10 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                               textAlign: TextAlign.center,
                               style: GoogleFonts.luckiestGuy(
                                 fontSize: 25,
-                                color: const Color(0xFF452525),
+                                color: AppColors.accent,
                               ),
                             ),
                             const SizedBox(height: 2),
-                            // Typewriter body text
                             Stack(
                               children: [
                                 Text(
@@ -198,16 +180,13 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                                 AnimatedBuilder(
                                   animation: _charCount,
                                   builder: (context, _) {
-                                    final visible = _caseText.substring(
-                                      0,
-                                      _charCount.value,
-                                    );
+                                    final visible = _caseText.substring(0, _charCount.value);
                                     return Text(
                                       visible,
                                       textAlign: TextAlign.left,
                                       style: GoogleFonts.londrinaSolid(
                                         fontSize: 16,
-                                        color: const Color(0xFFE34747),
+                                        color: AppColors.primaryLight,
                                       ),
                                     );
                                   },
@@ -223,14 +202,11 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
               ),
             ),
           ),
-
           Positioned(
             top: 98,
             right: 180,
-            child: Image.asset('assets/tutorialCase-ticket.png', width: 150),
+            child: Image.asset(AppAssets.tutorialCaseTicket, width: 150),
           ),
-
-          // Navigation
           Positioned(
             left: 20,
             top: 20,
@@ -238,93 +214,20 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
               children: [
                 BouncingButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Image.asset('assets/back-btn.png', width: 50),
+                  child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    debugPrint('Home button pressed in TutorialCase!');
-                    Navigator.of(
-                      context,
-                    ).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
                   },
-                  child: Image.asset('assets/home-btn.png', width: 50),
+                  child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class ShakeWidget extends StatefulWidget {
-  final Widget child;
-  final Duration delay;
-  final Duration duration;
-
-  const ShakeWidget({
-    super.key,
-    required this.child,
-    this.delay = const Duration(seconds: 3),
-    this.duration = const Duration(milliseconds: 500),
-  });
-
-  @override
-  State<ShakeWidget> createState() => _ShakeWidgetState();
-}
-
-class _ShakeWidgetState extends State<ShakeWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
-    _animation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 2.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 2.0, end: -2.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -2.0, end: 2.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 2.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) {
-            _controller.forward(from: 0.0);
-          }
-        });
-      }
-    });
-
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(_animation.value, 0),
-          child: child,
-        );
-      },
-      child: widget.child,
     );
   }
 }

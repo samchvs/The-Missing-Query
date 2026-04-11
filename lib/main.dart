@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'splash_screen.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graphics_project/core/config/supabase_config.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/screens/home/home_screen.dart';
+import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,14 +17,33 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  runApp(const MyApp());
+  // Initialise Supabase (must be done before AuthController.create())
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey,
+  );
+
+  // Pre-load auth state (local username + Supabase session)
+  final authController = await AuthController.create();
+
+  runApp(MyApp(authController: authController));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AuthController authController;
+
+  const MyApp({super.key, required this.authController});
 
   @override
   Widget build(BuildContext context) {
+    // Decide the initial route based on persisted state
+    final Widget home = authController.localUsername != null
+        ? HomeScreen(
+            username: authController.displayUsername,
+            authController: authController,
+          )
+        : SplashScreen(authController: authController);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -28,7 +51,7 @@ class MyApp extends StatelessWidget {
         canvasColor: Colors.black,
         textTheme: GoogleFonts.luckiestGuyTextTheme(),
       ),
-      home: const SplashScreen(),
+      home: home,
     );
   }
 }

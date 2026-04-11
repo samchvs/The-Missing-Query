@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
-import 'tutorialCase3_screen.dart';
+import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/presentation/screens/tutorial/tutorial_case3_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 
 class TutorialCase4Screen extends StatefulWidget {
   const TutorialCase4Screen({super.key});
@@ -18,18 +19,13 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
   @override
   void initState() {
     super.initState();
-
     _walkController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     );
-
-    // Moves from off-screen left to target position
-    _walkAnimation = Tween<double>(
-      begin: -0.6,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
-
+    _walkAnimation = Tween<double>(begin: -0.6, end: 0.0).animate(
+      CurvedAnimation(parent: _walkController, curve: Curves.easeOut),
+    );
     _spriteController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -38,9 +34,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
     _walkController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _spriteController.stop();
-        if (mounted) {
-          setState(() {});
-        }
+        if (mounted) setState(() {});
       }
     });
 
@@ -62,24 +56,21 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image
-          Image.asset('assets/tutorialCase4_screen.png', fit: BoxFit.fill),
-
+          Image.asset(AppAssets.tutorialCase4Screen, fit: BoxFit.fill),
           // Beanie Walking Animation
           AnimatedBuilder(
             animation: _walkAnimation,
             builder: (context, child) {
               final double screenWidth = MediaQuery.of(context).size.width;
               final double walkTranslation = _walkAnimation.value * screenWidth;
-
               return Transform.translate(
                 offset: Offset(walkTranslation, 0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: EdgeInsets.only(
-                      left: screenWidth * 0.45, // Moved a bit left
-                      top: 120.0, // Placeholder, user will adjust
+                      left: screenWidth * 0.45,
+                      top: 120.0,
                     ),
                     child: AnimatedBuilder(
                       animation: _spriteController,
@@ -87,17 +78,17 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                         String currentImage;
                         double imageWidth;
                         if (_walkController.isCompleted) {
-                          currentImage = 'assets/sadBeanie.png';
+                          currentImage = AppAssets.sadBeanie;
                           imageWidth = 140;
                         } else {
                           currentImage = _spriteController.value < 0.5
-                              ? 'assets/BeanieWalking1.png'
-                              : 'assets/BeanieWalking2.png';
+                              ? AppAssets.beanieWalking1
+                              : AppAssets.beanieWalking2;
                           imageWidth = 70;
                         }
                         return Transform.translate(
                           offset: Offset(
-                            _walkController.isCompleted ? -50.0 : -30.0, // -45 for stopped, -30 for walking
+                            _walkController.isCompleted ? -50.0 : -30.0,
                             _walkController.isCompleted
                                 ? -10.0
                                 : -15 +
@@ -115,8 +106,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               );
             },
           ),
-
-          // Back and Home buttons
+          // Navigation
           Positioned(
             left: 20,
             top: 20,
@@ -124,7 +114,6 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               children: [
                 BouncingButton(
                   onPressed: () {
-                    // Navigate specifically to TutorialCase3
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
@@ -134,17 +123,14 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                       ),
                     );
                   },
-                  child: Image.asset('assets/back-btn.png', width: 50),
+                  child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    debugPrint('Home button pressed in TutorialCase4!');
-                    Navigator.of(
-                      context,
-                    ).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
                   },
-                  child: Image.asset('assets/home-btn.png', width: 50),
+                  child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],
             ),

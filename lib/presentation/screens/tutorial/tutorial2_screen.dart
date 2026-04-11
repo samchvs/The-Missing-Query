@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
-import 'tutorial3_screen.dart';
-
-
+import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/presentation/screens/tutorial/tutorial3_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 
 class Tutorial2Screen extends StatefulWidget {
   const Tutorial2Screen({super.key});
@@ -29,44 +28,31 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       const Tutorial3Screen(),
                   transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    return child;
-                  },
+                      (context, animation, secondaryAnimation, child) => child,
                 ),
               );
             },
             child: Image.asset(
-              'assets/tutorial2_screen.png',
+              AppAssets.tutorial2Screen,
               fit: BoxFit.fill,
               gaplessPlayback: true,
             ),
           ),
-          
-          // Navigation Buttons
           Positioned(
             left: 20,
             top: 20,
             child: Row(
               children: [
                 BouncingButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Image.asset(
-                    'assets/back-btn.png',
-                    width: 50,
-                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    debugPrint('Home button pressed in Tutorial2!');
                     Navigator.of(context).popUntil(ModalRoute.withName('/home'));
                   },
-                  child: Image.asset(
-                    'assets/home-btn.png',
-                    width: 50,
-                  ),
+                  child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],
             ),

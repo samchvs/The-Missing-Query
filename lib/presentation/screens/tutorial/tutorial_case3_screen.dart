@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'splash_screen.dart';
-import 'keyboard_accessory_bar.dart';
-import 'tutorialCase4_screen.dart';
+import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/core/constants/app_colors.dart';
+import 'package:graphics_project/core/constants/app_strings.dart';
+import 'package:graphics_project/presentation/screens/tutorial/tutorial_case4_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
+import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
 
 class TutorialCase3Screen extends StatefulWidget {
   const TutorialCase3Screen({super.key});
@@ -13,7 +18,7 @@ class TutorialCase3Screen extends StatefulWidget {
 
 class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     with TickerProviderStateMixin {
-  static const String _targetQuery = 'SELECT * FROM Hallway_Logs;';
+  static const String _targetQuery = AppStrings.targetQuery;
   final List<Map<String, String>> _tableData = const [
     {'id': '101', 'name': 'Beanie', 'time': '11:55'},
     {'id': '102', 'name': 'Professor Hall', 'time': '12:01'},
@@ -24,29 +29,23 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-
   late AnimationController _walkController;
   late Animation<double> _walkAnimation;
   late AnimationController _spriteController;
   late AnimationController _darkenController;
   late Animation<double> _darkenAnimation;
-
   late AnimationController _hintController;
   late Animation<double> _hintOpacity;
   late Animation<Offset> _hintOffset;
   late Animation<double> _hintScale;
-
   bool _isQueryClicked = false;
   bool _hintMarkedAsDone = false;
   late AnimationController _userFadeController;
   late Animation<double> _userFadeAnimation;
-
   late AnimationController _popupUserFadeController;
   late Animation<double> _popupUserFadeAnimation;
-
   late SQLSyntaxController _queryController;
   bool _isHintDismissed = false;
-
   late AnimationController _runHintController;
   late Animation<Offset> _runHintOffset;
   late Animation<double> _runHintOpacity;
@@ -55,44 +54,31 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   bool _showQueryDisplay = true;
   bool _isTableShown = false;
   bool _isTableUnlocked = false;
-  bool _isTransitioning = false;
+  final bool _isTransitioning = false;
 
   @override
   void initState() {
     super.initState();
-    // Fade controller for tutorialCase3-pop
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
 
     _walkController = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 2500, //Speed ng entry ni Beanie
-      ),
+      duration: const Duration(milliseconds: 2500),
     );
-
-    // Moves from off-screen left to target position
-    _walkAnimation = Tween<double>(
-      begin: -0.6,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
-
-    // Start walk animation immediately
+    _walkAnimation = Tween<double>(begin: -0.6, end: 0.0).animate(
+      CurvedAnimation(parent: _walkController, curve: Curves.easeOut),
+    );
     _walkController.forward();
 
-    // Controller sa pagwalk/pagpalit ng frames
     _spriteController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..repeat();
 
-    // Listener pagstop ni Beanie fade in ng tutorialCase3-pop
     _walkController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _spriteController.stop();
@@ -103,31 +89,23 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    // Mouse pointer
     _hintController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
-
     _hintOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 15),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 65),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 20),
     ]).animate(_hintController);
-
-    //Position saan maggglide yung pointer
     _hintOffset = TweenSequence<Offset>([
       TweenSequenceItem(tween: ConstantTween(const Offset(0, 40)), weight: 20),
       TweenSequenceItem(
         tween: Tween(begin: const Offset(0, 40), end: const Offset(20, -90)),
         weight: 40,
       ),
-      TweenSequenceItem(
-        tween: ConstantTween(const Offset(20, -90)),
-        weight: 40,
-      ),
+      TweenSequenceItem(tween: ConstantTween(const Offset(20, -90)), weight: 40),
     ]).animate(_hintController);
-
     _hintScale = TweenSequence<double>([
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 65),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.8), weight: 10),
@@ -141,26 +119,20 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    // Fade controller for the userDisplay
     _userFadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _userFadeAnimation = CurvedAnimation(
-      parent: _userFadeController,
-      curve: Curves.easeIn,
-    );
+    _userFadeAnimation =
+        CurvedAnimation(parent: _userFadeController, curve: Curves.easeIn);
 
     _popupUserFadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _popupUserFadeAnimation = CurvedAnimation(
-      parent: _popupUserFadeController,
-      curve: Curves.easeIn,
-    );
+    _popupUserFadeAnimation =
+        CurvedAnimation(parent: _popupUserFadeController, curve: Curves.easeIn);
 
-    // Sequence the popup user display to fade in after the main display
     _userFadeController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _popupUserFadeController.forward();
@@ -173,54 +145,36 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     );
-
-    _runHintOffset =
-        TweenSequence<Offset>([
-          TweenSequenceItem(
-            tween: Tween(begin: const Offset(0, 100), end: const Offset(0, 0)),
-            weight: 25, // Slide up
-          ),
-          TweenSequenceItem(
-            tween: ConstantTween(const Offset(0, 0)),
-            weight: 60, // STAY Still (Point)
-          ),
-          TweenSequenceItem(
-            tween: Tween(begin: const Offset(0, 0), end: const Offset(0, 0)),
-            weight: 15, // Dwell before fade
-          ),
-        ]).animate(
-          CurvedAnimation(parent: _runHintController, curve: Curves.easeInOut),
-        );
-
+    _runHintOffset = TweenSequence<Offset>([
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(0, 100), end: const Offset(0, 0)),
+        weight: 25,
+      ),
+      TweenSequenceItem(tween: ConstantTween(const Offset(0, 0)), weight: 60),
+      TweenSequenceItem(
+        tween: Tween(begin: const Offset(0, 0), end: const Offset(0, 0)),
+        weight: 15,
+      ),
+    ]).animate(CurvedAnimation(parent: _runHintController, curve: Curves.easeInOut));
     _runHintOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 10),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 80),
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 10),
     ]).animate(_runHintController);
-
     _runHintScale = TweenSequence<double>([
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 30), // Slide up
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.8),
-        weight: 15,
-      ), // Press down
-      TweenSequenceItem(
-        tween: Tween(begin: 0.8, end: 1.0),
-        weight: 15,
-      ), // Release
-      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40), // Stay still
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.8), weight: 15),
+      TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.0), weight: 15),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
     ]).animate(_runHintController);
 
     _queryController.addListener(() {
       final text = _queryController.text.trim();
       if (text.length == _targetQuery.length) {
-        // Keywords (SELECT * FROM ) - Case insensitive
         final textPart1 = text.substring(0, 14).toUpperCase();
         final targetPart1 = _targetQuery.substring(0, 14).toUpperCase();
-        // Table (Hallway_Logs;) - Case sensitive
         final textPart2 = text.substring(14);
         final targetPart2 = _targetQuery.substring(14);
-
         if (textPart1 == targetPart1 &&
             textPart2 == targetPart2 &&
             !_runHintController.isAnimating &&
@@ -234,10 +188,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _darkenAnimation = CurvedAnimation(
-      parent: _darkenController,
-      curve: Curves.easeInOut,
-    );
+    _darkenAnimation =
+        CurvedAnimation(parent: _darkenController, curve: Curves.easeInOut);
   }
 
   @override
@@ -257,14 +209,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   bool _isQueryCorrect() {
     final text = _queryController.text.trim();
     if (text.length != _targetQuery.length) return false;
-
-    // Keywords (SELECT * FROM ) - Case insensitive
     final textPart1 = text.substring(0, 14).toUpperCase();
     final targetPart1 = _targetQuery.substring(0, 14).toUpperCase();
-    // Table (Hallway_Logs;) - Case sensitive
     final textPart2 = text.substring(14);
     final targetPart2 = _targetQuery.substring(14);
-
     return textPart1 == targetPart1 && textPart2 == targetPart2;
   }
 
@@ -276,17 +224,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background image
-          Image.asset('assets/tutorialCase3_screen.png', fit: BoxFit.fill),
-
+          Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 20.0),
-              child: Image.asset('assets/tutorialCase3-title.png', width: 420),
+              child: Image.asset(AppAssets.tutorialCase3Title, width: 420),
             ),
           ),
-
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
@@ -301,15 +246,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Transform.translate(
-                          offset: const Offset(
-                            20.0,
-                            -10.0,
-                          ), // Nudge right and up
+                          offset: const Offset(20.0, -10.0),
                           child: BouncingButton(
                             onPressed: () {
-                              debugPrint(
-                                'Query button pressed in TutorialCase3!',
-                              );
                               if (!_isQueryClicked) {
                                 setState(() {
                                   _isQueryClicked = true;
@@ -320,26 +259,17 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 _userFadeController.forward();
                               }
                             },
-                            child: Image.asset(
-                              'assets/query-btn.png',
-                              width: 100,
-                            ),
+                            child: Image.asset(AppAssets.queryBtn, width: 100),
                           ),
                         ),
                         const SizedBox(height: 10),
                         AnimatedOpacity(
-                          opacity: (_isQueryClicked || _isTableUnlocked)
-                              ? 0.0
-                              : 1.0,
+                          opacity: (_isQueryClicked || _isTableUnlocked) ? 0.0 : 1.0,
                           duration: const Duration(milliseconds: 600),
-                          child: Image.asset(
-                            'assets/tutorialCase3-pop.png',
-                            width: 250,
-                          ),
+                          child: Image.asset(AppAssets.tutorialCase3Pop, width: 250),
                         ),
                       ],
                     ),
-                    // Mouse pointer hint
                     AnimatedBuilder(
                       animation: _hintController,
                       builder: (context, child) {
@@ -357,22 +287,19 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                           ),
                         );
                       },
-                      child: Image.asset('assets/mousePointer.png', width: 40),
+                      child: Image.asset(AppAssets.mousePointer, width: 40),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-
-          // sadBeanie
+          // Beanie Walking Animation
           AnimatedBuilder(
             animation: _walkAnimation,
             builder: (context, child) {
               final double screenWidth = MediaQuery.of(context).size.width;
-              // We calculate the arrival position based on screen width
               final double walkTranslation = _walkAnimation.value * screenWidth;
-
               return Transform.translate(
                 offset: Offset(walkTranslation, 0),
                 child: Align(
@@ -391,32 +318,28 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                           String currentImage;
                           double imageWidth;
                           if (_walkController.isCompleted) {
-                            currentImage = 'assets/sadBeanie.png';
+                            currentImage = AppAssets.sadBeanie;
                             imageWidth = 150;
                           } else {
                             currentImage = _spriteController.value < 0.5
-                                ? 'assets/BeanieWalking1.png'
-                                : 'assets/BeanieWalking2.png';
+                                ? AppAssets.beanieWalking1
+                                : AppAssets.beanieWalking2;
                             imageWidth = 70;
                           }
                           return Align(
                             alignment: Alignment.bottomCenter,
                             child: Transform.translate(
                               offset: Offset(
-                                -25.0, // Consistent offset to align with shadow center
+                                -25.0,
                                 _walkController.isCompleted
                                     ? 0
                                     : -15 +
                                           (Curves.easeInOut.transform(
-                                                (_spriteController.value * 2) %
-                                                    1.0,
+                                                (_spriteController.value * 2) % 1.0,
                                               ) *
                                               10),
                               ),
-                              child: Image.asset(
-                                currentImage,
-                                width: imageWidth,
-                              ),
+                              child: Image.asset(currentImage, width: imageWidth),
                             ),
                           );
                         },
@@ -427,17 +350,15 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               );
             },
           ),
-
-          // Dark overlay for focus
+          // Dark overlay
           IgnorePointer(
             ignoring: !_isQueryClicked,
             child: FadeTransition(
               opacity: _userFadeAnimation,
-              child: Container(color: Colors.black.withOpacity(0.7)),
+              child: Container(color: Colors.black.withValues(alpha: 0.7)),
             ),
           ),
-
-          // tutorialQuery-display.png that appears after click
+          // Query display
           IgnorePointer(
             ignoring: !_isQueryClicked,
             child: Align(
@@ -455,11 +376,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         alignment: Alignment.topRight,
                         clipBehavior: Clip.none,
                         children: [
-                          Image.asset(
-                            'assets/tutorialQuery-display.png',
-                            width: 450,
-                          ),
-                          // Query Input Field - completely hidden until hint is dismissed
+                          Image.asset(AppAssets.tutorialQueryDisplay, width: 450),
                           Visibility(
                             visible: _isHintDismissed,
                             child: Positioned(
@@ -474,19 +391,11 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                     builder: (context, value, _) {
                                       final String userInput = value.text;
                                       String ghostText = '';
-
-                                      if (userInput.length <
-                                          _targetQuery.length) {
-                                        // Create a string of spaces for matched length,
-                                        // followed by the remaining hint portion.
+                                      if (userInput.length < _targetQuery.length) {
                                         final spaces = ' ' * userInput.length;
-                                        ghostText =
-                                            spaces +
-                                            _targetQuery.substring(
-                                              userInput.length,
-                                            );
+                                        ghostText = spaces +
+                                            _targetQuery.substring(userInput.length);
                                       }
-
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
@@ -496,9 +405,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                           ghostText,
                                           style: GoogleFonts.inconsolata(
                                             fontSize: 18,
-                                            color: const Color(
-                                              0xFF542E2E,
-                                            ).withOpacity(0.3),
+                                            color: AppColors.primary.withValues(alpha: 0.3),
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -510,7 +417,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                     maxLines: null,
                                     style: GoogleFonts.inconsolata(
                                       fontSize: 18,
-                                      color: const Color(0xFF542E2E),
+                                      color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     decoration: const InputDecoration(
@@ -543,38 +450,25 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   }
                                 });
                               },
-                              child: Image.asset(
-                                'assets/close-btn.png',
-                                width: 20,
-                              ),
+                              child: Image.asset(AppAssets.closeBtn, width: 20),
                             ),
                           ),
-                          // Tables button
                           Positioned(
                             bottom: 5,
                             left: 15,
                             child: BouncingButton(
                               onPressed: () {
-                                debugPrint('Tables button pressed');
                                 if (_isQueryCorrect()) {
                                   setState(() {
                                     _showQueryDisplay = false;
                                     _isTableShown = true;
                                     _isTableUnlocked = true;
                                   });
-                                } else {
-                                  debugPrint(
-                                    'Query incorrect: Tables button blocked',
-                                  );
                                 }
                               },
-                              child: Image.asset(
-                                'assets/tables-btn.png',
-                                width: 80,
-                              ),
+                              child: Image.asset(AppAssets.tablesBtn, width: 80),
                             ),
                           ),
-                          // Clear and Run Query buttons
                           Positioned(
                             bottom: 5,
                             right: 10,
@@ -582,19 +476,12 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 BouncingButton(
-                                  onPressed: () {
-                                    debugPrint('Clear button pressed');
-                                    _queryController.clear();
-                                  },
-                                  child: Image.asset(
-                                    'assets/clear-btn.png',
-                                    width: 75,
-                                  ),
+                                  onPressed: () => _queryController.clear(),
+                                  child: Image.asset(AppAssets.clearBtn, width: 75),
                                 ),
                                 const SizedBox(width: 8),
                                 BouncingButton(
                                   onPressed: () {
-                                    debugPrint('Run button pressed');
                                     if (_isQueryCorrect()) {
                                       setState(() {
                                         _isRunHintFinished = true;
@@ -603,21 +490,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                         _isTableUnlocked = true;
                                       });
                                     } else {
-                                      debugPrint(
-                                        'Query incorrect: Run button blocked',
-                                      );
                                       _runHintController.stop();
                                     }
                                   },
-                                  child: Image.asset(
-                                    'assets/run-btn.png',
-                                    width: 100,
-                                  ),
+                                  child: Image.asset(AppAssets.runBtn, width: 100),
                                 ),
                               ],
                             ),
                           ),
-                          // Sequenced userDisplay - bottom middle-right area
                           Positioned(
                             top: 60,
                             right: -30,
@@ -626,33 +506,22 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  Image.asset(
-                                    'assets/tutorialSelectHint-box.png',
-                                    width: 300,
-                                  ),
-                                  // Okay Button
+                                  Image.asset(AppAssets.tutorialSelectHintBox, width: 300),
                                   Positioned(
                                     bottom: 20,
                                     right: 35,
                                     child: BouncingButton(
                                       onPressed: () {
-                                        _popupUserFadeController.reverse().then(
-                                          (_) {
-                                            if (mounted) {
-                                              setState(() {
-                                                _isHintDismissed = true;
-                                              });
-                                            }
-                                          },
-                                        );
+                                        _popupUserFadeController.reverse().then((_) {
+                                          if (mounted) {
+                                            setState(() => _isHintDismissed = true);
+                                          }
+                                        });
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(12),
                                         color: Colors.transparent,
-                                        child: Image.asset(
-                                          'assets/okay-btn.png',
-                                          width: 75,
-                                        ),
+                                        child: Image.asset(AppAssets.okayBtn, width: 75),
                                       ),
                                     ),
                                   ),
@@ -660,7 +529,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               ),
                             ),
                           ),
-                          // Second mouse pointer hint (Run Query)
                           Positioned(
                             bottom: -2,
                             right: 80,
@@ -680,10 +548,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   ),
                                 );
                               },
-                              child: Image.asset(
-                                'assets/mousePointer.png',
-                                width: 40,
-                              ),
+                              child: Image.asset(AppAssets.mousePointer, width: 40),
                             ),
                           ),
                         ],
@@ -694,8 +559,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               ),
             ),
           ),
-
-          // tutorialTable.png centered on screen
+          // Result Table
           IgnorePointer(
             ignoring: !_isTableShown,
             child: AnimatedOpacity(
@@ -705,8 +569,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Image.asset('assets/tutorialTable.png', width: 500),
-                    // Table Data Overlay
+                    Image.asset(AppAssets.tutorialTable, width: 500),
                     Positioned(
                       top: 105,
                       left: 23,
@@ -716,14 +579,13 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                           final index = entry.key;
                           final data = entry.value;
                           final bool isLast = index == _tableData.length - 1;
-
                           return Container(
                             decoration: BoxDecoration(
                               border: isLast
                                   ? null
                                   : const Border(
                                       bottom: BorderSide(
-                                        color: Color(0xFFECECBE),
+                                        color: AppColors.tableRowBorder,
                                         width: 1.5,
                                       ),
                                     ),
@@ -739,7 +601,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                     style: GoogleFonts.inconsolata(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF542E2E),
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ),
@@ -753,7 +615,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                       style: GoogleFonts.inconsolata(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF542E2E),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -768,7 +630,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                       style: GoogleFonts.inconsolata(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF542E2E),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -784,18 +646,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       right: 20,
                       child: BouncingButton(
                         onPressed: () {
-                          debugPrint('Close button clicked');
                           setState(() {
                             _isTableShown = false;
                             _isQueryClicked = false;
-                            _showQueryDisplay =
-                                true; // reset for next time if needed
+                            _showQueryDisplay = true;
                           });
                           _userFadeController.reverse();
-
-                          // Transition to Case 4 removed as per user request
                         },
-                        child: Image.asset('assets/close-btn.png', width: 25),
+                        child: Image.asset(AppAssets.closeBtn, width: 25),
                       ),
                     ),
                   ],
@@ -803,7 +661,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               ),
             ),
           ),
-
           // Navigation
           Positioned(
             left: 20,
@@ -812,26 +669,20 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               children: [
                 BouncingButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Image.asset('assets/back-btn.png', width: 50),
+                  child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    debugPrint('Home button pressed in TutorialCase3!');
-                    Navigator.of(
-                      context,
-                    ).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
                   },
-                  child: Image.asset('assets/home-btn.png', width: 50),
+                  child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],
             ),
           ),
-
-          // Keyboard Accessory Bar
           KeyboardAccessoryBar(controller: _queryController),
-
-          // Darken transition overlay
+          // Darken transition
           IgnorePointer(
             ignoring: !_isTransitioning,
             child: FadeTransition(
@@ -839,8 +690,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               child: Container(color: Colors.black),
             ),
           ),
-
-          // Next button (Bottom Right) - appears once successfully unlocked
+          // Next button
           if (_isTableUnlocked)
             Positioned(
               bottom: 30,
@@ -855,134 +705,17 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           const TutorialCase4Screen(),
                       transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            return child;
-                          },
+                          (context, animation, secondaryAnimation, child) => child,
                     ),
                   );
                 },
                 child: ShakeWidget(
-                  child: Image.asset('assets/next-btn.png', width: 100),
+                  child: Image.asset(AppAssets.nextBtn, width: 100),
                 ),
               ),
             ),
         ],
       ),
     );
-  }
-}
-
-class ShakeWidget extends StatefulWidget {
-  final Widget child;
-  final Duration delay;
-  final Duration duration;
-
-  const ShakeWidget({
-    super.key,
-    required this.child,
-    this.delay = const Duration(seconds: 3),
-    this.duration = const Duration(milliseconds: 500),
-  });
-
-  @override
-  State<ShakeWidget> createState() => _ShakeWidgetState();
-}
-
-class _ShakeWidgetState extends State<ShakeWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
-    _animation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 2.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 2.0, end: -2.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -2.0, end: 2.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 2.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) {
-            _controller.forward(from: 0.0);
-          }
-        });
-      }
-    });
-
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(_animation.value, 0),
-          child: child,
-        );
-      },
-      child: widget.child,
-    );
-  }
-}
-
-class SQLSyntaxController extends TextEditingController {
-  @override
-  TextSpan buildTextSpan({
-    required BuildContext context,
-    TextStyle? style,
-    required bool withComposing,
-  }) {
-    final List<TextSpan> spans = [];
-
-    // Regex to match SELECT, *, FROM (case-insensitive for keywords)
-    final regex = RegExp(r'(\bSELECT\b)|(\*)|(\bFROM\b)', caseSensitive: false);
-
-    text.splitMapJoin(
-      regex,
-      onMatch: (Match match) {
-        String matchText = match[0]!;
-        Color color = style?.color ?? Colors.black;
-
-        final upperMatch = matchText.toUpperCase();
-        if (upperMatch == 'SELECT') {
-          color = const Color(0xFF3700FF);
-        } else if (matchText == '*') {
-          color = const Color(0xFFFF0000);
-        } else if (upperMatch == 'FROM') {
-          color = const Color(0xFF7700FF);
-        }
-
-        spans.add(
-          TextSpan(
-            text: matchText,
-            style: (style ?? const TextStyle()).copyWith(color: color),
-          ),
-        );
-        return '';
-      },
-      onNonMatch: (String nonMatch) {
-        spans.add(TextSpan(text: nonMatch, style: style));
-        return '';
-      },
-    );
-
-    return TextSpan(style: style, children: spans);
   }
 }

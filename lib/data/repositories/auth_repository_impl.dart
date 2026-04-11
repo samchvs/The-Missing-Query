@@ -1,0 +1,47 @@
+import 'package:graphics_project/data/datasources/supabase_auth_datasource.dart';
+import 'package:graphics_project/domain/entities/app_user.dart';
+import 'package:graphics_project/domain/repositories/auth_repository.dart';
+
+class AuthRepositoryImpl implements AuthRepository {
+  final SupabaseAuthDataSource _dataSource;
+
+  AuthRepositoryImpl(this._dataSource);
+
+  @override
+  Future<AppUser> signUp({
+    required String email,
+    required String password,
+    required String username,
+  }) {
+    return _dataSource.signUp(
+      email: email,
+      password: password,
+      username: username,
+    );
+  }
+
+  @override
+  Future<AppUser> signIn({
+    required String email,
+    required String password,
+  }) {
+    return _dataSource.signIn(email: email, password: password);
+  }
+
+  @override
+  Future<void> signOut() => _dataSource.signOut();
+
+  @override
+  AppUser? getCurrentUser() => _dataSource.getCurrentUser();
+
+  Future<void> updateUsername({
+    required String userId,
+    required String username,
+  }) => _dataSource.updateUsername(userId: userId, username: username);
+
+  /// Saves [score] to Supabase only if it beats the player's stored high score.
+  Future<void> submitHighScore({
+    required String userId,
+    required int score,
+  }) => _dataSource.submitHighScore(userId: userId, score: score);
+}
