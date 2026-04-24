@@ -76,7 +76,7 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),

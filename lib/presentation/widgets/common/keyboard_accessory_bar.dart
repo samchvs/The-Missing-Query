@@ -18,13 +18,16 @@ class KeyboardAccessoryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    if (keyboardHeight <= 0) return const SizedBox.shrink();
+
     return ListenableBuilder(
       listenable: focusNode ?? FocusNode(),
       builder: (context, child) {
+        // If focusNode is provided, we respect its focus state.
+        // Otherwise, we show it as long as the keyboard is up.
         final bool hasFocus = focusNode?.hasFocus ?? true;
-        final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-        if (keyboardHeight <= 0 || !hasFocus) return const SizedBox.shrink();
+        if (!hasFocus) return const SizedBox.shrink();
 
         return Positioned(
           left: 0,
@@ -49,21 +52,34 @@ class KeyboardAccessoryBar extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: ValueListenableBuilder<TextEditingValue>(
-                      valueListenable: controller,
-                      builder: (context, value, child) {
-                        return Text(
-                          value.text,
-                          style: textStyle ??
-                              GoogleFonts.inconsolata(
-                                fontSize: 18,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        );
-                      },
+                    child: TextField(
+                      controller: controller,
+                      maxLines: 1,
+                      cursorColor: AppColors.primaryLight,
+                      showCursor: true,
+                      autofocus: false,
+                      style: textStyle ??
+                          GoogleFonts.inconsolata(
+                            fontSize: 18,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => FocusScope.of(context).unfocus(),
+                    child: Text(
+                      "DONE",
+                      style: GoogleFonts.londrinaSolid(
+                        color: AppColors.primaryLight,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

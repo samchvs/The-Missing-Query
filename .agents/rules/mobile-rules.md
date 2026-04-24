@@ -2,6 +2,7 @@
 trigger: always_on
 ---
 
+```md
 # Agent Rules — Graphics Project
 
 This file defines mandatory architectural rules for all AI-assisted code generation in this Flutter project.
@@ -14,12 +15,14 @@ All code written by the agent MUST comply with the Clean Architecture principles
 ### Layer Structure
 
 ```
+
 lib/
 ├── core/           → constants, theme, utils, errors (no business logic)
 ├── domain/         → entities, use cases, repository interfaces (pure Dart)
 ├── data/           → models, data sources, repository implementations
 └── presentation/   → screens, widgets, controllers (Flutter UI only)
-```
+
+````
 
 ### Strict Dependency Rule
 
@@ -81,29 +84,81 @@ lib/
 
     bool call(String query) => repository.validateQuery(query);
   }
-  ```
+````
 
 ### Widget Rules
-- Prefer `StatelessWidget` — only use `StatefulWidget` for local animation state
-- Extract any inline widget subtree longer than ~40 lines into its own file under `presentation/widgets/`
-- Reusable widgets (used in 2+ screens) **must** go in `presentation/widgets/common/`
+
+* Prefer `StatelessWidget` — only use `StatefulWidget` for local animation state
+* Extract any inline widget subtree longer than ~40 lines into its own file under `presentation/widgets/`
+* Reusable widgets (used in 2+ screens) **must** go in `presentation/widgets/common/`
 
 ### Screen Rules
-- Screens are thin — they only build UI and delegate all logic to a controller
-- Screens must not contain raw business logic, SQL validation, or data fetching
+
+* Screens are thin — they only build UI and delegate all logic to a controller
+* Screens must not contain raw business logic, SQL validation, or data fetching
 
 ### Constants Rules
-- No hardcoded strings in screen files — use `AppStrings` from `core/constants/app_strings.dart`
-- No hardcoded colors — use `AppColors` from `core/constants/app_colors.dart`
-- No hardcoded route strings — use `AppRoutes` from `core/constants/app_routes.dart`
+
+* No hardcoded strings in screen files — use `AppStrings` from `core/constants/app_strings.dart`
+* No hardcoded colors — use `AppColors` from `core/constants/app_colors.dart`
+* No hardcoded route strings — use `AppRoutes` from `core/constants/app_routes.dart`
+
+---
+
+## 📱 Responsive UI Rules
+
+### Layout Adaptation
+
+* Avoid hardcoded widths and heights (e.g. `width: 300`, `height: 500`)
+* Use responsive layout widgets such as:
+
+  * `MediaQuery`
+  * `LayoutBuilder`
+  * `Expanded` and `Flexible`
+  * `FractionallySizedBox`
+
+### Screen Compatibility
+
+* UI must adapt properly to:
+
+  * small phones
+  * large phones
+  * tablets
+
+### Text & Spacing
+
+* Avoid fixed font sizes where possible; prefer scalable text
+* Use spacing constants from `core/constants/` instead of hardcoded values
+
+### Overflow Handling
+
+* All screens must prevent overflow errors
+* Use:
+
+  * `SingleChildScrollView`
+  * `ListView`
+  * `Expanded`
+    where appropriate
+
+### Orientation Safety
+
+* UI must remain functional in both portrait and landscape orientations
+
+### Testing Requirement
+
+* Each screen must be tested on at least:
+
+  * one small screen device
+  * one large screen or tablet layout
 
 ---
 
 ## 📦 Asset Usage Rules
 
-- All assets must be declared in `pubspec.yaml` under `flutter: assets:`
-- Asset paths should be referenced via a constants file (e.g. `AppAssets`) to avoid typos
-- Example:
+* All assets must be declared in `pubspec.yaml` under `flutter: assets:`
+* Asset paths should be referenced via a constants file (e.g. `AppAssets`) to avoid typos
+* Example:
+
   ```dart
   // core/constants/app_assets.dart
   class AppAssets {
@@ -116,20 +171,23 @@ lib/
 
 ## 🧪 Testing Rules
 
-- **Unit tests** — cover all use cases and validators in `test/domain/`
-- **Widget tests** — cover individual screens and reusable widgets in `test/presentation/`
-- Tests must mirror the `lib/` folder structure inside `test/`
-- No test should depend on a real data source — always mock
+* **Unit tests** — cover all use cases and validators in `test/domain/`
+* **Widget tests** — cover individual screens and reusable widgets in `test/presentation/`
+* Tests must mirror the `lib/` folder structure inside `test/`
+* No test should depend on a real data source — always mock
 
 ---
 
 ## 🚫 Anti-Patterns to Avoid
 
-| Anti-Pattern | Why It's Prohibited |
-|---|---|
-| 500+ line screen files | Violates single responsibility |
-| SQL logic inside a screen | Business logic belongs in `domain/usecases/` |
-| Hardcoded strings in widgets | Makes localization and maintenance impossible |
-| Calling APIs from a widget | Violates layer separation |
-| Mixing animation state with business state | Keeps concerns tangled |
-| Creating widgets inside `build()` as local functions | Makes reuse and testing impossible |
+| Anti-Pattern                                         | Why It's Prohibited                           |
+| ---------------------------------------------------- | --------------------------------------------- |
+| 500+ line screen files                               | Violates single responsibility                |
+| SQL logic inside a screen                            | Business logic belongs in `domain/usecases/`  |
+| Hardcoded strings in widgets                         | Makes localization and maintenance impossible |
+| Calling APIs from a widget                           | Violates layer separation                     |
+| Mixing animation state with business state           | Keeps concerns tangled                        |
+| Creating widgets inside `build()` as local functions | Makes reuse and testing impossible            |
+
+```
+```

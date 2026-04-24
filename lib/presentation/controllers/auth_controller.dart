@@ -29,11 +29,13 @@ class AuthController extends ChangeNotifier {
 
   bool _isLoading = false;
   String? _errorMessage;
+  String? _debugErrorMessage;
   AppUser? _currentUser;
   String? _localUsername;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  String? get debugErrorMessage => _debugErrorMessage;
   AppUser? get currentUser => _currentUser;
   String? get localUsername => _localUsername;
 
@@ -103,7 +105,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(_parseError(e));
+      _setError(e);
       return false;
     } finally {
       _setLoading(false);
@@ -124,7 +126,7 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(_parseError(e));
+      _setError(e);
       return false;
     } finally {
       _setLoading(false);
@@ -141,7 +143,7 @@ class AuthController extends ChangeNotifier {
       // Do NOT clear _localUsername — guest mode keeps working
       notifyListeners();
     } catch (e) {
-      _setError(_parseError(e));
+      _setError(e);
     } finally {
       _setLoading(false);
     }
@@ -197,28 +199,21 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setError(String message) {
-    _errorMessage = message;
+  void _setError(Object e) {
+    _errorMessage = _parseError(e);
+    _debugErrorMessage = e.toString();
     notifyListeners();
   }
 
   void _clearError() {
     _errorMessage = null;
+    _debugErrorMessage = null;
     // Always notify so the UI rebuilds and the spinner stops
     notifyListeners();
   }
 
   /// Converts a thrown exception into a displayable error string.
-  /// Uses raw technical messages when [SupabaseConfig.developer] is true.
   String _parseError(Object e) {
-    // Developer mode: show the raw exception for easy debugging
-    if (SupabaseConfig.developer) {
-      if (e is AuthException) {
-        return '[DEV] AuthException(${e.statusCode}): ${e.message}';
-      }
-      return '[DEV] ${e.runtimeType}: $e';
-    }
-
     // User-friendly mode
     if (e is AuthException) {
       final code = e.statusCode;

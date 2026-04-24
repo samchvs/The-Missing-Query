@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graphics_project/core/config/supabase_config.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/developer_error_box.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,14 +46,26 @@ class MyApp extends StatelessWidget {
           )
         : SplashScreen(authController: authController);
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
-        canvasColor: Colors.black,
-        textTheme: GoogleFonts.luckiestGuyTextTheme(),
+    return ChangeNotifierProvider<AuthController>.value(
+      value: authController,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.black,
+          canvasColor: Colors.black,
+          textTheme: GoogleFonts.luckiestGuyTextTheme(),
+        ),
+        home: home,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              if (child != null) child,
+              // This makes the error box available globally
+              DeveloperErrorBox(),
+            ],
+          );
+        },
       ),
-      home: home,
     );
   }
 }

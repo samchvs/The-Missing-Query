@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial3_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
+import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 
 class Tutorial2Screen extends StatefulWidget {
   const Tutorial2Screen({super.key});
@@ -38,6 +39,17 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
               gaplessPlayback: true,
             ),
           ),
+          
+          // Hellobeanie Animation
+          Positioned(
+            right: 260,
+            bottom: 20,
+            child: AppAnimations.helloBeanie(
+              width: 230,
+              frameDuration: const Duration(milliseconds: 250),
+            ),
+          ),
+
           Positioned(
             left: 20,
             top: 20,
@@ -50,7 +62,7 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),

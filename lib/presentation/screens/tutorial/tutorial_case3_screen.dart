@@ -4,6 +4,7 @@ import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/core/constants/app_strings.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case4_screen.dart';
+import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
@@ -54,6 +55,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   bool _showQueryDisplay = true;
   bool _isTableShown = false;
   bool _isTableUnlocked = false;
+  bool _isExiting = false;
+  late AnimationController _exitController;
+  late Animation<double> _exitAnimation;
   final bool _isTransitioning = false;
 
   @override
@@ -63,15 +67,19 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    );
 
     _walkController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     );
-    _walkAnimation = Tween<double>(begin: -0.6, end: 0.0).animate(
-      CurvedAnimation(parent: _walkController, curve: Curves.easeOut),
-    );
+    _walkAnimation = Tween<double>(
+      begin: -0.6,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
     _walkController.forward();
 
     _spriteController = AnimationController(
@@ -104,7 +112,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
         tween: Tween(begin: const Offset(0, 40), end: const Offset(20, -90)),
         weight: 40,
       ),
-      TweenSequenceItem(tween: ConstantTween(const Offset(20, -90)), weight: 40),
+      TweenSequenceItem(
+        tween: ConstantTween(const Offset(20, -90)),
+        weight: 40,
+      ),
     ]).animate(_hintController);
     _hintScale = TweenSequence<double>([
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 65),
@@ -123,15 +134,19 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _userFadeAnimation =
-        CurvedAnimation(parent: _userFadeController, curve: Curves.easeIn);
+    _userFadeAnimation = CurvedAnimation(
+      parent: _userFadeController,
+      curve: Curves.easeIn,
+    );
 
     _popupUserFadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _popupUserFadeAnimation =
-        CurvedAnimation(parent: _popupUserFadeController, curve: Curves.easeIn);
+    _popupUserFadeAnimation = CurvedAnimation(
+      parent: _popupUserFadeController,
+      curve: Curves.easeIn,
+    );
 
     _userFadeController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -139,23 +154,31 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    _queryController = SQLSyntaxController();
+    _queryController = SQLSyntaxController(
+      text: "SELECT * FROM Hallway_Logs;", // FIXME: Debug pre-fill. Comment out this line to revert.
+    );
 
     _runHintController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     );
-    _runHintOffset = TweenSequence<Offset>([
-      TweenSequenceItem(
-        tween: Tween(begin: const Offset(0, 100), end: const Offset(0, 0)),
-        weight: 25,
-      ),
-      TweenSequenceItem(tween: ConstantTween(const Offset(0, 0)), weight: 60),
-      TweenSequenceItem(
-        tween: Tween(begin: const Offset(0, 0), end: const Offset(0, 0)),
-        weight: 15,
-      ),
-    ]).animate(CurvedAnimation(parent: _runHintController, curve: Curves.easeInOut));
+    _runHintOffset =
+        TweenSequence<Offset>([
+          TweenSequenceItem(
+            tween: Tween(begin: const Offset(0, 100), end: const Offset(0, 0)),
+            weight: 25,
+          ),
+          TweenSequenceItem(
+            tween: ConstantTween(const Offset(0, 0)),
+            weight: 60,
+          ),
+          TweenSequenceItem(
+            tween: Tween(begin: const Offset(0, 0), end: const Offset(0, 0)),
+            weight: 15,
+          ),
+        ]).animate(
+          CurvedAnimation(parent: _runHintController, curve: Curves.easeInOut),
+        );
     _runHintOpacity = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 10),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 80),
@@ -167,6 +190,33 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.0), weight: 15),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
     ]).animate(_runHintController);
+
+    _exitController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _exitAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeIn));
+
+    _exitController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const TutorialCase4Screen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) => child,
+            ),
+          );
+        }
+      }
+    });
 
     _queryController.addListener(() {
       final text = _queryController.text.trim();
@@ -188,8 +238,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _darkenAnimation =
-        CurvedAnimation(parent: _darkenController, curve: Curves.easeInOut);
+    _darkenAnimation = CurvedAnimation(
+      parent: _darkenController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -202,6 +254,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     _popupUserFadeController.dispose();
     _queryController.dispose();
     _runHintController.dispose();
+    _exitController.dispose();
     _darkenController.dispose();
     super.dispose();
   }
@@ -264,9 +317,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         ),
                         const SizedBox(height: 10),
                         AnimatedOpacity(
-                          opacity: (_isQueryClicked || _isTableUnlocked) ? 0.0 : 1.0,
+                          opacity: (_isQueryClicked || _isTableUnlocked)
+                              ? 0.0
+                              : 1.0,
                           duration: const Duration(milliseconds: 600),
-                          child: Image.asset(AppAssets.tutorialCase3Pop, width: 250),
+                          child: Image.asset(
+                            AppAssets.tutorialCase3Pop,
+                            width: 250,
+                          ),
                         ),
                       ],
                     ),
@@ -296,12 +354,13 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
           ),
           // Beanie Walking Animation
           AnimatedBuilder(
-            animation: _walkAnimation,
+            animation: Listenable.merge([_walkAnimation, _exitAnimation]),
             builder: (context, child) {
               final double screenWidth = MediaQuery.of(context).size.width;
-              final double walkTranslation = _walkAnimation.value * screenWidth;
+              final double totalTranslation =
+                  (_walkAnimation.value + _exitAnimation.value) * screenWidth;
               return Transform.translate(
-                offset: Offset(walkTranslation, 0),
+                offset: Offset(totalTranslation, 0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
@@ -310,38 +369,44 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       top: 90.0,
                     ),
                     child: SizedBox(
-                      width: 150,
-                      height: 150,
+                      width: 200,
+                      height: 200,
                       child: AnimatedBuilder(
                         animation: _spriteController,
                         builder: (context, child) {
-                          String currentImage;
-                          double imageWidth;
-                          if (_walkController.isCompleted) {
-                            currentImage = AppAssets.sadBeanie;
-                            imageWidth = 150;
+                          if (_walkController.isCompleted && !_isExiting) {
+                            return Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Transform.translate(
+                                offset: const Offset(-52.0, 5),
+                                child: ClipRect(
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: AppAnimations.worriedBeanie(width: 300),
+                                  ),
+                                ),
+                              ),
+                            );
                           } else {
-                            currentImage = _spriteController.value < 0.5
+                            final String currentImage =
+                                _spriteController.value < 0.5
                                 ? AppAssets.beanieWalking1
                                 : AppAssets.beanieWalking2;
-                            imageWidth = 70;
-                          }
-                          return Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Transform.translate(
-                              offset: Offset(
-                                -25.0,
-                                _walkController.isCompleted
-                                    ? 0
-                                    : -15 +
-                                          (Curves.easeInOut.transform(
-                                                (_spriteController.value * 2) % 1.0,
-                                              ) *
-                                              10),
+                            return Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Transform.translate(
+                                offset: Offset(
+                                  -45.0,
+                                  -45 +
+                                      (Curves.easeInOut.transform(
+                                            (_spriteController.value * 2) % 1.0,
+                                          ) *
+                                          10),
+                                ),
+                                child: Image.asset(currentImage, width: 70),
                               ),
-                              child: Image.asset(currentImage, width: imageWidth),
-                            ),
-                          );
+                            );
+                          }
                         },
                       ),
                     ),
@@ -350,6 +415,31 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               );
             },
           ),
+          // Next button (placed behind interactive overlays)
+          if (_isTableUnlocked && !_isTableShown)
+            Positioned(
+              bottom: 30,
+              right: 30,
+              child: BouncingButton(
+                onPressed: () {
+                  if (!_isExiting) {
+                    setState(() {
+                      _isExiting = true;
+                      _isTableShown = false; // Hide table if open
+                    });
+                    _spriteController.repeat();
+                    _exitController.forward();
+                  }
+                },
+                child: AnimatedOpacity(
+                  opacity: _isExiting ? 0.0 : 1.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: ShakeWidget(
+                    child: Image.asset(AppAssets.nextBtn, width: 100),
+                  ),
+                ),
+              ),
+            ),
           // Dark overlay
           IgnorePointer(
             ignoring: !_isQueryClicked,
@@ -376,7 +466,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         alignment: Alignment.topRight,
                         clipBehavior: Clip.none,
                         children: [
-                          Image.asset(AppAssets.tutorialQueryDisplay, width: 450),
+                          Image.asset(
+                            AppAssets.tutorialQueryDisplay,
+                            width: 450,
+                          ),
                           Visibility(
                             visible: _isHintDismissed,
                             child: Positioned(
@@ -391,10 +484,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                     builder: (context, value, _) {
                                       final String userInput = value.text;
                                       String ghostText = '';
-                                      if (userInput.length < _targetQuery.length) {
+                                      if (userInput.length <
+                                          _targetQuery.length) {
                                         final spaces = ' ' * userInput.length;
-                                        ghostText = spaces +
-                                            _targetQuery.substring(userInput.length);
+                                        ghostText =
+                                            spaces +
+                                            _targetQuery.substring(
+                                              userInput.length,
+                                            );
                                       }
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -405,7 +502,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                           ghostText,
                                           style: GoogleFonts.inconsolata(
                                             fontSize: 18,
-                                            color: AppColors.primary.withValues(alpha: 0.3),
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.3,
+                                            ),
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -458,15 +557,27 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                             left: 15,
                             child: BouncingButton(
                               onPressed: () {
-                                if (_isQueryCorrect()) {
+                                if (_isTableUnlocked) {
                                   setState(() {
                                     _showQueryDisplay = false;
                                     _isTableShown = true;
-                                    _isTableUnlocked = true;
                                   });
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Table is locked. Run your query successfully first!",
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
                                 }
                               },
-                              child: Image.asset(AppAssets.tablesBtn, width: 80),
+                              child: Image.asset(
+                                AppAssets.tablesBtn,
+                                width: 80,
+                              ),
                             ),
                           ),
                           Positioned(
@@ -477,7 +588,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               children: [
                                 BouncingButton(
                                   onPressed: () => _queryController.clear(),
-                                  child: Image.asset(AppAssets.clearBtn, width: 75),
+                                  child: Image.asset(
+                                    AppAssets.clearBtn,
+                                    width: 75,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 BouncingButton(
@@ -493,7 +607,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                       _runHintController.stop();
                                     }
                                   },
-                                  child: Image.asset(AppAssets.runBtn, width: 100),
+                                  child: Image.asset(
+                                    AppAssets.runBtn,
+                                    width: 100,
+                                  ),
                                 ),
                               ],
                             ),
@@ -506,22 +623,32 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
-                                  Image.asset(AppAssets.tutorialSelectHintBox, width: 300),
+                                  Image.asset(
+                                    AppAssets.tutorialSelectHintBox,
+                                    width: 300,
+                                  ),
                                   Positioned(
                                     bottom: 20,
                                     right: 35,
                                     child: BouncingButton(
                                       onPressed: () {
-                                        _popupUserFadeController.reverse().then((_) {
-                                          if (mounted) {
-                                            setState(() => _isHintDismissed = true);
-                                          }
-                                        });
+                                        _popupUserFadeController.reverse().then(
+                                          (_) {
+                                            if (mounted) {
+                                              setState(
+                                                () => _isHintDismissed = true,
+                                              );
+                                            }
+                                          },
+                                        );
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(12),
                                         color: Colors.transparent,
-                                        child: Image.asset(AppAssets.okayBtn, width: 75),
+                                        child: Image.asset(
+                                          AppAssets.okayBtn,
+                                          width: 75,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -548,7 +675,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   ),
                                 );
                               },
-                              child: Image.asset(AppAssets.mousePointer, width: 40),
+                              child: Image.asset(
+                                AppAssets.mousePointer,
+                                width: 40,
+                              ),
                             ),
                           ),
                         ],
@@ -674,7 +804,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil(ModalRoute.withName('/home'));
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
@@ -690,30 +820,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               child: Container(color: Colors.black),
             ),
           ),
-          // Next button
-          if (_isTableUnlocked)
-            Positioned(
-              bottom: 30,
-              right: 30,
-              child: BouncingButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const TutorialCase4Screen(),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) => child,
-                    ),
-                  );
-                },
-                child: ShakeWidget(
-                  child: Image.asset(AppAssets.nextBtn, width: 100),
-                ),
-              ),
-            ),
         ],
       ),
     );
