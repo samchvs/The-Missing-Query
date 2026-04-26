@@ -136,18 +136,22 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               Image.asset(AppAssets.tutorialCase4Screen, fit: BoxFit.fill),
               // Carrotino — completely independent, never affected by Beanie
               Positioned(
-                left: screenWidth * 0.45 + 50.0,
-                top: 178.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                left: screenWidth * 0.45 + 10.0,
+                top: 150.0 + (_isCarrotinoSad ? -5.0 : -3.0),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 400),
                   transitionBuilder: (Widget child, Animation<double> animation) {
                     return FadeTransition(opacity: animation, child: child);
                   },
-                  child: Image.asset(
-                    _isCarrotinoSad ? AppAssets.sadCarrotino : AppAssets.carrotino,
-                    key: ValueKey<bool>(_isCarrotinoSad),
-                    width: 80,
-                  ),
+                  child: _isCarrotinoSad
+                      ? AppAnimations.talkingCarrotino(
+                          key: const ValueKey<bool>(true),
+                          width: 180,
+                        )
+                      : AppAnimations.wavingCarrotino(
+                          key: const ValueKey<bool>(false),
+                          width: 180,
+                        ),
                 ),
               ),
               if (_showBubble2)
@@ -184,7 +188,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                                 child: Stack(
                                   clipBehavior: Clip.none,
                                   children: [
-                                    AppAnimations.worriedBeanie(width: 200),
+                                    AppAnimations.talkingBeanie(width: 200),
                                     if (_showBubble)
                                       Positioned(
                                         top: -30,
@@ -224,10 +228,10 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               if (_showBubble3 && !_isExiting)
                 Positioned(
                   bottom: 30,
-                  left: 30,
+                  left: 45,
                   child: Image.asset(
                     AppAssets.tutorialHintBubble,
-                    width: 280,
+                    width: 240,
                   ),
                 ),
               if (_showBubble3)

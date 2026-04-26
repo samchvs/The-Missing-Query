@@ -9,6 +9,7 @@ import 'package:graphics_project/presentation/widgets/common/sql_syntax_controll
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case7_screen.dart';
 import 'dart:async';
+import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 
 class TutorialCase8Screen extends StatefulWidget {
   const TutorialCase8Screen({super.key});
@@ -250,11 +251,16 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                             PageRouteBuilder(
                               transitionDuration: Duration.zero,
                               reverseTransitionDuration: Duration.zero,
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const TutorialCase7Screen(),
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const TutorialCase7Screen(),
                               transitionsBuilder:
-                                  (context, animation, secondaryAnimation, child) =>
-                                      child,
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) => child,
                             ),
                           );
                         },
@@ -330,6 +336,13 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         children: [
                           // Dark Overlay
                           Container(color: Colors.black.withOpacity(0.7)),
+
+                          // Spinning Beanie Animation
+                          Positioned(
+                            right: 180,
+                            bottom: 10,
+                            child: AppAnimations.spinningBeanie(width: 250),
+                          ),
 
                           // Chat Icon
                           Center(
@@ -495,8 +508,9 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                                         true,
                                                   );
                                                 } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
                                                         "No tables to show yet. Run your query successfully first!",
@@ -785,19 +799,28 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                         ),
                                         child: Row(
                                           children: [
-                                            Text(
-                                              "#",
-                                              style: GoogleFonts.londrinaSolid(
-                                                fontSize: 16,
+                                            SizedBox(
+                                              width: 30,
+                                              child: Text(
+                                                "#",
+                                                style:
+                                                    GoogleFonts.londrinaSolid(
+                                                      fontSize: 16,
+                                                    ),
                                               ),
                                             ),
-                                            const SizedBox(width: 150),
-                                            Text(
-                                              "TABLE NAME",
-                                              style: GoogleFonts.londrinaSolid(
-                                                fontSize: 16,
+                                            Expanded(
+                                              child: Center(
+                                                child: Text(
+                                                  "TABLE NAME",
+                                                  style:
+                                                      GoogleFonts.londrinaSolid(
+                                                        fontSize: 16,
+                                                      ),
+                                                ),
                                               ),
                                             ),
+                                            const SizedBox(width: 30),
                                           ],
                                         ),
                                       ),
@@ -810,11 +833,14 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                               "1",
                                               "My_Notes",
                                               isDark: true,
-                                              onTap: (_currentTaskIndex == 1 &&
+                                              onTap:
+                                                  (_currentTaskIndex == 1 &&
                                                       _hasShownGuidePop8)
                                                   ? () => setState(() {
-                                                      _showDeviceRegistry = true;
-                                                      _isDiaryTableShown = false;
+                                                      _showDeviceRegistry =
+                                                          true;
+                                                      _isDiaryTableShown =
+                                                          false;
                                                       _showNotebook = false;
                                                       if (!_hasShownGuidePop9) {
                                                         _showGuidePop9 = true;
@@ -1091,7 +1117,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         child: Row(
           children: [
             SizedBox(
-              width: 20,
+              width: 30,
               child: Text(
                 index,
                 style: GoogleFonts.inconsolata(
@@ -1100,11 +1126,18 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                 ),
               ),
             ),
-            const SizedBox(width: 140),
-            Text(
-              name,
-              style: GoogleFonts.inconsolata(fontSize: 16, color: Colors.black),
+            Expanded(
+              child: Center(
+                child: Text(
+                  name,
+                  style: GoogleFonts.inconsolata(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
             ),
+            const SizedBox(width: 30),
           ],
         ),
       ),

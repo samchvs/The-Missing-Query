@@ -8,6 +8,7 @@ class SpriteAnimator extends StatefulWidget {
   final double? height;
   final BoxFit fit;
   final bool loop;
+  final VoidCallback? onComplete;
 
   const SpriteAnimator({
     super.key,
@@ -17,6 +18,7 @@ class SpriteAnimator extends StatefulWidget {
     this.height,
     this.fit = BoxFit.contain,
     this.loop = true,
+    this.onComplete,
   });
 
   @override
@@ -39,6 +41,12 @@ class _SpriteAnimatorState extends State<SpriteAnimator>
     _animation = IntTween(begin: 0, end: widget.frames.length - 1)
         .animate(_controller);
 
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete?.call();
+      }
+    });
+
     if (widget.loop) {
       _controller.repeat();
     } else {
@@ -49,11 +57,18 @@ class _SpriteAnimatorState extends State<SpriteAnimator>
   @override
   void didUpdateWidget(SpriteAnimator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.frames.length != widget.frames.length || 
-        oldWidget.frameDuration != widget.frameDuration) {
+    if (oldWidget.frames != widget.frames || 
+        oldWidget.frameDuration != widget.frameDuration ||
+        oldWidget.loop != widget.loop) {
       _controller.duration = widget.frameDuration * widget.frames.length;
       _animation = IntTween(begin: 0, end: widget.frames.length - 1)
           .animate(_controller);
+          
+      if (widget.loop) {
+        _controller.repeat();
+      } else {
+        _controller.forward(from: 0);
+      }
     }
   }
 

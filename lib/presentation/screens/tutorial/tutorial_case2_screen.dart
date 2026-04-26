@@ -3,6 +3,7 @@ import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case3_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
 
 class TutorialCase2Screen extends StatefulWidget {
   const TutorialCase2Screen({super.key});
@@ -20,47 +21,35 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(AppAssets.tutorialCaseScreen, fit: BoxFit.fill),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Image.asset(AppAssets.tutorialCaseTitle, width: 420),
-            ),
+          // Animated Background
+          const SpriteAnimator(
+            frames: AppAssets.case2Screen,
+            frameDuration: Duration(milliseconds: 150),
+            fit: BoxFit.fill,
+            loop: true,
           ),
+
+          // Next Button
           Positioned(
-            top: 100,
-            left: 40,
-            right: 0,
-            child: Center(
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Image.asset(AppAssets.tutorialCase2Desc, width: 620),
-                  Positioned(
-                    bottom: -2,
-                    right: 30,
-                    child: BouncingButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                const TutorialCase3Screen(),
-                            transitionsBuilder:
-                                (context, animation, secondaryAnimation, child) =>
-                                    child,
-                          ),
-                        );
-                      },
-                      child: ShakeWidget(
-                        child: Image.asset(AppAssets.nextBtn, width: 80),
-                      ),
-                    ),
+            bottom: 22,
+            right: 120,
+            child: BouncingButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const TutorialCase3Screen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) =>
+                            child,
                   ),
-                ],
+                );
+              },
+              child: ShakeWidget(
+                child: Image.asset(AppAssets.nextBtn, width: 80),
               ),
             ),
           ),

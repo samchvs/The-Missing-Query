@@ -26,6 +26,10 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
   bool _isQuerySuccessful = false;
 
+  bool _isExiting = false;
+  late AnimationController _exitController;
+  late Animation<double> _exitAnimation;
+
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -80,6 +84,15 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
       end: 0.0,
     ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
 
+    _exitController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _exitAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _exitController, curve: Curves.easeIn));
+
     _spriteController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -109,6 +122,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     _fadeController.dispose();
     _shakeController.dispose();
     _walkController.dispose();
+    _exitController.dispose();
     _spriteController.dispose();
     _queryController.dispose();
     super.dispose();
@@ -186,21 +200,20 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
           // 1.5 Beanie Animation (Walking into Worried spot)
           AnimatedBuilder(
-            animation: _walkAnimation,
+            animation: Listenable.merge([_walkController, _exitController]),
             builder: (context, child) {
               final double screenWidth = MediaQuery.of(context).size.width;
-              final double walkTranslation = _walkAnimation.value * screenWidth;
+              final double walkTranslation = _isExiting
+                  ? _exitAnimation.value * screenWidth
+                  : _walkAnimation.value * screenWidth;
               return Positioned(
                 left: (screenWidth * 0.135) + walkTranslation,
                 top: 137.0,
                 child: SizedBox(
                   width: 200,
                   height: 200,
-                  child: AnimatedBuilder(
-                    animation: _spriteController,
-                    builder: (context, child) {
-                      if (!_isWalking) {
-                        return Align(
+                  child: !_isWalking
+                      ? Align(
                           alignment: Alignment.bottomCenter,
                           child: Transform.translate(
                             offset: const Offset(-52.0, 5),
@@ -211,29 +224,14 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                               ),
                             ),
                           ),
-                        );
-                      } else {
-                        final String currentImage =
-                            _spriteController.value < 0.5
-                            ? AppAssets.beanieWalking1
-                            : AppAssets.beanieWalking2;
-                        return Align(
+                        )
+                      : Align(
                           alignment: Alignment.bottomCenter,
                           child: Transform.translate(
-                            offset: Offset(
-                              -35.0,
-                              -45.5 +
-                                  (Curves.easeInOut.transform(
-                                        (_spriteController.value * 2) % 1.0,
-                                      ) *
-                                      10),
-                            ),
-                            child: Image.asset(currentImage, width: 70),
+                            offset: const Offset(-25.0, -35.0),
+                            child: AppAnimations.walkingBeanie(width: 70),
                           ),
-                        );
-                      }
-                    },
-                  ),
+                        ),
                 ),
               );
             },
@@ -253,13 +251,17 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   child: Image.asset(AppAssets.queryBtn, width: 100),
                 ),
                 const SizedBox(height: 10),
-                Image.asset(AppAssets.case5WhereDisplay, width: 250),
+                AnimatedOpacity(
+                  opacity: _isExiting ? 0.0 : 1.0,
+                  duration: const Duration(milliseconds: 500),
+                  child: Image.asset(AppAssets.case5WhereDisplay, width: 250),
+                ),
               ],
             ),
           ),
 
           // 3. Success Next Button (Moved BELOW the overlay in the stack)
-          if (_isQuerySuccessful)
+          if (_isQuerySuccessful && !_isExiting)
             Positioned(
               bottom: 40,
               right: 40,
@@ -273,12 +275,25 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                 },
                 child: BouncingButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TutorialCase6Screen(),
-                      ),
-                    );
+                    setState(() {
+                      _isExiting = true;
+                      _isWalking = true;
+                    });
+                    _exitController.forward().then((_) {
+                      if (mounted) {
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration: Duration.zero,
+                            reverseTransitionDuration: Duration.zero,
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                const TutorialCase6Screen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                                child,
+                          ),
+                        );
+                      }
+                    });
                   },
                   child: Image.asset(AppAssets.nextBtn, width: 100),
                 ),

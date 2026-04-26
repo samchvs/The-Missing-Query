@@ -68,7 +68,23 @@ flutter:
     - assets/Hellobeanie/
     - assets/walkingBeanie/
     - assets/Worriedbeanie/
-    - assets/tutorial_cutScenes/test.mp4
+    - assets/Dancingcarrotino/
+    - assets/Dancingtomathomas/
+    - assets/Dancingbroccoli/
+    - assets/Talkingbeanie/
+    - assets/Worriedwave/
+    - assets/Wavingcarrotino/
+    - assets/Talkingcarrotino/
+    - assets/Spinningbeanie/
+    - assets/case2-screen/
+    - assets/case10-dialogue1/dialogue1/
+    - assets/case10-dialogue2/dialogue2/
+    - assets/case10-dialogue3/dialogue3/
+    - assets/case10-dialogue4/dialogue4/
+    - assets/case10-dialogue5/dialogue5/
+    - assets/case10-dialogue6/dialogue6/
+    - assets/case10-dialogue7/dialogue7/
+    - assets/case10-dialogue8/dialogue8/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

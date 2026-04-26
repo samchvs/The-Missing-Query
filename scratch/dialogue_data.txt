@@ -1,0 +1,60 @@
+// Pre-generated dialogue frame lists for AppAssets
+const List<String> case10Dialogue3 = [
+  'assets/case10-dialogue3/dialogue3/1.png', 'assets/case10-dialogue3/dialogue3/2.png', 'assets/case10-dialogue3/dialogue3/3.png',
+  'assets/case10-dialogue3/dialogue3/4.png', 'assets/case10-dialogue3/dialogue3/5.png', 'assets/case10-dialogue3/dialogue3/6.png',
+  'assets/case10-dialogue3/dialogue3/7.png', 'assets/case10-dialogue3/dialogue3/8.png', 'assets/case10-dialogue3/dialogue3/9.png',
+  'assets/case10-dialogue3/dialogue3/10.png', 'assets/case10-dialogue3/dialogue3/11.png', 'assets/case10-dialogue3/dialogue3/12.png',
+  'assets/case10-dialogue3/dialogue3/13.png', 'assets/case10-dialogue3/dialogue3/14.png', 'assets/case10-dialogue3/dialogue3/15.png',
+  'assets/case10-dialogue3/dialogue3/16.png', 'assets/case10-dialogue3/dialogue3/17.png', 'assets/case10-dialogue3/dialogue3/18.png',
+  'assets/case10-dialogue3/dialogue3/19.png',
+];
+
+const List<String> case10Dialogue4 = [
+  'assets/case10-dialogue4/dialogue4/1.png', 'assets/case10-dialogue4/dialogue4/2.png', 'assets/case10-dialogue4/dialogue4/3.png',
+  'assets/case10-dialogue4/dialogue4/4.png', 'assets/case10-dialogue4/dialogue4/5.png', 'assets/case10-dialogue4/dialogue4/6.png',
+  'assets/case10-dialogue4/dialogue4/7.png', 'assets/case10-dialogue4/dialogue4/8.png', 'assets/case10-dialogue4/dialogue4/9.png',
+  'assets/case10-dialogue4/dialogue4/10.png', 'assets/case10-dialogue4/dialogue4/11.png', 'assets/case10-dialogue4/dialogue4/12.png',
+  'assets/case10-dialogue4/dialogue4/13.png', 'assets/case10-dialogue4/dialogue4/14.png', 'assets/case10-dialogue4/dialogue4/15.png',
+  'assets/case10-dialogue4/dialogue4/16.png', 'assets/case10-dialogue4/dialogue4/17.png', 'assets/case10-dialogue4/dialogue4/18.png',
+  'assets/case10-dialogue4/dialogue4/19.png',
+];
+
+const List<String> case10Dialogue5 = [
+  'assets/case10-dialogue5/dialogue5/1.png', 'assets/case10-dialogue5/dialogue5/2.png', 'assets/case10-dialogue5/dialogue5/3.png',
+  'assets/case10-dialogue5/dialogue5/4.png', 'assets/case10-dialogue5/dialogue5/5.png', 'assets/case10-dialogue5/dialogue5/6.png',
+  'assets/case10-dialogue5/dialogue5/7.png', 'assets/case10-dialogue5/dialogue5/8.png', 'assets/case10-dialogue5/dialogue5/9.png',
+  'assets/case10-dialogue5/dialogue5/10.png', 'assets/case10-dialogue5/dialogue5/11.png', 'assets/case10-dialogue5/dialogue5/12.png',
+  'assets/case10-dialogue5/dialogue5/13.png', 'assets/case10-dialogue5/dialogue5/14.png', 'assets/case10-dialogue5/dialogue5/15.png',
+  'assets/case10-dialogue5/dialogue5/16.png', 'assets/case10-dialogue5/dialogue5/17.png', 'assets/case10-dialogue5/dialogue5/18.png',
+  'assets/case10-dialogue5/dialogue5/19.png',
+];
+
+const List<String> case10Dialogue6 = [
+  'assets/case10-dialogue6/dialogue6/1.png', 'assets/case10-dialogue6/dialogue6/2.png', 'assets/case10-dialogue6/dialogue6/3.png',
+  'assets/case10-dialogue6/dialogue6/4.png', 'assets/case10-dialogue6/dialogue6/5.png', 'assets/case10-dialogue6/dialogue6/6.png',
+  'assets/case10-dialogue6/dialogue6/7.png', 'assets/case10-dialogue6/dialogue6/8.png', 'assets/case10-dialogue6/dialogue6/9.png',
+  'assets/case10-dialogue6/dialogue6/10.png', 'assets/case10-dialogue6/dialogue6/11.png', 'assets/case10-dialogue6/dialogue6/12.png',
+  'assets/case10-dialogue6/dialogue6/13.png', 'assets/case10-dialogue6/dialogue6/14.png', 'assets/case10-dialogue6/dialogue6/15.png',
+  'assets/case10-dialogue6/dialogue6/16.png', 'assets/case10-dialogue6/dialogue6/17.png', 'assets/case10-dialogue6/dialogue6/18.png',
+  'assets/case10-dialogue6/dialogue6/19.png',
+];
+
+const List<String> case10Dialogue7 = [
+  'assets/case10-dialogue7/dialogue7/1.png', 'assets/case10-dialogue7/dialogue7/2.png', 'assets/case10-dialogue7/dialogue7/3.png',
+  'assets/case10-dialogue7/dialogue7/4.png', 'assets/case10-dialogue7/dialogue7/5.png', 'assets/case10-dialogue7/dialogue7/6.png',
+  'assets/case10-dialogue7/dialogue7/7.png', 'assets/case10-dialogue7/dialogue7/8.png', 'assets/case10-dialogue7/dialogue7/9.png',
+  'assets/case10-dialogue7/dialogue7/10.png', 'assets/case10-dialogue7/dialogue7/11.png', 'assets/case10-dialogue7/dialogue7/12.png',
+  'assets/case10-dialogue7/dialogue7/13.png', 'assets/case10-dialogue7/dialogue7/14.png', 'assets/case10-dialogue7/dialogue7/15.png',
+  'assets/case10-dialogue7/dialogue7/16.png', 'assets/case10-dialogue7/dialogue7/17.png', 'assets/case10-dialogue7/dialogue7/18.png',
+  'assets/case10-dialogue7/dialogue7/19.png',
+];
+
+const List<String> case10Dialogue8 = [
+  'assets/case10-dialogue8/dialogue8/1.png', 'assets/case10-dialogue8/dialogue8/2.png', 'assets/case10-dialogue8/dialogue8/3.png',
+  'assets/case10-dialogue8/dialogue8/4.png', 'assets/case10-dialogue8/dialogue8/5.png', 'assets/case10-dialogue8/dialogue8/6.png',
+  'assets/case10-dialogue8/dialogue8/7.png', 'assets/case10-dialogue8/dialogue8/8.png', 'assets/case10-dialogue8/dialogue8/9.png',
+  'assets/case10-dialogue8/dialogue8/10.png', 'assets/case10-dialogue8/dialogue8/11.png', 'assets/case10-dialogue8/dialogue8/12.png',
+  'assets/case10-dialogue8/dialogue8/13.png', 'assets/case10-dialogue8/dialogue8/14.png', 'assets/case10-dialogue8/dialogue8/15.png',
+  'assets/case10-dialogue8/dialogue8/16.png', 'assets/case10-dialogue8/dialogue8/17.png', 'assets/case10-dialogue8/dialogue8/18.png',
+  'assets/case10-dialogue8/dialogue8/19.png',
+];

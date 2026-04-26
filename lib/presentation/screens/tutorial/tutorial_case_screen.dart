@@ -5,6 +5,7 @@ import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case2_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
 
 class TutorialCaseScreen extends StatefulWidget {
   const TutorialCaseScreen({super.key});
@@ -28,17 +29,24 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    );
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
 
-    _charCount = StepTween(begin: 0, end: _caseText.length).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.linear),
-    );
+    _charCount = StepTween(
+      begin: 0,
+      end: _caseText.length,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
-    _characterFade = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _characterFade = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    );
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) _fadeController.forward();
@@ -91,8 +99,14 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                         clipBehavior: Clip.none,
                         children: [
                           Positioned(
-                            top: -60,
-                            child: Image.asset(AppAssets.tomathomas, width: 80),
+                            top: -95,
+                            child: SpriteAnimator(
+                              frames: AppAssets.dancingTomathomas,
+                              width: 150,
+                              frameDuration: const Duration(milliseconds: 150),
+                              fit: BoxFit.contain,
+                              loop: true,
+                            ),
                           ),
                           Image.asset(AppAssets.userDisplay, width: 100),
                           Positioned.fill(
@@ -133,11 +147,16 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                             PageRouteBuilder(
                               transitionDuration: Duration.zero,
                               reverseTransitionDuration: Duration.zero,
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const TutorialCase2Screen(),
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const TutorialCase2Screen(),
                               transitionsBuilder:
-                                  (context, animation, secondaryAnimation, child) =>
-                                      child,
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) => child,
                             ),
                           );
                         },
@@ -180,7 +199,10 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                                 AnimatedBuilder(
                                   animation: _charCount,
                                   builder: (context, _) {
-                                    final visible = _caseText.substring(0, _charCount.value);
+                                    final visible = _caseText.substring(
+                                      0,
+                                      _charCount.value,
+                                    );
                                     return Text(
                                       visible,
                                       textAlign: TextAlign.left,

@@ -5,6 +5,7 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial_case_scr
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/typewriter_text.dart';
+import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 
 class Tutorial4Screen extends StatefulWidget {
   const Tutorial4Screen({super.key});
@@ -71,8 +72,8 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
                   clipBehavior: Clip.none,
                   children: [
                     Positioned(
-                      top: -100,
-                      child: Image.asset(AppAssets.sadBeanie, width: 150),
+                      top: -130,
+                      child: AppAnimations.worriedWave(width: 220),
                     ),
                     Image.asset(AppAssets.tutorialDisplay, width: 350),
                     Positioned(
@@ -92,8 +93,7 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
                             fontSize: 14,
                           ),
                           duration: const Duration(seconds: 7),
-                          boldStart: 11,
-                          boldEnd: 44,
+                          boldWords: const ["CASE OF BEANIE: THE STOLEN PASS"],
                         ),
                       ),
                     ),

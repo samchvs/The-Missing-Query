@@ -9,10 +9,8 @@ class TypewriterText extends StatefulWidget {
   final TextAlign? textAlign;
   final VoidCallback? onFinished;
 
-  /// Set [boldRange] to highlight a substring in bold during reveal.
-  /// Provide [boldStart] and [boldEnd] as character indices into [text].
-  final int? boldStart;
-  final int? boldEnd;
+  /// Words that should be rendered in bold.
+  final List<String>? boldWords;
 
   const TypewriterText({
     super.key,
@@ -21,8 +19,7 @@ class TypewriterText extends StatefulWidget {
     this.textAlign,
     this.duration = const Duration(seconds: 3),
     this.onFinished,
-    this.boldStart,
-    this.boldEnd,
+    this.boldWords,
   });
 
   @override
@@ -67,42 +64,68 @@ class _TypewriterTextState extends State<TypewriterText>
       animation: _characterCount,
       builder: (BuildContext context, Widget? child) {
         final int count = _characterCount.value;
-        final int? boldStart = widget.boldStart;
-        final int? boldEnd = widget.boldEnd;
+        final String visibleText = widget.text.substring(0, count);
 
-        // If bold range is provided, render with inline bold segment
-        if (boldStart != null && boldEnd != null) {
-          final String s1 = widget.text.substring(
-            0,
-            count >= boldStart ? boldStart : count,
-          );
-          final String s2 = count > boldStart
-              ? widget.text.substring(boldStart, count >= boldEnd ? boldEnd : count)
-              : '';
-          final String s3 = count > boldEnd
-              ? widget.text.substring(boldEnd, count)
-              : '';
-
-          return Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: s1, style: widget.style),
-                TextSpan(
-                  text: s2,
-                  style: widget.style?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: s3, style: widget.style),
-              ],
-            ),
+        if (widget.boldWords == null || widget.boldWords!.isEmpty) {
+          return Text(
+            visibleText,
+            style: widget.style,
             textAlign: widget.textAlign ?? TextAlign.center,
           );
         }
 
-        // Default: plain typewriter
-        final String visible = widget.text.substring(0, count);
-        return Text(
-          visible,
-          style: widget.style,
+        // Build rich text by highlighting specific words
+        List<TextSpan> spans = [];
+        String remainingText = visibleText;
+
+        // Simple word-based highlighting
+        // Note: For a more complex approach, regex would be better
+        // but this works for specific unique names.
+        
+        int currentPos = 0;
+        while (currentPos < visibleText.length) {
+          int nextBoldStart = -1;
+          String? foundWord;
+
+          for (final word in widget.boldWords!) {
+            int index = widget.text.indexOf(word, currentPos);
+            if (index != -1 && (nextBoldStart == -1 || index < nextBoldStart)) {
+              nextBoldStart = index;
+              foundWord = word;
+            }
+          }
+
+          if (nextBoldStart != -1 && nextBoldStart < count) {
+            // Add text before the bold word
+            if (nextBoldStart > currentPos) {
+              spans.add(TextSpan(
+                text: widget.text.substring(currentPos, nextBoldStart),
+                style: widget.style,
+              ));
+            }
+
+            // Add the bold word (or partial bold word if still typing)
+            int boldEnd = nextBoldStart + foundWord!.length;
+            int visibleBoldEnd = count < boldEnd ? count : boldEnd;
+            
+            spans.add(TextSpan(
+              text: widget.text.substring(nextBoldStart, visibleBoldEnd),
+              style: widget.style?.copyWith(fontWeight: FontWeight.bold),
+            ));
+
+            currentPos = visibleBoldEnd;
+          } else {
+            // No more bold words in the remaining visible text
+            spans.add(TextSpan(
+              text: widget.text.substring(currentPos, count),
+              style: widget.style,
+            ));
+            break;
+          }
+        }
+
+        return Text.rich(
+          TextSpan(children: spans),
           textAlign: widget.textAlign ?? TextAlign.center,
         );
       },

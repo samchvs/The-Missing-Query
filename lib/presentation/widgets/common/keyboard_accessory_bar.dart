@@ -4,7 +4,7 @@ import 'package:graphics_project/core/constants/app_colors.dart';
 
 /// A floating accessory bar that appears above the on-screen keyboard.
 /// Shows the current text of the given [controller] and dismisses focus on Done.
-class KeyboardAccessoryBar extends StatelessWidget {
+class KeyboardAccessoryBar extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
   final TextStyle? textStyle;
@@ -17,16 +17,50 @@ class KeyboardAccessoryBar extends StatelessWidget {
   });
 
   @override
+  State<KeyboardAccessoryBar> createState() => _KeyboardAccessoryBarState();
+}
+
+class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    widget.controller.addListener(_scrollToEnd);
+  }
+
+  void _scrollToEnd() {
+    if (_scrollController.hasClients) {
+      // Small delay to ensure the text is updated in the field
+      Future.delayed(const Duration(milliseconds: 50), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_scrollToEnd);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     if (keyboardHeight <= 0) return const SizedBox.shrink();
 
     return ListenableBuilder(
-      listenable: focusNode ?? FocusNode(),
+      listenable: widget.focusNode ?? FocusNode(),
       builder: (context, child) {
-        // If focusNode is provided, we respect its focus state.
-        // Otherwise, we show it as long as the keyboard is up.
-        final bool hasFocus = focusNode?.hasFocus ?? true;
+        final bool hasFocus = widget.focusNode?.hasFocus ?? true;
         if (!hasFocus) return const SizedBox.shrink();
 
         return Positioned(
@@ -53,12 +87,13 @@ class KeyboardAccessoryBar extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: controller,
+                      controller: widget.controller,
+                      scrollController: _scrollController,
                       maxLines: 1,
                       cursorColor: AppColors.primaryLight,
                       showCursor: true,
                       autofocus: false,
-                      style: textStyle ??
+                      style: widget.textStyle ??
                           GoogleFonts.inconsolata(
                             fontSize: 18,
                             color: AppColors.primary,

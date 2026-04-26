@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case8_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
@@ -85,7 +84,8 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text: "SELECT student_name FROM Device_Registry WHERE mac_address = '00:1A:2B:3C';", // Debug pre-fill
+      text:
+          "SELECT student_name FROM Device_Registry WHERE mac_address = '00:1A:2B:3C';", // Debug pre-fill
     );
 
     _queryFadeController = AnimationController(
@@ -162,7 +162,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
       });
 
       // Delay the guide pop-up by 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
+      Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           setState(() {
             _isRegistryGuideShown = true;
@@ -484,10 +484,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                   alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: [
-                    Image.asset(
-                      AppAssets.deviceRegistry,
-                      width: 550,
-                    ),
+                    Image.asset(AppAssets.deviceRegistry, width: 550),
 
                     Positioned(
                       top: 10,
@@ -535,55 +532,65 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                     ),
                   ),
 
-                // Guide Pop in front of Device Registry
-                if (_isRegistryGuideShown)
-                  Stack(
-                    children: [
-                      Container(color: Colors.black.withOpacity(0.5)),
-                      Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.asset(
-                              AppAssets.tutorial7GuidePop,
-                              width: 350,
-                            ),
-                            Positioned(
-                              bottom: 30,
-                              right: 50,
-                              child: BouncingButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _isRegistryGuideShown = false;
-                                    _isRegistryShown = false;
-                                  });
-                                  // Navigate to Case 9 after finishing Case 7
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                      pageBuilder: (context, animation, secondaryAnimation) =>
-                                          const TutorialCase9Screen(),
-                                      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-                                          child,
-                                    ),
-                                  );
-                                },
-                                child: Image.asset(
-                                  AppAssets.okayBtn,
-                                  width: 65,
+                  // Guide Pop in front of Device Registry
+                  if (_isRegistryGuideShown)
+                    Stack(
+                      children: [
+                        Container(color: Colors.black.withOpacity(0.5)),
+                        Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(
+                                AppAssets.tutorial7GuidePop,
+                                width: 350,
+                              ),
+                              Positioned(
+                                bottom: 30,
+                                right: 50,
+                                child: BouncingButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isRegistryGuideShown = false;
+                                      _isRegistryShown = false;
+                                    });
+                                    // Navigate to Case 9 after finishing Case 7
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration:
+                                            Duration.zero,
+                                        pageBuilder:
+                                            (
+                                              context,
+                                              animation,
+                                              secondaryAnimation,
+                                            ) => const TutorialCase9Screen(),
+                                        transitionsBuilder:
+                                            (
+                                              context,
+                                              animation,
+                                              secondaryAnimation,
+                                              child,
+                                            ) => child,
+                                      ),
+                                    );
+                                  },
+                                  child: Image.asset(
+                                    AppAssets.okayBtn,
+                                    width: 65,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-              ],
+                      ],
+                    ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
