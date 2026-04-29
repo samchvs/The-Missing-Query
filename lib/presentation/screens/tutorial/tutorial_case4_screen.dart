@@ -6,6 +6,7 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial_case5_sc
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class TutorialCase4Screen extends StatefulWidget {
   const TutorialCase4Screen({super.key});
@@ -29,6 +30,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
   bool _isExiting = false;
   late AnimationController _exitController;
   late Animation<double> _exitAnimation;
+  late AudioPlayer _audioPlayer;
 
   @override
   void initState() {
@@ -55,33 +57,32 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
       curve: Curves.easeIn,
     );
 
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.onPlayerComplete.listen((event) {
+      if (mounted && _showBubble && !_showBubble2) {
+        setState(() {
+          _showBubble2 = true;
+        });
+        _audioPlayer.play(AssetSource(AppAssets.carrotinoAnswerAudio));
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted) {
+            setState(() {
+              _showBubble3 = true;
+            });
+          }
+        });
+      }
+    });
+
     _walkController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _spriteController.stop();
         if (mounted) {
-          setState(() {});
-          Future.delayed(const Duration(milliseconds: 1000), () {
-            if (mounted) {
-              setState(() {
-                _showBubble = true;
-                _isCarrotinoSad = true;
-              });
-            }
+          setState(() {
+            _showBubble = true;
+            _isCarrotinoSad = true;
           });
-          Future.delayed(const Duration(milliseconds: 2500), () {
-            if (mounted) {
-              setState(() {
-                _showBubble2 = true;
-              });
-            }
-          });
-          Future.delayed(const Duration(milliseconds: 4000), () {
-            if (mounted) {
-              setState(() {
-                _showBubble3 = true;
-              });
-            }
-          });
+          _audioPlayer.play(AssetSource(AppAssets.beanieQuestionAudio));
         }
       }
     });
@@ -119,6 +120,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
     _spriteController.dispose();
     _overlayController.dispose();
     _exitController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -137,21 +139,37 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               // Carrotino — completely independent, never affected by Beanie
               Positioned(
                 left: screenWidth * 0.45 + 10.0,
-                top: 150.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                top: 150.0,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 400),
                   transitionBuilder: (Widget child, Animation<double> animation) {
                     return FadeTransition(opacity: animation, child: child);
                   },
-                  child: _isCarrotinoSad
-                      ? AppAnimations.talkingCarrotino(
-                          key: const ValueKey<bool>(true),
-                          width: 180,
+                  child: _showBubble2
+                      ? Transform.translate(
+                          offset: const Offset(0, -5.0),
+                          key: const ValueKey<int>(2),
+                          child: AppAnimations.talkingCarrotino(width: 180),
                         )
-                      : AppAnimations.wavingCarrotino(
-                          key: const ValueKey<bool>(false),
-                          width: 180,
-                        ),
+                      : _isCarrotinoSad
+                          ? Transform.translate(
+                              offset: const Offset(0, 8.0),
+                              key: const ValueKey<int>(1),
+                              child: SizedBox(
+                                width: 180,
+                                child: Center(
+                                  child: Image.asset(
+                                    AppAssets.sadCarrotino,
+                                    width: 80,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Transform.translate(
+                              offset: const Offset(0, -3.0),
+                              key: const ValueKey<int>(0),
+                              child: AppAnimations.wavingCarrotino(width: 180),
+                            ),
                 ),
               ),
               if (_showBubble2)
@@ -247,6 +265,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                           _showBubble2 = false;
                           _showBubble3 = false;
                         });
+                        _audioPlayer.stop();
                         _spriteController.repeat();
                         _exitController.forward();
                       }
