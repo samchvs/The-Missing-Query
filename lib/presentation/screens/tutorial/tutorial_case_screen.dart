@@ -6,6 +6,9 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial_case2_sc
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCaseScreen extends StatefulWidget {
   const TutorialCaseScreen({super.key});
@@ -25,10 +28,12 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   late AnimationController _fadeController;
   late Animation<int> _charCount;
   late Animation<double> _characterFade;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -49,11 +54,20 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
     );
 
     _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) _fadeController.forward();
+      if (status == AnimationStatus.completed) {
+        _audioPlayer.setReleaseMode(ReleaseMode.release);
+        _audioPlayer.stop();
+        _fadeController.forward();
+      }
     });
 
     Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _controller.forward();
+      if (mounted) {
+        _audioPlayer.setReleaseMode(ReleaseMode.loop);
+        _audioPlayer.setVolume(SFXController().volume);
+        _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
+        _controller.forward();
+      }
     });
   }
 
@@ -61,6 +75,7 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   void dispose() {
     _controller.dispose();
     _fadeController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -142,6 +157,7 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                       opacity: _characterFade,
                       child: BouncingButton(
                         onPressed: () {
+                          _audioPlayer.stop();
                           Navigator.push(
                             context,
                             PageRouteBuilder(
@@ -235,13 +251,17 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
             child: Row(
               children: [
                 BouncingButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    _audioPlayer.stop();
+                    Navigator.pop(context);
+                  },
                   child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    _audioPlayer.stop();
+                    TutorialMusicController.goHome(context);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),

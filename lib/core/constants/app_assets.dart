@@ -1,6 +1,28 @@
 class AppAssets {
   AppAssets._();
 
+  // Audios
+  static const String beanieQuestionAudio = 'tutorialCase4-audios/beanieQuestion.mp3';
+  static const String carrotinoAnswerAudio = 'tutorialCase4-audios/carrotinoAnswer.mp3';
+  static const String tutorial3BeanieAudio = 'tutorial3_screen-audios/beanie.mp3';
+  static const String tutorial3BroccoliandroAudio = 'tutorial3_screen-audios/broccoliandro.mp3';
+  static const String tutorial3TomathomasAudio = 'tutorial3_screen-audios/tomathomas.mp3';
+  static const String tutorial3CarrotinoAudio = 'tutorial3_screen-audios/carrotino.mp3';
+  static const String case10Dialogue1Audio = 'tutorial10_screen-audios/dialogue1.mp3';
+  static const String case10Dialogue2Audio = 'tutorial10_screen-audios/dialogue2.mp3';
+  static const String case10Dialogue3Audio = 'tutorial10_screen-audios/dialogue3.mp3';
+  static const String case10Dialogue4Audio = 'tutorial10_screen-audios/dialogue4.mp3';
+  static const String case10Dialogue5Audio = 'tutorial10_screen-audios/dialogue5.mp3';
+  static const String case10Dialogue6Audio = 'tutorial10_screen-audios/dialogue6.mp3';
+  static const String case10Dialogue7Audio = 'tutorial10_screen-audios/dialogue7.mp3';
+  static const String case8BeanieAudio = 'tutorialCase8_screen-audios/1.mp3';
+  static const String typewriterAudio = 'sfx-audio/typewriter.mp3';
+  static const String buttonSound = 'sfx-audio/button-sound.mp3';
+  static const String tutorialMusic = 'bg-audio/tutorial-music.mp3';
+  static const String homeMusic = 'bg-audio/home-music.mp3';
+  static const String popupSound = 'sfx-audio/popup.mp3';
+  static const String correctAnswerSound = 'sfx-audio/correct-answer.mp3';
+
   // Characters
   static const String beanie = 'assets/Beanie.png';
   static const String beanieWalking1 = 'assets/BeanieWalking1.png';
@@ -221,6 +243,15 @@ class AppAssets {
   static const String leaderboardTab = 'assets/leaderboard-tab.png';
   static const String profileTab = 'assets/profile-tab.png';
   static const String chatIcon = 'assets/chat-icon.png';
+  static const String meetTeam = 'assets/about_tab/meetTeam.png';
+  static const String manalo = 'assets/about_tab/Manalo.png';
+  static const String agmata = 'assets/about_tab/Agmata.png';
+  static const String ramos = 'assets/about_tab/Ramos.png';
+  static const String galang = 'assets/about_tab/Galang.png';
+  static const String caranto = 'assets/about_tab/Caranto.png';
+  static const String chaves = 'assets/about_tab/Chaves.png';
+  static const String musicIcon = 'assets/audio-tab/music.png';
+  static const String sfxIcon = 'assets/audio-tab/sound.png';
   static const String floatingHint = 'assets/floating-hint.png';
   static const String tutorialGuideQuestion =
       'assets/tutorial-guidequestion.png';

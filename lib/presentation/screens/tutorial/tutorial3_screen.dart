@@ -7,6 +7,9 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
 import 'package:graphics_project/presentation/widgets/common/typewriter_text.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class Tutorial3Screen extends StatefulWidget {
   const Tutorial3Screen({super.key});
@@ -20,23 +23,68 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
   bool _showText = false;
   int _currentStep = 0;
   bool _isTextFinished = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final Map<int, Duration> _stepDurations = {
+    0: const Duration(seconds: 4),
+    1: const Duration(seconds: 6),
+    2: const Duration(seconds: 7),
+    3: const Duration(seconds: 6),
+  };
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _startStep0();
   }
 
   void _startStep0() {
     // Beanie waves for 1 second, then starts talking and typing
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () async {
       if (mounted && _currentStep == 0) {
         setState(() {
           _isTalking = true;
           _showText = true;
         });
+        await _audioPlayer.play(AssetSource(AppAssets.tutorial3BeanieAudio));
       }
     });
+  }
+
+  void _onNextStep() async {
+    if (_currentStep < 3) {
+      setState(() {
+        _currentStep++;
+        _isTextFinished = false;
+        _isTalking = true;
+      });
+      String audioPath;
+      switch (_currentStep) {
+        case 1:
+          audioPath = AppAssets.tutorial3BroccoliandroAudio;
+          break;
+        case 2:
+          audioPath = AppAssets.tutorial3TomathomasAudio;
+          break;
+        case 3:
+          audioPath = AppAssets.tutorial3CarrotinoAudio;
+          break;
+        default:
+          audioPath = AppAssets.tutorial3BeanieAudio;
+      }
+      await _audioPlayer.play(AssetSource(audioPath));
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Tutorial4Screen()),
+      );
+    }
   }
 
   @override
@@ -56,10 +104,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Image.asset(
-                  AppAssets.tutorial3Box,
-                  width: 670,
-                ),
+                Image.asset(AppAssets.tutorial3Box, width: 670),
                 if (_showText)
                   Positioned(
                     left: 50,
@@ -75,12 +120,12 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                               fontSize: 20,
                             ),
                             textAlign: TextAlign.left,
-                            duration: const Duration(seconds: 8),
+                            duration: _stepDurations[0]!,
                             boldWords: const [
                               "Beanie",
                               "Carrotino",
                               "Tomathomas",
-                              "Broccoliandro"
+                              "Broccoliandro",
                             ],
                             onFinished: () {
                               setState(() {
@@ -90,69 +135,83 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                             },
                           )
                         : _currentStep == 1
-                            ? TypewriterText(
-                                key: const ValueKey('step1'),
-                                text:
-                                    "We’re here to guide you as you learn how to run SQL queries, analyze data, and uncover important clues.",
-                                style: GoogleFonts.londrinaSolid(
-                                  color: const Color(0xFF542E2E),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                                textAlign: TextAlign.left,
-                                duration: const Duration(seconds: 8),
-                                onFinished: () {
-                                  setState(() {
-                                    _isTextFinished = true;
-                                  });
-                                },
-                              )
-                            : _currentStep == 2
-                                ? TypewriterText(
-                                    key: const ValueKey('step2'),
-                                    text:
-                                        "Each step will help you understand how to search records, filter information, and connect the evidence.",
-                                    style: GoogleFonts.londrinaSolid(
-                                      color: const Color(0xFF542E2E),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                    duration: const Duration(seconds: 8),
-                                    onFinished: () {
-                                  setState(() {
-                                    _isTextFinished = true;
-                                  });
-                                },
-                                  )
-                                : TypewriterText(
-                                    key: const ValueKey('step3'),
-                                    text:
-                                        "Pay close attention because every detail matters, and the answer is hidden within the data.",
-                                    style: GoogleFonts.londrinaSolid(
-                                      color: const Color(0xFF542E2E),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                    duration: const Duration(seconds: 8),
-                                    onFinished: () {
-                                  setState(() {
-                                    _isTextFinished = true;
-                                  });
-                                },
-                                  ),
+                        ? TypewriterText(
+                            key: const ValueKey('step1'),
+                            text:
+                                "We’re here to guide you as you learn how to run SQL queries, analyze data, and uncover important clues.",
+                            style: GoogleFonts.londrinaSolid(
+                              color: const Color(0xFF542E2E),
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.left,
+                            duration: _stepDurations[1]!,
+                            onFinished: () {
+                              setState(() {
+                                _isTextFinished = true;
+                                _isTalking = false;
+                              });
+                            },
+                          )
+                        : _currentStep == 2
+                        ? TypewriterText(
+                            key: const ValueKey('step2'),
+                            text:
+                                "Each step will help you understand how to search records, filter information, and connect the evidence.",
+                            style: GoogleFonts.londrinaSolid(
+                              color: const Color(0xFF542E2E),
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.left,
+                            duration: _stepDurations[2]!,
+                            onFinished: () {
+                              setState(() {
+                                _isTextFinished = true;
+                                _isTalking = false;
+                              });
+                            },
+                          )
+                        : TypewriterText(
+                            key: const ValueKey('step3'),
+                            text:
+                                "Pay close attention because every detail matters, and the answer is hidden within the data.",
+                            style: GoogleFonts.londrinaSolid(
+                              color: const Color(0xFF542E2E),
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.left,
+                            duration: _stepDurations[3]!,
+                            onFinished: () {
+                              setState(() {
+                                _isTextFinished = true;
+                                _isTalking = false;
+                              });
+                            },
+                          ),
                   ),
                 if (_currentStep == 0)
                   Positioned(
                     right: 35,
                     bottom: 25,
-                    child: _isTalking
-                        ? AppAnimations.talkingBeanie(width: 250)
-                        : AppAnimations.helloBeanie(
-                            width: 250,
-                            frameDuration: const Duration(milliseconds: 125),
-                          ),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                      child: _isTalking
+                          ? AppAnimations.talkingBeanie(
+                              key: const ValueKey('talking_beanie'),
+                              width: 250,
+                            )
+                          : AppAnimations.helloBeanie(
+                              key: const ValueKey('hello_beanie'),
+                              width: 250,
+                              frameDuration: const Duration(milliseconds: 125),
+                            ),
+                    ),
                   ),
                 if (_currentStep == 1)
                   Positioned(
@@ -182,12 +241,25 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                   Positioned(
                     right: 50,
                     bottom: 40,
-                    child: SpriteAnimator(
-                      frames: AppAssets.dancingCarrotino,
-                      width: 230,
-                      frameDuration: const Duration(milliseconds: 150),
-                      fit: BoxFit.contain,
-                      loop: true,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                      child: _isTalking
+                          ? AppAnimations.talkingCarrotino(
+                              key: const ValueKey('talking_carrotino'),
+                              width: 230,
+                            )
+                          : SpriteAnimator(
+                              key: const ValueKey('dancing_carrotino'),
+                              frames: AppAssets.dancingCarrotino,
+                              width: 230,
+                              frameDuration: const Duration(milliseconds: 150),
+                              fit: BoxFit.contain,
+                              loop: true,
+                            ),
                     ),
                   ),
                 if (_isTextFinished)
@@ -195,41 +267,10 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                     right: 45,
                     bottom: 35,
                     child: BouncingButton(
-                      onPressed: () {
-                        if (_currentStep == 0) {
-                          setState(() {
-                            _currentStep = 1;
-                            _isTextFinished = false;
-                          });
-                        } else if (_currentStep == 1) {
-                          setState(() {
-                            _currentStep = 2;
-                            _isTextFinished = false;
-                          });
-                        } else if (_currentStep == 2) {
-                          setState(() {
-                            _currentStep = 3;
-                            _isTextFinished = false;
-                          });
-                        } else {
-                          Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const Tutorial4Screen(),
-                            transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) =>
-                                child,
-                          ),
-                        );
-                      }
-                    },
-                    child: Image.asset(AppAssets.arrowRightBtn, width: 25),
+                      onPressed: _onNextStep,
+                      child: Image.asset(AppAssets.arrowRightBtn, width: 25),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -244,9 +285,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
+                  onPressed: () => TutorialMusicController.goHome(context),
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],

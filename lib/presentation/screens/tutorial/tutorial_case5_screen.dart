@@ -7,6 +7,8 @@ import 'package:graphics_project/presentation/widgets/common/sql_syntax_controll
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case4_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase5Screen extends StatefulWidget {
   const TutorialCase5Screen({super.key});
@@ -46,6 +48,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
 
     // Fade Animation
     _fadeController = AnimationController(
@@ -158,6 +161,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     if (isMatch) {
       setState(() {
         _isQuerySuccessful = true;
+        _isTableShown = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -246,6 +250,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                 BouncingButton(
                   onPressed: () {
                     setState(() => _isQueryClicked = true);
+                    SFXController().playPopup();
                     _fadeController.forward();
                   },
                   child: Image.asset(AppAssets.queryBtn, width: 100),
@@ -291,7 +296,15 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                             transitionsBuilder: (context, animation, secondaryAnimation, child) =>
                                 child,
                           ),
-                        );
+                        ).then((_) {
+                          if (mounted) {
+                            setState(() {
+                              _isExiting = false;
+                              _isWalking = false;
+                            });
+                            _exitController.reset();
+                          }
+                        });
                       }
                     });
                   },
@@ -455,11 +468,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                         top: 10,
                         right: 70,
                         child: BouncingButton(
-                          onPressed: () {
-                            setState(() {
-                              _isTableShown = false;
-                            });
-                          },
+                        onPressed: _hideQuery,
                           child: Image.asset(AppAssets.closeBtn, width: 35),
                         ),
                       ),
@@ -477,22 +486,13 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
               children: [
                 BouncingButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                        transitionDuration: Duration.zero,
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const TutorialCase4Screen(),
-                      ),
-                    );
+                        Navigator.pop(context);
                   },
                   child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
+                  onPressed: () => TutorialMusicController.goHome(context),
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],

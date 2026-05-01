@@ -7,8 +7,9 @@ import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case7_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case10_screen.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'dart:async';
-
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase9Screen extends StatefulWidget {
   const TutorialCase9Screen({super.key});
@@ -46,6 +47,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -166,32 +168,13 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                         children: [
                           BouncingButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                PageRouteBuilder(
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
-                                  pageBuilder:
-                                      (
-                                        context,
-                                        animation,
-                                        secondaryAnimation,
-                                      ) => const TutorialCase7Screen(),
-                                  transitionsBuilder:
-                                      (
-                                        context,
-                                        animation,
-                                        secondaryAnimation,
-                                        child,
-                                      ) => child,
-                                ),
-                              );
+                              Navigator.pop(context);
                             },
                             child: Image.asset(AppAssets.backBtn, width: 55),
                           ),
                           const SizedBox(width: 10),
                           BouncingButton(
-                            onPressed: () {},
+                            onPressed: () => TutorialMusicController.goHome(context),
                             child: Image.asset(AppAssets.homeBtn, width: 55),
                           ),
                           const Spacer(),
@@ -205,15 +188,18 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                       right: 260,
                       child: Center(
                         child: BouncingButton(
-                          onPressed: () => setState(() {
-                            _showNotebook = true;
-                            _notebookOpenedOnce = true;
-                            _showGuidePop9 = false;
-                            if (!_hasShownGuidePop3) {
-                              _showGuidePop3 = true;
-                              _hasShownGuidePop3 = true;
-                            }
-                          }),
+                          onPressed: () {
+                            SFXController().playPopup();
+                            setState(() {
+                              _showNotebook = true;
+                              _notebookOpenedOnce = true;
+                              _showGuidePop9 = false;
+                              if (!_hasShownGuidePop3) {
+                                _showGuidePop3 = true;
+                                _hasShownGuidePop3 = true;
+                              }
+                            });
+                          },
                           child: Image.asset(AppAssets.notebookIcon, width: 40),
                         ),
                       ),
@@ -228,7 +214,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                           delay: const Duration(milliseconds: 500),
                           child: BouncingButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 PageRouteBuilder(
                                   transitionDuration: Duration.zero,
@@ -247,7 +233,9 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                         child,
                                       ) => child,
                                 ),
-                              );
+                              ).then((_) {
+                                // State is preserved when coming back from Case 10
+                              });
                             },
                             child: Image.asset(AppAssets.nextBtn, width: 80),
                           ),
@@ -690,8 +678,13 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     required bool isDark,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
+    Widget rowContent = GestureDetector(
+      onTap: onTap != null
+          ? () {
+              SFXController().playButton();
+              onTap();
+            }
+          : null,
       child: Container(
         color: isDark ? const Color(0xFFFFE0B2) : const Color(0xFFFFF3E0),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -725,5 +718,10 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
         ),
       ),
     );
+
+    if (onTap != null) {
+      return ShakeWidget(child: rowContent);
+    }
+    return rowContent;
   }
 }

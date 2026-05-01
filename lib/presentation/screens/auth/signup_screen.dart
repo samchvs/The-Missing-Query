@@ -7,6 +7,7 @@ import 'package:graphics_project/presentation/screens/splash/splash_screen.dart'
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
+import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
 
 /// Signup screen — takes Username, Email + Password.
 class SignupScreen extends StatefulWidget {
@@ -34,6 +35,12 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isObscured = true;
   String? _passwordError;
   String? _usernameError;
+
+  @override
+  void initState() {
+    super.initState();
+    HomeMusicController().play();
+  }
 
   @override
   void dispose() {

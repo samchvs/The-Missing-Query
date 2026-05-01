@@ -8,6 +8,11 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial_case9_sc
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase10Screen extends StatefulWidget {
   const TutorialCase10Screen({super.key});
@@ -20,13 +25,19 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
     with TickerProviderStateMixin {
   int _dialogueIndex = 0; // 0-indexed for the list below
   bool _isTextFinished = false;
+  Duration _currentFrameDuration = const Duration(milliseconds: 150);
+  
+  
   
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  StreamSubscription? _audioSubscription;
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -41,11 +52,29 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
     ]).animate(_shakeController);
 
     _shakeController.repeat();
+    
+    _audioSubscription = _audioPlayer.onPlayerComplete.listen((event) {
+      _advanceDialogue();
+    });
+
+    _playDialogueAudio();
+  }
+
+  Future<void> _playDialogueAudio() async {
+    if (_dialogueIndex < _dialogueAudios.length) {
+      String? audioPath = _dialogueAudios[_dialogueIndex];
+      if (audioPath != null) {
+        await _audioPlayer.stop();
+        await _audioPlayer.play(AssetSource(audioPath));
+      }
+    }
   }
 
   @override
   void dispose() {
     _shakeController.dispose();
+    _audioSubscription?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -60,11 +89,23 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
     AppAssets.case10Dialogue8,
   ];
 
+  final List<String?> _dialogueAudios = [
+    AppAssets.case10Dialogue1Audio,
+    AppAssets.case10Dialogue2Audio,
+    AppAssets.case10Dialogue3Audio,
+    AppAssets.case10Dialogue4Audio,
+    AppAssets.case10Dialogue5Audio,
+    AppAssets.case10Dialogue6Audio,
+    AppAssets.case10Dialogue7Audio,
+    null,
+  ];
+
   void _advanceDialogue() {
     if (_dialogueIndex < _allDialogues.length - 1) {
       setState(() {
         _dialogueIndex++;
       });
+      _playDialogueAudio();
     }
   }
 
@@ -85,12 +126,17 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                   fit: StackFit.expand,
                   children: [
                     // Animated Background
-                    SpriteAnimator(
-                      frames: _allDialogues[_dialogueIndex],
-                      frameDuration: const Duration(milliseconds: 150),
-                      fit: BoxFit.fill,
-                      loop: _dialogueIndex == _allDialogues.length - 1,
-                      onComplete: _advanceDialogue,
+                    Transform.scale(
+                      scale: 1.08, // Slightly scale up to cover potential pixel gaps/white edges
+                      child: SpriteAnimator(
+                        frames: _allDialogues[_dialogueIndex],
+                        frameDuration: const Duration(milliseconds: 150),
+                        fit: BoxFit.cover,
+                        loop: _dialogueAudios[_dialogueIndex] != null ||
+                            _dialogueIndex == _allDialogues.length - 1,
+                        onComplete:
+                            _dialogueAudios[_dialogueIndex] != null ? null : _advanceDialogue,
+                      ),
                     ),
 
                     // Finale Scene Prop
@@ -121,6 +167,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                                 ),
                                 textAlign: TextAlign.justify,
                                 duration: const Duration(seconds: 4),
+                                playAudio: true,
                                 onFinished: () {
                                   if (mounted) {
                                     setState(() {
@@ -144,37 +191,13 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                         children: [
                           BouncingButton(
                             onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                PageRouteBuilder(
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
-                                  pageBuilder: (context, animation, secondaryAnimation) =>
-                                      const TutorialCase9Screen(),
-                                  transitionsBuilder:
-                                      (context, animation, secondaryAnimation, child) =>
-                                          child,
-                                ),
-                              );
+                              Navigator.pop(context);
                             },
                             child: Image.asset(AppAssets.backBtn, width: 55),
                           ),
                           const SizedBox(width: 10),
                           BouncingButton(
-                            onPressed: () {
-                              final authController = Provider.of<AuthController>(context, listen: false);
-                              // Navigate back to main tutorial selection or home
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(
-                                    username: authController.displayUsername,
-                                    authController: authController,
-                                  ),
-                                ),
-                                (route) => false,
-                              );
-                            },
+                            onPressed: () => TutorialMusicController.goHome(context),
                             child: Image.asset(AppAssets.homeBtn, width: 55),
                           ),
                           const Spacer(),
@@ -197,6 +220,8 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                           },
                           child: BouncingButton(
                             onPressed: () {
+                              TutorialMusicController().stop();
+                              HomeMusicController().play();
                               final authController = Provider.of<AuthController>(context, listen: false);
                               Navigator.pushAndRemoveUntil(
                                 context,

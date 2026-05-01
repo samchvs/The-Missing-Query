@@ -5,10 +5,14 @@ import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case8_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case9_screen.dart';
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase7Screen extends StatefulWidget {
   const TutorialCase7Screen({super.key});
@@ -58,10 +62,12 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   bool _isWaitingForGuide = false; // New flag for UI lock
   late AnimationController _queryFadeController;
   late Animation<double> _queryFadeAnimation;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
 
     _walkController = AnimationController(
       vsync: this,
@@ -99,7 +105,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
     );
 
     _fadeController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+      if (status == AnimationStatus.completed && _isOverlayShown) {
         _startTyping();
       }
     });
@@ -161,9 +167,10 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
         _isQueryClicked = false;
       });
 
-      // Delay the guide pop-up by 3 seconds
+      // Delay the guide pop-up by 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
+          SFXController().playCorrectAnswer();
           setState(() {
             _isRegistryGuideShown = true;
             _isWaitingForGuide = false; // Unlock UI
@@ -184,6 +191,9 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
 
   void _startTyping() {
     int charIndex = 0;
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _audioPlayer.setVolume(SFXController().volume);
+    _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
     _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       if (charIndex < _fullText.length) {
         if (mounted) {
@@ -194,6 +204,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
         charIndex++;
       } else {
         _typingTimer?.cancel();
+        _audioPlayer.stop();
         if (mounted) {
           setState(() {
             _isTypingFinished = true;
@@ -211,6 +222,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
     _queryController.dispose();
     _typingTimer?.cancel();
     _errorTimer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -262,31 +274,47 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
               children: [
                 BouncingButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const TutorialCase8Screen(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) =>
-                                child,
-                      ),
-                    );
+                    _audioPlayer.stop();
+                    Navigator.pop(context);
                   },
                   child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    _audioPlayer.stop();
+                    TutorialMusicController.goHome(context);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],
             ),
           ),
+
+          if (_isQuerySuccessful && !_isTableShown && !_isRegistryShown && !_isQueryClicked && !_isOverlayShown)
+            Positioned(
+              bottom: 40,
+              right: 40,
+              child: ShakeWidget(
+                child: BouncingButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const TutorialCase9Screen(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) =>
+                                child,
+                      ),
+                    );
+                  },
+                  child: Image.asset(AppAssets.nextBtn, width: 100),
+                ),
+              ),
+            ),
 
           if (_isOverlayShown)
             FadeTransition(
@@ -296,6 +324,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                   GestureDetector(
                     onTap: () {
                       if (!_isTypingFinished) return;
+                      _audioPlayer.stop();
                       _fadeController.reverse().then((_) {
                         if (mounted) {
                           setState(() {
@@ -346,6 +375,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
               child: BouncingButton(
                 onPressed: () {
                   setState(() => _isQueryClicked = true);
+                  SFXController().playPopup();
                   _fadeController.forward();
                 },
                 child: Image.asset(AppAssets.queryBtn, width: 100),
@@ -519,15 +549,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                       alignment: Alignment.center,
                       children: [
                         Image.asset(AppAssets.deviceRegistry, width: 550),
-                        Positioned(
-                          top: 20,
-                          right: 20,
-                          child: BouncingButton(
-                            onPressed: () =>
-                                setState(() => _isRegistryShown = false),
-                            child: Image.asset(AppAssets.closeBtn, width: 35),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -555,7 +576,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                       _isRegistryShown = false;
                                     });
                                     // Navigate to Case 9 after finishing Case 7
-                                    Navigator.pushReplacement(
+                                    Navigator.push(
                                       context,
                                       PageRouteBuilder(
                                         transitionDuration: Duration.zero,
@@ -575,7 +596,9 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                               child,
                                             ) => child,
                                       ),
-                                    );
+                                    ).then((_) {
+                                      // State is preserved when coming back from Case 9
+                                    });
                                   },
                                   child: Image.asset(
                                     AppAssets.okayBtn,

@@ -49,9 +49,8 @@ class _SplashScreenState extends State<SplashScreen> {
                     context,
                     PageRouteBuilder(
                       transitionDuration: const Duration(milliseconds: 600),
-                      pageBuilder: (context, _, __) => LoginScreen(
-                        authController: widget.authController,
-                      ),
+                      pageBuilder: (context, _, __) =>
+                          LoginScreen(authController: widget.authController),
                       transitionsBuilder: (context, animation, __, child) =>
                           FadeTransition(opacity: animation, child: child),
                     ),
@@ -72,9 +71,8 @@ class _SplashScreenState extends State<SplashScreen> {
                     context,
                     PageRouteBuilder(
                       transitionDuration: const Duration(milliseconds: 600),
-                      pageBuilder: (context, _, __) => SignupScreen(
-                        authController: widget.authController,
-                      ),
+                      pageBuilder: (context, _, __) =>
+                          SignupScreen(authController: widget.authController),
                       transitionsBuilder: (context, animation, __, child) =>
                           FadeTransition(opacity: animation, child: child),
                     ),

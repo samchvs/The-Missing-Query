@@ -6,6 +6,8 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial_case5_sc
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class TutorialCase4Screen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
   bool _showBubble2 = false;
   bool _showBubble3 = false;
   bool _isCarrotinoSad = false;
+  bool _isBeanieTalking = false;
   bool _isQueryClicked = false;
   late AnimationController _overlayController;
   late Animation<double> _overlayAnimation;
@@ -35,6 +38,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _walkController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
@@ -62,6 +66,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
       if (mounted && _showBubble && !_showBubble2) {
         setState(() {
           _showBubble2 = true;
+          _isBeanieTalking = false;
         });
         _audioPlayer.play(AssetSource(AppAssets.carrotinoAnswerAudio));
         Future.delayed(const Duration(milliseconds: 1500), () {
@@ -80,9 +85,16 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
         if (mounted) {
           setState(() {
             _showBubble = true;
-            _isCarrotinoSad = true;
           });
           _audioPlayer.play(AssetSource(AppAssets.beanieQuestionAudio));
+          Future.delayed(const Duration(seconds: 1), () {
+            if (mounted) {
+              setState(() {
+                _isCarrotinoSad = true;
+                _isBeanieTalking = true;
+              });
+            }
+          });
         }
       }
     });
@@ -99,14 +111,23 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
     _exitController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         if (mounted) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             PageRouteBuilder(
               transitionDuration: Duration.zero,
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const TutorialCase5Screen(),
             ),
-          );
+          ).then((_) {
+            if (mounted) {
+              setState(() {
+                _isExiting = false;
+                _showBubble3 = true; // Restore next button visibility
+                _isBeanieTalking = false;
+              });
+              _exitController.reset();
+            }
+          });
         }
       }
     });
@@ -137,39 +158,51 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
             children: [
               Image.asset(AppAssets.tutorialCase4Screen, fit: BoxFit.fill),
               // Carrotino — completely independent, never affected by Beanie
+              // Carrotino Animations (Talking/Waving)
               Positioned(
                 left: screenWidth * 0.45 + 10.0,
-                top: 150.0,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 400),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                  child: _showBubble2
-                      ? Transform.translate(
-                          offset: const Offset(0, -5.0),
-                          key: const ValueKey<int>(2),
-                          child: AppAnimations.talkingCarrotino(width: 180),
-                        )
-                      : _isCarrotinoSad
-                          ? Transform.translate(
-                              offset: const Offset(0, 8.0),
-                              key: const ValueKey<int>(1),
-                              child: SizedBox(
-                                width: 180,
-                                child: Center(
-                                  child: Image.asset(
-                                    AppAssets.sadCarrotino,
-                                    width: 80,
-                                  ),
-                                ),
-                              ),
+                top: 150.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 10),
+                  curve: Curves.fastOutSlowIn,
+                  opacity: _isBeanieTalking ? 0.0 : 1.0,
+                  child: IgnorePointer(
+                    ignoring: _isBeanieTalking,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 10),
+                      switchInCurve: Curves.fastOutSlowIn,
+                      switchOutCurve: Curves.fastOutSlowIn,
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                      child: _isCarrotinoSad
+                          ? AppAnimations.talkingCarrotino(
+                              key: const ValueKey<String>('talking'),
+                              width: 180,
                             )
-                          : Transform.translate(
-                              offset: const Offset(0, -3.0),
-                              key: const ValueKey<int>(0),
-                              child: AppAnimations.wavingCarrotino(width: 180),
+                          : AppAnimations.wavingCarrotino(
+                              key: const ValueKey<String>('waving'),
+                              width: 180,
                             ),
+                    ),
+                  ),
+                ),
+              ),
+              // Carrotino Sad Image
+              Positioned(
+                left: screenWidth * 0.45 + 62.0,
+                top: 165.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 10),
+                  curve: Curves.fastOutSlowIn,
+                  opacity: _isBeanieTalking ? 1.0 : 0.0,
+                  child: IgnorePointer(
+                    ignoring: !_isBeanieTalking,
+                    child: Image.asset(
+                      AppAssets.sadCarrotino,
+                      width: 80,
+                    ),
+                  ),
                 ),
               ),
               if (_showBubble2)
@@ -264,6 +297,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                           _showBubble = false;
                           _showBubble2 = false;
                           _showBubble3 = false;
+                          _isBeanieTalking = true;
                         });
                         _audioPlayer.stop();
                         _spriteController.repeat();
@@ -340,24 +374,13 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                   children: [
                     BouncingButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: Duration.zero,
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                const TutorialCase3Screen(),
-                          ),
-                        );
+                        Navigator.pop(context);
                       },
                       child: Image.asset(AppAssets.backBtn, width: 50),
                     ),
                     const SizedBox(width: 15),
                     BouncingButton(
-                      onPressed: () {
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
-                      },
+                      onPressed: () => TutorialMusicController.goHome(context),
                       child: Image.asset(AppAssets.homeBtn, width: 50),
                     ),
                   ],

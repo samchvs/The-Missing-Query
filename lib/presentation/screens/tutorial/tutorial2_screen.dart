@@ -4,6 +4,7 @@ import 'package:graphics_project/presentation/screens/tutorial/tutorial3_screen.
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 
 class Tutorial2Screen extends StatefulWidget {
   const Tutorial2Screen({super.key});
@@ -13,6 +14,12 @@ class Tutorial2Screen extends StatefulWidget {
 }
 
 class _Tutorial2ScreenState extends State<Tutorial2Screen> {
+  @override
+  void initState() {
+    super.initState();
+    TutorialMusicController().play();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,9 +108,7 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
+                  onPressed: () => TutorialMusicController.goHome(context),
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],

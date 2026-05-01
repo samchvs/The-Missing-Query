@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 /// A reusable button that scales down slightly on press (bounce effect).
 /// Used across all screens in the app.
@@ -45,6 +46,7 @@ class _BouncingButtonState extends State<BouncingButton>
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
         _controller.reverse();
+        SFXController().playButton();
         widget.onPressed();
       },
       onTapCancel: () => _controller.reverse(),

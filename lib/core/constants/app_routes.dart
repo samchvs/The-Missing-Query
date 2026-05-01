@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
+
 class AppRoutes {
   AppRoutes._();
+
+  static final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
   static const String splash = '/';
   static const String login = '/login';

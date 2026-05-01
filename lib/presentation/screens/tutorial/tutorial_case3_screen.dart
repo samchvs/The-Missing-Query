@@ -3,12 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/core/constants/app_strings.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case4_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase3Screen extends StatefulWidget {
   const TutorialCase3Screen({super.key});
@@ -63,6 +65,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -155,7 +158,8 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     });
 
     _queryController = SQLSyntaxController(
-      text: "SELECT * FROM Hallway_Logs;", // FIXME: Debug pre-fill. Comment out this line to revert.
+      text:
+          "SELECT * FROM Hallway_Logs;", // FIXME: Debug pre-fill. Comment out this line to revert.
     );
 
     _runHintController = AnimationController(
@@ -203,7 +207,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     _exitController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         if (mounted) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             PageRouteBuilder(
               transitionDuration: Duration.zero,
@@ -213,7 +217,14 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) => child,
             ),
-          );
+          ).then((_) {
+            if (mounted) {
+              setState(() {
+                _isExiting = false;
+              });
+              _exitController.reset();
+            }
+          });
         }
       }
     });
@@ -309,6 +320,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   _isHintDismissed = false;
                                 });
                                 _hintController.stop();
+                                SFXController().playPopup();
                                 _userFadeController.forward();
                               }
                             },
@@ -382,7 +394,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 child: ClipRect(
                                   child: Align(
                                     alignment: Alignment.bottomCenter,
-                                    child: AppAnimations.worriedBeanie(width: 300),
+                                    child: AppAnimations.worriedBeanie(
+                                      width: 300,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -803,9 +817,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
+                  onPressed: () => TutorialMusicController.goHome(context),
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),
               ],

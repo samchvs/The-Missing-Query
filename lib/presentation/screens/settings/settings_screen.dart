@@ -3,6 +3,8 @@ import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/settings/profile_tab.dart';
+import 'package:graphics_project/presentation/screens/settings/about_tab.dart';
+import 'package:graphics_project/presentation/screens/settings/audio_tab.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -58,7 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               clipBehavior: Clip.none,
               children: [
                 Image.asset(AppAssets.displaySettings, width: 650, fit: BoxFit.contain),
-                // Inactive tabs (dimmed)
                 if (_activeTab != 'profile')
                   Positioned.fill(
                     child: Align(
@@ -163,6 +164,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 widget.onCharacterChanged(newChar);
                               },
                             );
+                          }
+                          if (_activeTab == 'about') {
+                            return const AboutTab();
+                          }
+                          if (_activeTab == 'audio') {
+                            return const AudioTab();
                           }
                           return const Center(
                             child: Text(

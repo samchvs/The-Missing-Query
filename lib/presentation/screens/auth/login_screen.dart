@@ -7,6 +7,7 @@ import 'package:graphics_project/presentation/screens/splash/splash_screen.dart'
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
+import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthController authController;
@@ -25,6 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _validatePassword = const ValidatePasswordUseCase();
   bool _isObscured = true;
   String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    HomeMusicController().play();
+  }
 
   @override
   void dispose() {

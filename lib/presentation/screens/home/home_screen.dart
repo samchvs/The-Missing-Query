@@ -8,6 +8,9 @@ import 'package:graphics_project/presentation/screens/settings/settings_screen.d
 import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
+import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
+import 'package:graphics_project/core/constants/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -23,7 +26,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
   bool _isUserDisplayVisible = false;
   bool _isSignoutConfirmationVisible = false;
   bool _isQuitConfirmationVisible = false;
@@ -35,11 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _currentUsername = widget.username;
     _currentCharacter = CharacterDisplayConfig.homeConfigs.first.path;
+    // Start home music
+    HomeMusicController().play();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    AppRoutes.routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
     precacheImage(const AssetImage(AppAssets.homeScreen), context);
     precacheImage(const AssetImage(AppAssets.playBtn), context);
     precacheImage(const AssetImage(AppAssets.settingsBtn), context);
@@ -52,6 +58,19 @@ class _HomeScreenState extends State<HomeScreen> {
     precacheImage(const AssetImage(AppAssets.signoutDisplay), context);
     precacheImage(const AssetImage(AppAssets.quitDisplay), context);
     precacheImage(const AssetImage(AppAssets.settingsScreen), context);
+  }
+
+  @override
+  void dispose() {
+    AppRoutes.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // When returning to this route from another route
+    debugPrint("Returning to HomeScreen: Resuming home music.");
+    HomeMusicController().play();
   }
 
   Future<void> _handleSignOut() async {
@@ -135,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 8),
                 BouncingButton(
                   onPressed: () {
+                    SFXController().playPopup();
                     setState(() => _isUserDisplayVisible = true);
                   },
                   child: Image.asset(AppAssets.userIconBtn, width: 50),
@@ -158,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
             alignment: const Alignment(0.0, 0.6),
             child: BouncingButton(
               onPressed: () {
+                HomeMusicController().stop();
                 Navigator.push(
                   context,
                   PageRouteBuilder(
@@ -177,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
             alignment: const Alignment(0.0, 0.8),
             child: BouncingButton(
               onPressed: () {
+                SFXController().playPopup();
                 setState(() => _isQuitConfirmationVisible = true);
               },
               child: Image.asset(AppAssets.quitBtn, width: 100),
@@ -243,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: BouncingButton(
                         onPressed: () {
+                          SFXController().playPopup();
                           setState(() {
                             _isUserDisplayVisible = false;
                             _isSignoutConfirmationVisible = true;

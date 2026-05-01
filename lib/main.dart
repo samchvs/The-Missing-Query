@@ -8,6 +8,7 @@ import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/developer_error_box.dart';
+import 'package:graphics_project/core/constants/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.luckiestGuyTextTheme(),
         ),
         home: home,
+        navigatorObservers: [AppRoutes.routeObserver],
         builder: (context, child) {
           return Stack(
             children: [

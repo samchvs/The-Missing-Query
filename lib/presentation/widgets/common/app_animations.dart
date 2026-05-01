@@ -8,8 +8,9 @@ class AppAnimations {
   
   /// The 8-frame animation for Beanie.
   /// Call this with: AppAnimations.helloBeanie()
-  static Widget helloBeanie({double? width, double? height, Duration? frameDuration}) {
+  static Widget helloBeanie({Key? key, double? width, double? height, Duration? frameDuration}) {
     return SpriteAnimator(
+      key: key,
       frames: AppAssets.helloBeanieFrames,
       width: width,
       height: height,
@@ -63,12 +64,14 @@ class AppAnimations {
 
   /// 16-frame talking animation for Beanie
   static Widget talkingBeanie({
+    Key? key,
     double? width,
     double? height,
     Duration? frameDuration,
     bool loop = true,
   }) {
     return SpriteAnimator(
+      key: key,
       frames: AppAssets.talkingBeanieFrames,
       width: width,
       height: height,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 /// Typewriter effect text widget. Animates characters one by one over [duration].
 /// Calls [onFinished] when the full text has been revealed.
@@ -8,6 +11,7 @@ class TypewriterText extends StatefulWidget {
   final Duration duration;
   final TextAlign? textAlign;
   final VoidCallback? onFinished;
+  final bool playAudio;
 
   /// Words that should be rendered in bold.
   final List<String>? boldWords;
@@ -20,6 +24,7 @@ class TypewriterText extends StatefulWidget {
     this.duration = const Duration(seconds: 3),
     this.onFinished,
     this.boldWords,
+    this.playAudio = false,
   });
 
   @override
@@ -30,6 +35,7 @@ class _TypewriterTextState extends State<TypewriterText>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<int> _characterCount;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -38,6 +44,7 @@ class _TypewriterTextState extends State<TypewriterText>
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        _audioPlayer.stop();
         widget.onFinished?.call();
       }
     });
@@ -47,14 +54,22 @@ class _TypewriterTextState extends State<TypewriterText>
       end: widget.text.length,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _controller.forward();
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      if (mounted) {
+        if (widget.playAudio) {
+          _audioPlayer.setReleaseMode(ReleaseMode.loop);
+          _audioPlayer.setVolume(SFXController().volume);
+          _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
+        }
+        _controller.forward();
+      }
     });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 

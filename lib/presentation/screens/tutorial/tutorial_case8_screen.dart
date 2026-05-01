@@ -8,8 +8,11 @@ import 'package:graphics_project/presentation/widgets/common/query_terminal.dart
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case7_screen.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'dart:async';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase8Screen extends StatefulWidget {
   const TutorialCase8Screen({super.key});
@@ -59,10 +62,12 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   int _currentTaskIndex = 0; // 0: CREATE, 1: INSERT
   Timer? _typingTimer;
   late SQLSyntaxController _queryController;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -180,7 +185,9 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
       _showDialogue = true;
     });
 
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+    _audioPlayer.play(AssetSource(AppAssets.case8BeanieAudio));
+
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (charIndex < _fullText.length) {
         if (mounted) {
           setState(() {
@@ -217,6 +224,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
     _fadeController.dispose();
     _typingTimer?.cancel();
     _queryController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -246,7 +254,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     child: ShakeWidget(
                       child: BouncingButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             PageRouteBuilder(
                               transitionDuration: Duration.zero,
@@ -262,7 +270,9 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     child,
                                   ) => child,
                             ),
-                          );
+                          ).then((_) {
+                            // State is preserved when coming back from Case 7
+                          });
                         },
                         child: Image.asset(AppAssets.nextBtn, width: 100),
                       ),
@@ -289,33 +299,13 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     children: [
                       BouncingButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const TutorialCase6Screen(),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) => child,
-                            ),
-                          );
+                          Navigator.pop(context);
                         },
                         child: Image.asset(AppAssets.backBtn, width: 50),
                       ),
                       const SizedBox(width: 15),
                       BouncingButton(
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
-                        },
+                        onPressed: () => TutorialMusicController.goHome(context),
                         child: Image.asset(AppAssets.homeBtn, width: 50),
                       ),
                     ],
@@ -1078,6 +1068,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   Widget _buildNotebookButton() {
     final button = BouncingButton(
       onPressed: () {
+        SFXController().playPopup();
         setState(() {
           _showNotebook = true;
           _notebookOpenedOnce =
@@ -1106,8 +1097,13 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
     required bool isDark,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
+    Widget rowContent = GestureDetector(
+      onTap: onTap != null
+          ? () {
+              SFXController().playButton();
+              onTap();
+            }
+          : null,
       child: Container(
         width: double.infinity,
         color: isDark
@@ -1142,5 +1138,10 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         ),
       ),
     );
+
+    if (onTap != null) {
+      return ShakeWidget(child: rowContent);
+    }
+    return rowContent;
   }
 }

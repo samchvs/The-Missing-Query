@@ -8,6 +8,9 @@ import 'package:graphics_project/presentation/widgets/common/sql_syntax_controll
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case8_screen.dart';
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase6Screen extends StatefulWidget {
   const TutorialCase6Screen({super.key});
@@ -62,10 +65,12 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
   late SQLSyntaxController _queryController;
   late TextEditingController _guideAnswerController;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().play();
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
@@ -102,7 +107,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
           vsync: this,
           duration: const Duration(milliseconds: 600),
         )..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
+          if (status == AnimationStatus.completed && _isDisplayShown) {
             _startTyping();
           }
         });
@@ -152,7 +157,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
     _exitController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         if (mounted) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             PageRouteBuilder(
               transitionDuration: Duration.zero,
@@ -162,7 +167,14 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) => child,
             ),
-          );
+          ).then((_) {
+            if (mounted) {
+              setState(() {
+                _isExiting = false;
+              });
+              _exitController.reset();
+            }
+          });
         }
       }
     });
@@ -172,6 +184,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
   void _startTyping() {
     int charIndex = 0;
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _audioPlayer.setVolume(SFXController().volume);
+    _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
     _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       if (charIndex < _fullText.length) {
         if (mounted) {
@@ -182,6 +197,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
         charIndex++;
       } else {
         _typingTimer?.cancel();
+        _audioPlayer.stop();
         if (mounted) {
           setState(() {
             _isTypingDone = true;
@@ -241,10 +257,12 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
     _guideAnswerController.dispose();
     _typingTimer?.cancel();
     _errorTimer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   void _hideDisplay() {
+    _audioPlayer.stop();
     _fadeController.reverse().then((_) {
       if (mounted) {
         setState(() {
@@ -402,6 +420,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                   child: BouncingButton(
                     onPressed: () {
                       setState(() => _isQueryClicked = true);
+                      SFXController().playPopup();
                       _fadeController.forward(); // Reveals the dark overlay
                     },
                     child: Image.asset(AppAssets.queryBtn, width: 100),
@@ -416,13 +435,14 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               top:
                   MediaQuery.of(context).size.height / 2 -
                   15, // Move it down from -180
-              child: GestureDetector(
-                onTap: () {
+              child: BouncingButton(
+                onPressed: () {
                   setState(() {
                     _isGuideShown = true;
                     _isTutorialGuidePopShown = true;
                     _hasClickedHint = true;
                   });
+                  SFXController().playPopup();
                   _fadeController.forward(from: 0.0);
                 },
                 child: AnimatedBuilder(
@@ -748,13 +768,17 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
             child: Row(
               children: [
                 BouncingButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    _audioPlayer.stop();
+                    Navigator.pop(context);
+                  },
                   child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
                 const SizedBox(width: 15),
                 BouncingButton(
                   onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    _audioPlayer.stop();
+                    TutorialMusicController.goHome(context);
                   },
                   child: Image.asset(AppAssets.homeBtn, width: 50),
                 ),

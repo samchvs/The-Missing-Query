@@ -40,6 +40,8 @@ dependencies:
   provider: ^6.1.2
   video_player: ^2.11.1
   video_player_win: ^3.2.2
+  audioplayers: ^6.6.0
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +87,14 @@ flutter:
     - assets/case10-dialogue6/dialogue6/
     - assets/case10-dialogue7/dialogue7/
     - assets/case10-dialogue8/dialogue8/
+    - assets/tutorialCase4-audios/
+    - assets/tutorial3_screen-audios/
+    - assets/tutorial10_screen-audios/
+    - assets/tutorialCase8_screen-audios/
+    - assets/sfx-audio/
+    - assets/bg-audio/tutorial-music.mp3
+    - assets/bg-audio/home-music.mp3
+    - assets/about_tab/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
