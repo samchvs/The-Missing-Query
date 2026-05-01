@@ -56,17 +56,26 @@ class HomeMusicController with WidgetsBindingObserver {
   Future<void> play() async {
     try {
       _isExpectedToPlay = true;
-      if (_audioPlayer.state == PlayerState.playing) return;
       
-      debugPrint("Attempting to play home music: ${AppAssets.homeMusic}");
+      // If it's already playing, we don't want to restart it from the beginning
+      if (_audioPlayer.state == PlayerState.playing) {
+        debugPrint("Home music is already playing. Skipping play command.");
+        return;
+      }
+      
+      debugPrint("Attempting to play/resume home music: ${AppAssets.homeMusic}");
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.setVolume(_volume); 
       
-      // Small delay to ensure player is ready
-      await Future.delayed(const Duration(milliseconds: 200));
+      // We use play() which will start from the beginning if stopped, 
+      // or we can use resume() if it was just paused.
+      if (_audioPlayer.state == PlayerState.paused) {
+        await _audioPlayer.resume();
+      } else {
+        await _audioPlayer.play(AssetSource(AppAssets.homeMusic));
+      }
       
-      await _audioPlayer.play(AssetSource(AppAssets.homeMusic));
-      debugPrint("Home music play command sent successfully.");
+      debugPrint("Home music play/resume command sent successfully.");
     } catch (e) {
       debugPrint("Error playing home music: $e");
     }

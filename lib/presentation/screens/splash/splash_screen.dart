@@ -4,6 +4,7 @@ import 'package:graphics_project/presentation/screens/auth/login_screen.dart';
 import 'package:graphics_project/presentation/screens/auth/signup_screen.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
+import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
 
 /// Splash screen — shown when navigating "back" from Home (sign-out / quit flow).
 /// Offers return to username entry (which handles guest/login/signup routing).
@@ -17,6 +18,12 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    HomeMusicController().play();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
