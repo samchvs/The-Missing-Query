@@ -112,7 +112,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          Center(
+          SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.fill,
               child: SizedBox(

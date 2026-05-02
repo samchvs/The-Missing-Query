@@ -1,5 +1,6 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 
@@ -219,52 +220,6 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
     );
   }
 
-  Widget _buildAnswerKeyboardPreview() {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-    if (!isQuestionVisible || keyboardHeight == 0) {
-      return const SizedBox.shrink();
-    }
-
-    return Positioned(
-      left: 20,
-      right: 20,
-      bottom: keyboardHeight + 10,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.90),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF7A4B28), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.18),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Text(
-            _answerController.text.isEmpty
-                ? (_hasLives ? 'TYPE ANSWER...' : 'NO LIVES LEFT')
-                : _answerController.text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: _answerController.text.isEmpty
-                  ? Colors.grey
-                  : Colors.blueGrey,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Luckiest Guy',
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -281,9 +236,11 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
               ),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 25,
+                    bottom: 10,
                   ),
                   child: Column(
                     children: [
@@ -375,7 +332,11 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
                 AnimatedPopup(child: _buildCorrectPopUp(constraints)),
               if (isWrongVisible)
                 AnimatedPopup(child: _buildWrongPopUp(constraints)),
-              _buildAnswerKeyboardPreview(),
+              if (isQuestionVisible)
+                KeyboardAccessoryBar(
+                  controller: _answerController,
+                  hintText: "Type Answer",
+                ),
             ],
           );
         },

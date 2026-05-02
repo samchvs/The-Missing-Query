@@ -90,7 +90,13 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(
@@ -220,7 +226,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                       frames: AppAssets.dancingBroccoli,
                       width: 250,
                       frameDuration: const Duration(milliseconds: 150),
-                      fit: BoxFit.contain,
+                      fit: BoxFit.fill,
                       loop: true,
                     ),
                   ),
@@ -232,7 +238,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                       frames: AppAssets.dancingTomathomas,
                       width: 250,
                       frameDuration: const Duration(milliseconds: 150),
-                      fit: BoxFit.contain,
+                      fit: BoxFit.fill,
                       loop: true,
                     ),
                   ),
@@ -256,7 +262,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                               frames: AppAssets.dancingCarrotino,
                               width: 230,
                               frameDuration: const Duration(milliseconds: 150),
-                              fit: BoxFit.contain,
+                              fit: BoxFit.fill,
                               loop: true,
                             ),
                     ),
@@ -291,6 +297,9 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

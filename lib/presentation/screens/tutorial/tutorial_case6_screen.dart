@@ -60,7 +60,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   // Typewriter logic
   String _typedText = "";
   final String _fullText =
-      "Beanie walks over to the cafeteria counter. A guide question appears over the serverâ€™s tablet.";
+      "Beanie walks over to the cafeteria counter. A guide question appears over the server's tablet.";
   Timer? _typingTimer;
 
   late SQLSyntaxController _queryController;
@@ -210,9 +210,8 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   void _validateQuery() {
     final String userInput = _queryController.text
         .trim()
-        .toLowerCase()
         .replaceAll(RegExp(r'\s+'), ' ');
-    final String target = _targetQuery.trim().toLowerCase().replaceAll(
+    final String target = _targetQuery.trim().replaceAll(
       RegExp(r'\s+'),
       ' ',
     );
@@ -224,7 +223,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
       setState(() {
         _isQuerySuccessful = true;
         _isQueryClicked = false;
-        _isHintDismissed = false;
         _isTableShown = false;
         _isSuccessLogShown = true;
       });
@@ -279,7 +277,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
       if (mounted) {
         setState(() {
           _isQueryClicked = false;
-          _isHintDismissed = false;
           _isTableShown = false;
         });
       }
@@ -334,7 +331,13 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(AppAssets.tutorialCase6Screen, fit: BoxFit.fill),
@@ -342,9 +345,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
           AnimatedBuilder(
             animation: Listenable.merge([_moveAnimation, _exitAnimation]),
             builder: (context, _) {
-              final double screenWidth = MediaQuery.of(context).size.width;
+              const double canvasWidth = 800.0;
               final double moveVal = _moveAnimation.value;
-              final double exitVal = _exitAnimation.value * screenWidth;
+              final double exitVal = _exitAnimation.value * canvasWidth;
               return Positioned(
                 left: moveVal + exitVal,
                 bottom: (_isWalking || _isExiting)
@@ -377,7 +380,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               !_isDisplayShown &&
               !_isSuccessLogShown)
             Positioned(
-              bottom: 40,
+              bottom: 20, // Moved down from 40
               right: 40,
               child: AnimatedBuilder(
                 animation: _shakeAnimation,
@@ -410,7 +413,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
           if (_wasDisplayClosed)
             Positioned(
               right: 20,
-              top: MediaQuery.of(context).size.height / 2 - 120,
+              top: 60, // Fixed canvas top (360/2 - 120)
               child: AbsorbPointer(
                 absorbing: !_hasClickedHint,
                 child: Opacity(
@@ -429,10 +432,8 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
           if (_wasDisplayClosed && !_isQueryClicked && !_isTableShown)
             Positioned(
-              left: 367,
-              top:
-                  MediaQuery.of(context).size.height / 2 -
-                  15, // Move it down from -180
+              left: 350, // Moved left from 367
+              top: 165, // Fixed canvas top (360/2 - 15)
               child: BouncingButton(
                 onPressed: () {
                   setState(() {
@@ -488,11 +489,11 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Image.asset(AppAssets.tutorialGuideQuestion, width: 550),
+                    Image.asset(AppAssets.tutorialGuideQuestion, width: 500),
                     Positioned(
-                      top: 230,
-                      left: 45,
-                      right: 100,
+                      top: 210,
+                      left: 40,
+                      right: 90,
                       child: TextField(
                         controller: _guideAnswerController,
                         style: GoogleFonts.inconsolata(
@@ -516,7 +517,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                       child: Center(
                         child: BouncingButton(
                           onPressed: _validateGuideAnswer,
-                          child: Image.asset(AppAssets.submitBtn, width: 80),
+                          child: Image.asset(AppAssets.submitBtn, width: 70),
                         ),
                       ),
                     ),
@@ -527,7 +528,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                         onPressed: () {
                           setState(() => _isGuideShown = false);
                         },
-                        child: Image.asset(AppAssets.closeBtn, width: 35),
+                        child: Image.asset(AppAssets.closeBtn, width: 25),
                       ),
                     ),
                   ],
@@ -547,7 +548,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                   alignment: Alignment.center,
                   child: Image.asset(
                     AppAssets.tutorialGuidepop,
-                    width: 450,
+                    width: 380,
                   ), // Reduced width to make it smaller
                 ),
               ),
@@ -558,14 +559,14 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Image.asset(AppAssets.tutorialQueryDisplay, width: 550),
+                  Image.asset(AppAssets.tutorialQueryDisplay, width: 500),
 
                   if (_isHintDismissed)
                     Positioned(
-                      top: 75,
-                      left: 45,
-                      right: 45,
-                      bottom: 80,
+                      top: 68,
+                      left: 40,
+                      right: 40,
+                      bottom: 72,
                         child: TextField(
                           controller: _queryController,
                           maxLines: null,
@@ -588,7 +589,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                     right: 15,
                     child: BouncingButton(
                       onPressed: _hideQuery,
-                      child: Image.asset(AppAssets.closeBtn, width: 25),
+                      child: Image.asset(AppAssets.closeBtn, width: 30),
                     ),
                   ),
 
@@ -617,17 +618,17 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                                 );
                               }
                             },
-                            child: Image.asset(AppAssets.tablesBtn, width: 110),
+                            child: Image.asset(AppAssets.tablesBtn, width: 100),
                           ),
                           const Spacer(),
                           BouncingButton(
                             onPressed: () => _queryController.clear(),
-                            child: Image.asset(AppAssets.clearBtn, width: 90),
+                            child: Image.asset(AppAssets.clearBtn, width: 80),
                           ),
                           const SizedBox(width: 12),
                           BouncingButton(
                             onPressed: _validateQuery,
-                            child: Image.asset(AppAssets.runBtn, width: 120),
+                            child: Image.asset(AppAssets.runBtn, width: 110),
                           ),
                         ],
                       ),
@@ -744,7 +745,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
           if (_isTypingDone && _isDisplayShown)
             Positioned(
-              bottom: 40,
+              bottom: 20, // Moved down from 40
               right: 40,
               child: AnimatedBuilder(
                 animation: _shakeAnimation,
@@ -789,7 +790,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
             KeyboardAccessoryBar(controller: _guideAnswerController),
 
           if (_isQueryClicked && _isHintDismissed && !_isTableShown)
-            KeyboardAccessoryBar(controller: _queryController),
+            KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
 
           if (_errorMessage != null)
             Positioned(
@@ -816,6 +817,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               ),
             ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

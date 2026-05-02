@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/screens/mystery/case3/case3_map_screen.dart';
@@ -217,7 +217,8 @@ class ProfileFlipCard extends StatelessWidget {
 
     return List.generate(
       frameCount,
-      (index) => 'assets/mystery/Case3/character_profile$pageNumber/${index + 1}.png',
+      (index) =>
+          'assets/mystery/Case3/character_profile$pageNumber/${index + 1}.png',
     );
   }
 
@@ -388,7 +389,7 @@ class _CaseDescription3State extends State<CaseDescription3>
                 ),
               ),
               Positioned(
-                top: -5,
+                top: 15,
                 left: 20,
                 right: 20,
                 child: SizedBox(
@@ -448,7 +449,10 @@ class _CaseDescription3State extends State<CaseDescription3>
               bottom: 2,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 28),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 28,
+                ),
               ),
             ),
           ],
@@ -468,7 +472,9 @@ class _CaseDescription3State extends State<CaseDescription3>
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible ? 'assets/mystery/Case3/case_board3.png' : 'assets/mystery/case_bg.png',
+                _isBoardVisible
+                    ? 'assets/mystery/Case3/case_board3.png'
+                    : 'assets/mystery/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),
@@ -513,7 +519,10 @@ class _CaseDescription3State extends State<CaseDescription3>
               bottom: 40,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 30),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 30,
+                ),
               ),
             ),
           ],
@@ -522,4 +531,3 @@ class _CaseDescription3State extends State<CaseDescription3>
     );
   }
 }
-

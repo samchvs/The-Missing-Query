@@ -83,19 +83,25 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(AppAssets.tutorialCaseScreen, fit: BoxFit.fill),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Image.asset(AppAssets.tutorialCaseTitle, width: 420),
+              padding: const EdgeInsets.only(top: 15.0),
+              child: Image.asset(AppAssets.tutorialCaseTitle, width: 350),
             ),
           ),
           Positioned(
-            top: 60,
+            top: 50,
             left: 0,
             right: 0,
             child: Center(
@@ -103,9 +109,9 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
-                  Image.asset(AppAssets.caseDisplayBox, width: 650),
+                  Image.asset(AppAssets.caseDisplayBox, width: 580),
                   Positioned(
-                    right: -80,
+                    right: -60,
                     top: 120,
                     child: FadeTransition(
                       opacity: _characterFade,
@@ -119,7 +125,7 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                               frames: AppAssets.dancingTomathomas,
                               width: 150,
                               frameDuration: const Duration(milliseconds: 150),
-                              fit: BoxFit.contain,
+                              fit: BoxFit.fill,
                               loop: true,
                             ),
                           ),
@@ -151,8 +157,8 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                     ),
                   ),
                   Positioned(
-                    bottom: 70,
-                    right: 120,
+                    bottom: 60,
+                    right: 100,
                     child: FadeTransition(
                       opacity: _characterFade,
                       child: BouncingButton(
@@ -186,8 +192,8 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 160.0,
-                          vertical: 90.0,
+                          horizontal: 140.0,
+                          vertical: 75.0,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -205,13 +211,13 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                             Stack(
                               children: [
                                 Text(
-                                  _caseText,
-                                  textAlign: TextAlign.left,
-                                  style: GoogleFonts.londrinaSolid(
-                                    fontSize: 16,
-                                    color: Colors.transparent,
-                                  ),
-                                ),
+                                   _caseText,
+                                   textAlign: TextAlign.left,
+                                   style: GoogleFonts.londrinaSolid(
+                                     fontSize: 13,
+                                     color: Colors.transparent,
+                                   ),
+                                 ),
                                 AnimatedBuilder(
                                   animation: _charCount,
                                   builder: (context, _) {
@@ -220,13 +226,13 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
                                       _charCount.value,
                                     );
                                     return Text(
-                                      visible,
-                                      textAlign: TextAlign.left,
-                                      style: GoogleFonts.londrinaSolid(
-                                        fontSize: 16,
-                                        color: AppColors.primaryLight,
-                                      ),
-                                    );
+                                       visible,
+                                       textAlign: TextAlign.left,
+                                       style: GoogleFonts.londrinaSolid(
+                                         fontSize: 13,
+                                         color: AppColors.primaryLight,
+                                       ),
+                                     );
                                   },
                                 ),
                               ],
@@ -241,9 +247,9 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
             ),
           ),
           Positioned(
-            top: 98,
+            top: 90,
             right: 180,
-            child: Image.asset(AppAssets.tutorialCaseTicket, width: 150),
+            child: Image.asset(AppAssets.tutorialCaseTicket, width: 120),
           ),
           Positioned(
             left: 20,
@@ -269,6 +275,9 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

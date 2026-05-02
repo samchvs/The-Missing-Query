@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -48,7 +48,8 @@ class QueryTerminal extends StatelessWidget {
                       final String userInput = value.text;
                       String ghostText = '';
                       if (userInput.length < targetQuery!.length) {
-                        ghostText = ' ' * userInput.length +
+                        ghostText =
+                            ' ' * userInput.length +
                             targetQuery!.substring(userInput.length);
                       }
                       return Padding(
@@ -90,7 +91,7 @@ class QueryTerminal extends StatelessWidget {
             right: 15,
             child: BouncingButton(
               onPressed: onClose,
-              child: Image.asset(AppAssets.closeBtn, width: 25),
+              child: Image.asset(AppAssets.closeBtn, width: 30),
             ),
           ),
 
@@ -123,4 +124,3 @@ class QueryTerminal extends StatelessWidget {
     );
   }
 }
-

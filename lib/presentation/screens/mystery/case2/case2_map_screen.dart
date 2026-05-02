@@ -300,40 +300,67 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
             fit: StackFit.expand,
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/Case2/map2.png', fit: BoxFit.cover),
+                child: Image.asset(
+                  'assets/mystery/Case2/map2.png',
+                  fit: BoxFit.cover,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.11,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/comlab.png', 100),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/comlab.png',
+                  100,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.15,
                 left: constraints.maxWidth * 0.31,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/icto.png', 105),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/icto.png',
+                  105,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.42,
                 left: constraints.maxWidth * 0.56,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/it.png', 110),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/it.png',
+                  110,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.42,
                 left: constraints.maxWidth * 0.31,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/guidance.png', 110),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/guidance.png',
+                  110,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.70,
                 left: constraints.maxWidth * 0.32,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/gym.png', 105),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/gym.png',
+                  105,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.42,
                 left: constraints.maxWidth * 0.77,
-                child: _buildMapLabel(context, 'assets/mystery/Case2/dean.png', 105),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case2/dean.png',
+                  105,
+                ),
               ),
               Positioned(
-                top: 0,
+                top: 15,
                 left: 0,
                 right: 0,
                 child: SafeArea(
@@ -376,7 +403,10 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
                             right: 10,
                             child: Row(
                               children: [
-                                Image.asset('assets/mystery/notebook.png', height: 50),
+                                Image.asset(
+                                  'assets/mystery/notebook.png',
+                                  height: 50,
+                                ),
                                 const SizedBox(width: 10),
                                 _buildLivesHUDItem(context),
                                 const SizedBox(width: 10),
@@ -469,6 +499,3 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
     );
   }
 }
-
-
-

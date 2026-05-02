@@ -289,6 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
           KeyboardAccessoryBar(
             controller: _passwordController,
             focusNode: _passwordFocus,
+            obscureText: true,
           ),
         ],
       ),

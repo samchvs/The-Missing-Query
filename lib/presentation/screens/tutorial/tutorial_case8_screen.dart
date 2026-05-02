@@ -38,7 +38,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   bool _isQueryClicked = false; // Track if query terminal is shown
   String _typedText = "";
   final String _fullText =
-      "My head is spinning! I should create a personal notebook so I donâ€™t forget the clues!";
+      "My head is spinning! I should create a personal notebook so I don't forget the clues!";
   final String _notebookTarget =
       "CREATE TABLE My_Notes (\nid INT PRIMARY_KEY,\nclue VARCHAR(50),\ndetails VARCHAR(100)\n);";
   final String _notebookTarget2 =
@@ -232,7 +232,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false, // Prevent design from being pushed up
-      body: Center(
+      body: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit
               .fill, // Scales content to perfectly fit screen while preserving relative layout
@@ -286,7 +286,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     child: Image.asset(
                       AppAssets.tutorialCase8GuidePop,
                       width: 300, // Reasonable size for a guide pop
-                      fit: BoxFit.contain,
+                      fit: BoxFit.fill,
                     ),
                   ),
 
@@ -304,7 +304,8 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                       const SizedBox(width: 15),
                       BouncingButton(
-                        onPressed: () => TutorialMusicController.goHome(context),
+                        onPressed: () =>
+                            TutorialMusicController.goHome(context),
                         child: Image.asset(AppAssets.homeBtn, width: 50),
                       ),
                     ],
@@ -349,7 +350,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     Image.asset(
                                       AppAssets.chatIcon,
                                       width: 250, // Reduced from 350
-                                      fit: BoxFit.contain,
+                                      fit: BoxFit.fill,
                                     ),
                                     // The text on top of the icon
                                     if (_showDialogue)
@@ -440,7 +441,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                         width: 280,
                                         child: Image.asset(
                                           AppAssets.notebookLayout,
-                                          fit: BoxFit.contain,
+                                          fit: BoxFit.fill,
                                         ),
                                       ),
                                       // Text Area (TextField + Ghost Hint)
@@ -554,7 +555,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           width: 250,
                                           child: Image.asset(
                                             AppAssets.tutorialCase8GuidePop2,
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                         Positioned(
@@ -588,7 +589,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           width: 250,
                                           child: Image.asset(
                                             AppAssets.tutorialCase8GuidePop3,
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                         Positioned(
@@ -621,7 +622,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           width: 250,
                                           child: Image.asset(
                                             AppAssets.tutorialCase8GuidePop6,
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                         Positioned(
@@ -656,7 +657,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           width: 250,
                                           child: Image.asset(
                                             AppAssets.tutorialCase8GuidePop7,
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                         Positioned(
@@ -685,7 +686,12 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                   ),
 
                 // Accessory bar for keyboard (Positioned last to be on top of all overlays)
-                KeyboardAccessoryBar(controller: _queryController),
+                KeyboardAccessoryBar(
+                  controller: _queryController,
+                  hintText: _currentTaskIndex == 0
+                      ? _notebookTarget
+                      : _notebookTarget2,
+                ),
 
                 // CRUD Diary Tables Pop-up
                 if (_isDiaryTableShown)
@@ -886,7 +892,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               width: 250,
                               child: Image.asset(
                                 AppAssets.tutorialCase8GuidePop4,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                               ),
                             ),
                             Positioned(
@@ -923,7 +929,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               width: 250,
                               child: Image.asset(
                                 AppAssets.tutorialCase8GuidePop5,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                               ),
                             ),
                             Positioned(
@@ -968,7 +974,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               width: 500,
                               child: Image.asset(
                                 AppAssets.tutorialCase8DeviceRegistry,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                               ),
                             ),
                             Positioned(
@@ -1002,7 +1008,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               width: 250,
                               child: Image.asset(
                                 AppAssets.tutorialCase8GuidePop8,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                               ),
                             ),
                             Positioned(
@@ -1036,7 +1042,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               width: 250,
                               child: Image.asset(
                                 AppAssets.tutorialCase9GuidePop9,
-                                fit: BoxFit.contain,
+                                fit: BoxFit.fill,
                               ),
                             ),
                             Positioned(
@@ -1144,4 +1150,3 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
     return rowContent;
   }
 }
-

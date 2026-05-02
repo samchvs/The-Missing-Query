@@ -304,52 +304,91 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
             fit: StackFit.expand,
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/Case3/map3.png', fit: BoxFit.cover),
+                child: Image.asset(
+                  'assets/mystery/Case3/map3.png',
+                  fit: BoxFit.cover,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.18,
                 left: constraints.maxWidth * 0.15,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/skyline.png', 100),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/skyline.png',
+                  100,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.08,
                 left: constraints.maxWidth * 0.35,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/huang.png', 80),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/huang.png',
+                  80,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.30,
                 left: constraints.maxWidth * 0.37,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/city_police.png', 100),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/city_police.png',
+                  100,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.50,
                 left: constraints.maxWidth * 0.53,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/bank.png', 100),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/bank.png',
+                  100,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.27,
                 left: constraints.maxWidth * 0.75,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/logistics.png', 100),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/logistics.png',
+                  100,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.48,
                 left: constraints.maxWidth * 0.25,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/cordova.png', 90),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/cordova.png',
+                  90,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.60,
                 left: constraints.maxWidth * 0.38,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/hospital.png', 95),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/hospital.png',
+                  95,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.78,
                 left: constraints.maxWidth * 0.50,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/lowe.png', 85),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/lowe.png',
+                  85,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.52,
                 left: constraints.maxWidth * 0.82,
-                child: _buildMapLabel(context, 'assets/mystery/Case3/cell.png', 80),
+                child: _buildMapLabel(
+                  context,
+                  'assets/mystery/Case3/cell.png',
+                  80,
+                ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.65,
@@ -361,7 +400,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: 0,
+                top: 15,
                 left: 0,
                 right: 0,
                 child: SafeArea(
@@ -404,7 +443,10 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                             right: 10,
                             child: Row(
                               children: [
-                                Image.asset('assets/mystery/notebook.png', height: 50),
+                                Image.asset(
+                                  'assets/mystery/notebook.png',
+                                  height: 50,
+                                ),
                                 const SizedBox(width: 10),
                                 _buildLivesHUDItem(context),
                                 const SizedBox(width: 10),
@@ -505,6 +547,3 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     );
   }
 }
-
-
-

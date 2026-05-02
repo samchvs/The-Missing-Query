@@ -148,9 +148,15 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black,
-      body: LayoutBuilder(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: LayoutBuilder(
         builder: (context, constraints) {
-          final double screenWidth = constraints.maxWidth;
+          final double screenWidth = 800; // Hardcode to 800 to preserve relative positioning
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -159,7 +165,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               // Carrotino Animations (Talking/Waving)
               Positioned(
                 left: screenWidth * 0.45 + 10.0,
-                top: 150.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                top: 140.0 + (_isCarrotinoSad ? -5.0 : -3.0), // Moved up from 150
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 10),
                   curve: Curves.fastOutSlowIn,
@@ -189,7 +195,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               // Carrotino Sad Image
               Positioned(
                 left: screenWidth * 0.45 + 62.0,
-                top: 165.0 + (_isCarrotinoSad ? -5.0 : -3.0),
+                top: 155.0 + (_isCarrotinoSad ? -5.0 : -3.0), 
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 10),
                   curve: Curves.fastOutSlowIn,
@@ -206,7 +212,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
               if (_showBubble2)
                 Positioned(
                   left: screenWidth * 0.45 + 110.0, // 50.0 + 60.0
-                  top: 110.0, // 190.0 - 80.0
+                  top: 100.0, // Moved up from 110.0
                   child: Image.asset(
                     AppAssets.carrotinoResponseBubble,
                     width: 150,
@@ -258,7 +264,7 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
                               return Transform.translate(
                                 offset: Offset(
                                   -30.0,
-                                  -7.5 +
+                                  -17.5 + // Moved up from -7.5
                                       (Curves.easeInOut.transform(
                                             (_spriteController.value * 2) % 1.0,
                                           ) *
@@ -388,6 +394,6 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
           );
         },
       ),
-    );
+    ))));
   }
 }

@@ -67,6 +67,16 @@ class _TypewriterTextState extends State<TypewriterText>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Stop audio if the screen is no longer the top-most route (e.g. navigated away)
+    final bool isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
+    if (!isCurrent) {
+      _audioPlayer.stop();
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _audioPlayer.dispose();

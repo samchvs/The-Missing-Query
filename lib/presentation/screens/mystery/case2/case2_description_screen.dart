@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_map_screen.dart';
@@ -217,7 +217,8 @@ class ProfileFlipCard extends StatelessWidget {
 
     return List.generate(
       frameCount,
-      (index) => 'assets/mystery/Case2/character_profile$pageNumber/${index + 1}.png',
+      (index) =>
+          'assets/mystery/Case2/character_profile$pageNumber/${index + 1}.png',
     );
   }
 
@@ -388,7 +389,7 @@ class _CaseDescription2State extends State<CaseDescription2>
                 ),
               ),
               Positioned(
-                top: -5,
+                top: 15,
                 left: 20,
                 right: 20,
                 child: SizedBox(
@@ -419,7 +420,10 @@ class _CaseDescription2State extends State<CaseDescription2>
                           ],
                         ),
                       ),
-                      Image.asset('assets/mystery/Case2/chimera.png', height: 80),
+                      Image.asset(
+                        'assets/mystery/Case2/chimera.png',
+                        height: 80,
+                      ),
                     ],
                   ),
                 ),
@@ -448,7 +452,10 @@ class _CaseDescription2State extends State<CaseDescription2>
               bottom: 2,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 28),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 28,
+                ),
               ),
             ),
           ],
@@ -468,7 +475,9 @@ class _CaseDescription2State extends State<CaseDescription2>
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible ? 'assets/mystery/Case2/case_board2.png' : 'assets/mystery/case_bg.png',
+                _isBoardVisible
+                    ? 'assets/mystery/Case2/case_board2.png'
+                    : 'assets/mystery/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),
@@ -513,7 +522,10 @@ class _CaseDescription2State extends State<CaseDescription2>
               bottom: 40,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 30),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 30,
+                ),
               ),
             ),
           ],
@@ -522,4 +534,3 @@ class _CaseDescription2State extends State<CaseDescription2>
     );
   }
 }
-

@@ -12,6 +12,7 @@ import 'package:graphics_project/presentation/controllers/home_music_controller.
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:graphics_project/core/constants/app_routes.dart';
 import 'package:graphics_project/presentation/screens/mystery/case_selection_screen.dart';
+import 'package:graphics_project/presentation/controllers/gameplay_music_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -71,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void didPopNext() {
     // When returning to this route from another route
     debugPrint("Returning to HomeScreen: Resuming home music.");
+    GameplayMusicController().stop();
     HomeMusicController().play();
   }
 
@@ -171,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               child: BouncingButton(
                 onPressed: () {
                   HomeMusicController().stop();
+                  GameplayMusicController().play();
                   Navigator.push(
                     context,
                     PageRouteBuilder(

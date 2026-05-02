@@ -20,6 +20,7 @@ class AppAssets {
   static const String buttonSound = 'sfx-audio/button-sound.mp3';
   static const String tutorialMusic = 'bg-audio/tutorial-music.mp3';
   static const String homeMusic = 'bg-audio/home-music.mp3';
+  static const String gameplayMusic = 'bg-audio/gameplay-music.mp3';
   static const String popupSound = 'sfx-audio/popup.mp3';
   static const String correctAnswerSound = 'sfx-audio/correct-answer.mp3';
 

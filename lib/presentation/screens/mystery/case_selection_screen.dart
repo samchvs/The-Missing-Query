@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:graphics_project/core/utils/page_transitions.dart';
+import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/screens/mystery/case1/case1_description_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_description_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case3/case3_description_screen.dart';
@@ -25,15 +26,20 @@ class CaseSelectionScreen extends StatelessWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
+                padding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 25,
+                  bottom: 8,
                 ),
                 child: Row(
                   children: [
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Image.asset('assets/mystery/back_button.png', height: 40),
+                    BouncingButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Image.asset(
+                        'assets/mystery/back_button.png',
+                        height: 40,
+                      ),
                     ),
                     const Spacer(),
                     SizedBox(
@@ -57,8 +63,8 @@ class CaseSelectionScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      BouncingButton(
+                        onPressed: () {
                           Navigator.push(
                             context,
                             slideRoute(const CaseDescription1()),
@@ -69,8 +75,8 @@ class CaseSelectionScreen extends StatelessWidget {
                           isLocked: false,
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
+                      BouncingButton(
+                        onPressed: () {
                           Navigator.push(
                             context,
                             slideRoute(const CaseDescription2()),
@@ -81,9 +87,9 @@ class CaseSelectionScreen extends StatelessWidget {
                           isLocked: false,
                         ),
                       ),
-                      
-                      GestureDetector(
-                        onTap: () {
+
+                      BouncingButton(
+                        onPressed: () {
                           Navigator.push(
                             context,
                             slideRoute(const CaseDescription3()),
@@ -93,7 +99,7 @@ class CaseSelectionScreen extends StatelessWidget {
                           caseTitle: "CASE FILE 03:\n9-1-1",
                           isLocked: false,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -162,4 +168,3 @@ class CaseFolder extends StatelessWidget {
     );
   }
 }
-

@@ -58,7 +58,13 @@ class _TutorialScreenState extends State<TutorialScreen>
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: Stack(
+        body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
           fit: StackFit.expand,
           children: [
             Image.asset(
@@ -180,6 +186,9 @@ class _TutorialScreenState extends State<TutorialScreen>
               ),
           ],
         ),
+          ),
+        ),
+      ),
       ),
     );
   }

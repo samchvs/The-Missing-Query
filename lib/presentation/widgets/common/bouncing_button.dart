@@ -43,10 +43,13 @@ class _BouncingButtonState extends State<BouncingButton>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) {
+        _controller.forward();
+        SFXController().playButton();
+      },
       onTapUp: (_) {
         _controller.reverse();
-        SFXController().playButton();
         widget.onPressed();
       },
       onTapCancel: () => _controller.reverse(),

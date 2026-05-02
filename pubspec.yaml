@@ -94,6 +94,7 @@ flutter:
     - assets/sfx-audio/
     - assets/bg-audio/tutorial-music.mp3
     - assets/bg-audio/home-music.mp3
+    - assets/bg-audio/gameplay-music.mp3
     - assets/about_tab/
   # Mystery Game Assets
     - assets/mystery/

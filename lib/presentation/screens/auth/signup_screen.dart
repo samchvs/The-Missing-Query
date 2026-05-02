@@ -210,7 +210,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
               KeyboardAccessoryBar(controller: _usernameController, focusNode: _usernameFocus),
               KeyboardAccessoryBar(controller: _emailController, focusNode: _emailFocus),
-              KeyboardAccessoryBar(controller: _passwordController, focusNode: _passwordFocus),
+              KeyboardAccessoryBar(controller: _passwordController, focusNode: _passwordFocus, obscureText: true),
             ],
           ),
         );

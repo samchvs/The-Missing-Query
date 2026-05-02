@@ -83,7 +83,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     );
     _walkAnimation = Tween<double>(
       begin: -0.6,
-      end: 0.0,
+      end: 0.00, // Adjusted more to the right
     ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
 
     _exitController = AnimationController(
@@ -136,7 +136,6 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
       if (mounted) {
         setState(() {
           _isQueryClicked = false;
-          _isHintDismissed = false;
           _isTableShown = false;
 
         });
@@ -147,9 +146,8 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
   void _validateQuery() {
     final String userInput = _queryController.text
         .trim()
-        .toLowerCase()
         .replaceAll(RegExp(r'\s+'), ' ');
-    final String target = _targetQuery.trim().toLowerCase().replaceAll(
+    final String target = _targetQuery.trim().replaceAll(
       RegExp(r'\s+'),
       ' ',
     );
@@ -185,7 +183,13 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           // 1. Background
@@ -205,13 +209,13 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
           AnimatedBuilder(
             animation: Listenable.merge([_walkController, _exitController]),
             builder: (context, child) {
-              final double screenWidth = MediaQuery.of(context).size.width;
+              const double canvasWidth = 800.0;
               final double walkTranslation = _isExiting
-                  ? _exitAnimation.value * screenWidth
-                  : _walkAnimation.value * screenWidth;
+                  ? _exitAnimation.value * canvasWidth
+                  : _walkAnimation.value * canvasWidth;
               return Positioned(
-                left: (screenWidth * 0.135) + walkTranslation,
-                top: 137.0,
+                left: (canvasWidth * 0.135) + walkTranslation,
+                top: 120.0, // Moved up from 137.0
                 child: SizedBox(
                   width: 200,
                   height: 200,
@@ -231,7 +235,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                       : Align(
                           alignment: Alignment.bottomCenter,
                           child: Transform.translate(
-                            offset: const Offset(-25.0, -35.0),
+                            offset: const Offset(-52.0, -35.0), // Matched stationary offset to prevent overshooting
                             child: AppAnimations.walkingBeanie(width: 70),
                           ),
                         ),
@@ -267,7 +271,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
           // 3. Success Next Button (Moved BELOW the overlay in the stack)
           if (_isQuerySuccessful && !_isExiting)
             Positioned(
-              bottom: 40,
+              bottom: 20,
               right: 40,
               child: AnimatedBuilder(
                 animation: _shakeAnimation,
@@ -339,7 +343,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Image.asset(AppAssets.tutorialQueryDisplay, width: 550),
+                    Image.asset(AppAssets.tutorialQueryDisplay, width: 500),
 
                     if (_isHintDismissed)
                       Positioned(
@@ -375,7 +379,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
                     if (_isHintDismissed)
                       Positioned(
-                        bottom: 5,
+                        bottom: 4, // Moved down from 5
                         left: 20,
                         right: 20,
                         child: Row(
@@ -398,18 +402,18 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                               },
                               child: Image.asset(
                                 AppAssets.tablesBtn,
-                                width: 110,
+                                width: 100, // Reduced from 110
                               ),
                             ),
                             const Spacer(),
                             BouncingButton(
                               onPressed: () => _queryController.clear(),
-                              child: Image.asset(AppAssets.clearBtn, width: 90),
+                              child: Image.asset(AppAssets.clearBtn, width: 80), // Reduced from 90
                             ),
                             const SizedBox(width: 12),
                             BouncingButton(
                               onPressed: _validateQuery,
-                              child: Image.asset(AppAssets.runBtn, width: 120),
+                              child: Image.asset(AppAssets.runBtn, width: 110), // Reduced from 120
                             ),
                           ],
                         ),
@@ -499,8 +503,11 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
           ),
 
           if (_isQueryClicked && _isHintDismissed && !_isTableShown)
-            KeyboardAccessoryBar(controller: _queryController),
+            KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

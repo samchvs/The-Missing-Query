@@ -26,9 +26,15 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
           Image.asset(
             AppAssets.tutorial3Screen,
             fit: BoxFit.fill,
@@ -43,80 +49,81 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
             ),
           ),
           // Folder + display
+          // Folder
           Positioned(
-            left: MediaQuery.of(context).size.width * 0.15,
-            top: MediaQuery.of(context).size.height * 0.20,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                BouncingButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const TutorialCaseScreen(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) =>
-                                child,
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      ShakeWidget(
-                        delay: const Duration(seconds: 3),
-                        child: Image.asset(
-                          AppAssets.tutorial4Folder,
-                          width: 250,
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(-6, -25),
-                        child: Image.asset(
-                          AppAssets.tutorial4FolderTitle,
-                          width: 180,
-                        ),
-                      ),
-                    ],
+            left: 800 * 0.10,
+            top: 360 * 0.15,
+            child: BouncingButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const TutorialCaseScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) =>
+                            child,
                   ),
+                );
+              },
+              child: Column(
+                children: [
+                  ShakeWidget(
+                    delay: const Duration(seconds: 3),
+                    child: Image.asset(
+                      AppAssets.tutorial4Folder,
+                      width: 250,
+                    ),
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-6, -25),
+                    child: Image.asset(
+                      AppAssets.tutorial4FolderTitle,
+                      width: 180,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Text Display Box
+          Positioned(
+            left: 800 * 0.45,
+            top: 360 * 0.50, // Lowered further to move it down from the folder
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  top: -130,
+                  child: AppAnimations.worriedWave(width: 220),
                 ),
-                const SizedBox(width: 30),
-                Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      top: -130,
-                      child: AppAnimations.worriedWave(width: 220),
-                    ),
-                    Image.asset(AppAssets.tutorialDisplay, width: 350),
-                    Positioned(
-                      top: 20,
-                      left: 20,
-                      right: 20,
-                      bottom: 20,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: TypewriterText(
-                          text:
-                              'Select the CASE OF BEANIE: THE STOLEN PASS.\n\n'
-                              'Oh noooo, that\'s my case! Let\'s investigate and find the culprit. '
-                              'Please help me find out who did it.',
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.londrinaSolid(
-                            color: const Color(0xFF542E2E),
-                            fontSize: 14,
-                          ),
-                          duration: const Duration(seconds: 7),
-                          playAudio: true,
-                          boldWords: const ["CASE OF BEANIE: THE STOLEN PASS"],
-                        ),
+                Image.asset(AppAssets.tutorialDisplay, width: 350),
+                Positioned(
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: TypewriterText(
+                      text:
+                          'Select the CASE OF BEANIE: THE STOLEN PASS.\n\n'
+                          'Oh noooo, that\'s my case! Let\'s investigate and find the culprit. '
+                          'Please help me find out who did it.',
+                      textAlign: TextAlign.left,
+                      style: GoogleFonts.londrinaSolid(
+                        color: const Color(0xFF542E2E),
+                        fontSize: 14,
                       ),
+                      duration: const Duration(seconds: 7),
+                      playAudio: true,
+                      boldWords: const ["CASE OF BEANIE: THE STOLEN PASS"],
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -140,6 +147,9 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
             ),
           ),
         ],
+      ),
+      ),
+      ),
       ),
     );
   }

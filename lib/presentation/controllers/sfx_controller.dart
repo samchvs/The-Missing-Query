@@ -5,10 +5,12 @@ class SFXController {
   static final SFXController _instance = SFXController._internal();
   factory SFXController() => _instance;
 
-  SFXController._internal();
-
   final AudioPlayer _audioPlayer = AudioPlayer();
   double _volume = 1.0;
+
+  SFXController._internal() {
+    _audioPlayer.setPlayerMode(PlayerMode.lowLatency);
+  }
 
   Future<void> setVolume(double volume) async {
     _volume = volume;
@@ -23,8 +25,9 @@ class SFXController {
   }
 
   Future<void> playButton() async {
-    await _audioPlayer.setVolume(_volume);
-    await _audioPlayer.play(AssetSource(AppAssets.buttonSound));
+    final player = AudioPlayer();
+    await player.setVolume(_volume);
+    await player.play(AssetSource('mystery/audio/button.mp3'));
   }
 
   Future<void> playCorrectAnswer() async {

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 
@@ -155,4 +155,3 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
     );
   }
 }
-

@@ -134,7 +134,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          Center(
+          SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.fill,
               child: SizedBox(
@@ -164,7 +164,8 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                           ),
                           const SizedBox(width: 10),
                           BouncingButton(
-                            onPressed: () => TutorialMusicController.goHome(context),
+                            onPressed: () =>
+                                TutorialMusicController.goHome(context),
                             child: Image.asset(AppAssets.homeBtn, width: 55),
                           ),
                           const Spacer(),
@@ -252,7 +253,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                       width: 280,
                                       child: Image.asset(
                                         AppAssets.notebookLayout,
-                                        fit: BoxFit.contain,
+                                        fit: BoxFit.fill,
                                       ),
                                     ),
                                     // Text Area
@@ -363,7 +364,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                           width: 250,
                                           child: Image.asset(
                                             AppAssets.tutorialCase8GuidePop3,
-                                            fit: BoxFit.contain,
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                         Positioned(
@@ -558,7 +559,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                         width: 250,
                         child: Image.asset(
                           AppAssets.tutorialCase8GuidePop8,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.fill,
                         ),
                       ),
                       Positioned(
@@ -577,7 +578,10 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
             ),
 
           // Keyboard accessory bar
-          KeyboardAccessoryBar(controller: _queryController),
+          KeyboardAccessoryBar(
+            controller: _queryController,
+            hintText: _notebookTarget,
+          ),
 
           // Guide Pop Image (Initial)
           if (_showGuidePop9 && !_notebookOpenedOnce)
@@ -588,7 +592,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                 width: 280,
                 child: Image.asset(
                   AppAssets.tutorialCase8GuidePop,
-                  fit: BoxFit.contain,
+                  fit: BoxFit.fill,
                 ),
               ),
             ),
@@ -605,7 +609,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                       Image.asset(
                         AppAssets.case9Mynotes,
                         width: 500,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.fill,
                       ),
                       Positioned(
                         top: 10,
@@ -635,7 +639,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                         width: 250,
                         child: Image.asset(
                           AppAssets.case9GuidePop1,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.fill,
                         ),
                       ),
                       Positioned(
@@ -655,8 +659,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                 ),
               ),
             ),
-
-
         ],
       ),
     );
@@ -715,4 +717,3 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     return rowContent;
   }
 }
-

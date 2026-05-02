@@ -2,18 +2,124 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 
-/// A floating accessory bar that appears above the on-screen keyboard.
-/// Shows the current text of the given [controller] and dismisses focus on Done.
+/// Custom controller that renders ghost/hint text inline with the user's input
+/// by overriding [buildTextSpan].
+///
+/// Layout (single scrolling row):
+///   [typed text ──────────────── cursor │ ghost hint continues →]
+///
+/// Flutter's single-line TextField automatically scrolls left so the cursor
+/// stays visible. The ghost text is always rendered right after the cursor,
+/// meaning it slides into view naturally as the user types.
+class _GhostTextController extends TextEditingController {
+  String? hintText;
+  final TextStyle baseStyle;
+  final Color ghostColor;
+
+  _GhostTextController({
+    required this.hintText,
+    required this.baseStyle,
+    required this.ghostColor,
+    String? initialText,
+  }) : super(text: initialText);
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final String input = text;
+    final String? hintRaw = hintText;
+    final TextStyle resolved = style ?? baseStyle;
+
+    if (hintRaw == null) return TextSpan(style: resolved, text: input);
+
+    // 1. Normalize both for a flexible "on track" check
+    // We collapse all whitespace to single spaces and lowercase everything.
+    String normInput = input.replaceAll(RegExp(r'\s+'), ' ');
+    String normHint = hintRaw.replaceAll(RegExp(r'\s+'), ' ');
+
+    // If the user has typed something that doesn't match the hint (ignoring whitespace/case),
+    // we stop showing the ghost hint to avoid confusion.
+    // We use trimRight() on input so that a trailing space doesn't break the match 
+    // if the hint doesn't have a space at that exact position yet.
+    if (!normHint.startsWith(normInput.trimRight())) {
+      return TextSpan(style: resolved, text: input);
+    }
+
+    // 2. Determine how much of the original hint to skip.
+    // We walk through both strings, matching non-whitespace characters.
+    int hintIdx = 0;
+    int inputIdx = 0;
+    while (inputIdx < input.length && hintIdx < hintRaw.length) {
+      final String charIn = input[inputIdx];
+      final String charHint = hintRaw[hintIdx];
+
+      if (charIn.trim().isEmpty) {
+        // User typed whitespace; skip all consecutive whitespace in both
+        inputIdx++;
+        while (hintIdx < hintRaw.length && hintRaw[hintIdx].trim().isEmpty) {
+          hintIdx++;
+        }
+      } else if (charHint.trim().isEmpty) {
+        // Hint has whitespace here but user hasn't typed it yet; skip it in hint
+        hintIdx++;
+      } else if (charIn == charHint) {
+        // Characters match exactly; move both forward
+        inputIdx++;
+        hintIdx++;
+      } else {
+        // Real mismatch found during walk
+        break;
+      }
+    }
+
+    // 3. The ghost text is the remainder of the hint, with newlines replaced by spaces 
+    // for the single-line accessory bar display.
+    if (hintIdx >= hintRaw.length) {
+      return TextSpan(style: resolved, text: input);
+    }
+
+    final String ghost = hintRaw.substring(hintIdx).replaceAll('\n', ' ');
+
+    return TextSpan(
+      style: resolved,
+      children: [
+        TextSpan(
+          text: input,
+          style: resolved.copyWith(color: AppColors.primary),
+        ),
+        TextSpan(
+          text: ghost,
+          style: resolved.copyWith(color: ghostColor),
+        ),
+      ],
+    );
+  }
+}
+
+/// A floating accessory bar shown above the on-screen keyboard.
+///
+/// Displays a single scrolling line:
+///   [typed text] [cursor] [ghost hint] … [DONE]
+///
+/// As the user types, Flutter scrolls the content so the cursor stays in view,
+/// which causes the ghost text to shift left — always visible next to the cursor.
 class KeyboardAccessoryBar extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
   final TextStyle? textStyle;
+  final bool obscureText;
+  final String? hintText;
 
   const KeyboardAccessoryBar({
     super.key,
     required this.controller,
     this.focusNode,
     this.textStyle,
+    this.obscureText = false,
+    this.hintText,
   });
 
   @override
@@ -21,34 +127,73 @@ class KeyboardAccessoryBar extends StatefulWidget {
 }
 
 class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
-  late ScrollController _scrollController;
+  late FocusNode _internalFocus;
+  late _GhostTextController _ghostController;
+
+  TextStyle get _baseStyle =>
+      widget.textStyle ??
+      GoogleFonts.inconsolata(
+        fontSize: 18,
+        color: AppColors.primary,
+        fontWeight: FontWeight.bold,
+      );
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    widget.controller.addListener(_scrollToEnd);
+    _internalFocus = FocusNode();
+
+    _ghostController = _GhostTextController(
+      hintText: widget.hintText,
+      baseStyle: _baseStyle,
+      ghostColor: AppColors.primary.withValues(alpha: 0.3),
+      initialText: widget.controller.text,
+    );
+
+    widget.controller.addListener(_syncFromSource);
+    _ghostController.addListener(_syncToSource);
+    widget.focusNode?.addListener(_onMainFocusChange);
+
+    if (widget.focusNode?.hasFocus ?? false) {
+      _internalFocus.requestFocus();
+    }
   }
 
-  void _scrollToEnd() {
-    if (_scrollController.hasClients) {
-      // Small delay to ensure the text is updated in the field
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+  /// Source controller changed → mirror into ghost controller.
+  void _syncFromSource() {
+    if (_ghostController.text != widget.controller.text) {
+      _ghostController.value = widget.controller.value;
+    }
+  }
+
+  /// Ghost controller changed (user typed in bar) → mirror into source.
+  void _syncToSource() {
+    if (widget.controller.text != _ghostController.text) {
+      widget.controller.value = _ghostController.value;
+    }
+  }
+
+  void _onMainFocusChange() {
+    if (mounted && (widget.focusNode?.hasFocus ?? false)) {
+      _internalFocus.requestFocus();
+    }
+  }
+
+  @override
+  void didUpdateWidget(KeyboardAccessoryBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.hintText != widget.hintText) {
+      _ghostController.hintText = widget.hintText;
     }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_scrollToEnd);
-    _scrollController.dispose();
+    widget.controller.removeListener(_syncFromSource);
+    _ghostController.removeListener(_syncToSource);
+    widget.focusNode?.removeListener(_onMainFocusChange);
+    _internalFocus.dispose();
+    _ghostController.dispose();
     super.dispose();
   }
 
@@ -57,18 +202,27 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     if (keyboardHeight <= 0) return const SizedBox.shrink();
 
+    // Scale the keyboard height to the local coordinate system (360 reference height)
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double scaleY = screenHeight > 0 ? (screenHeight / 360.0) : 1.0;
+    final double localBottom = keyboardHeight / scaleY;
+
     return ListenableBuilder(
-      listenable: widget.focusNode ?? FocusNode(),
-      builder: (context, child) {
-        final bool hasFocus = widget.focusNode?.hasFocus ?? true;
+      listenable: Listenable.merge([
+        if (widget.focusNode != null) widget.focusNode!,
+        _internalFocus,
+      ]),
+      builder: (context, _) {
+        final bool hasFocus =
+            (widget.focusNode?.hasFocus ?? true) || _internalFocus.hasFocus;
         if (!hasFocus) return const SizedBox.shrink();
 
         return Positioned(
           left: 0,
           right: 0,
-          bottom: keyboardHeight,
+          bottom: localBottom,
           child: Material(
-            color: AppColors.transparent,
+            color: Colors.transparent,
             child: Container(
               width: double.infinity,
               height: 55,
@@ -87,29 +241,30 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: widget.controller,
-                      scrollController: _scrollController,
+                      controller: _ghostController,
+                      focusNode: _internalFocus,
+                      obscureText: widget.obscureText,
                       maxLines: 1,
                       cursorColor: AppColors.primaryLight,
                       showCursor: true,
-                      autofocus: false,
-                      style: widget.textStyle ??
-                          GoogleFonts.inconsolata(
-                            fontSize: 18,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: _baseStyle,
+                      // No custom ScrollController — Flutter's default
+                      // cursor-following scroll keeps the cursor visible and
+                      // naturally shifts the content left as the user types.
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
                   ),
                   TextButton(
-                    onPressed: () => FocusScope.of(context).unfocus(),
+                    onPressed: () {
+                      _internalFocus.unfocus();
+                      FocusScope.of(context).unfocus();
+                    },
                     child: Text(
-                      "DONE",
+                      'DONE',
                       style: GoogleFonts.londrinaSolid(
                         color: AppColors.primaryLight,
                         fontSize: 18,

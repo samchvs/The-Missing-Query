@@ -24,7 +24,13 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           GestureDetector(
@@ -50,33 +56,33 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
 
           // Dancingbroccoli Animation
           const Positioned(
-            left: 120,
+            left: 110,
             bottom: 20,
             child: SpriteAnimator(
               frames: AppAssets.dancingBroccoli,
               width: 200,
               frameDuration: Duration(milliseconds: 150),
-              fit: BoxFit.contain,
+              fit: BoxFit.fill,
               loop: true,
             ),
           ),
 
           // Dancingtomathomas Animation
           const Positioned(
-            right: 385,
-            bottom: 95,
+            right: 365,
+            bottom: 90,
             child: SpriteAnimator(
               frames: AppAssets.dancingTomathomas,
               width: 200,
               frameDuration: Duration(milliseconds: 150),
-              fit: BoxFit.contain,
+              fit: BoxFit.fill,
               loop: true,
             ),
           ),
 
           // Hellobeanie Animation
           Positioned(
-            right: 255,
+            right: 245,
             bottom: 15,
             child: AppAnimations.helloBeanie(
               width: 230,
@@ -87,12 +93,12 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
           // Dancingcarrotino Animation
           const Positioned(
             right: 135,
-            bottom: 95,
+            bottom: 85,
             child: SpriteAnimator(
               frames: AppAssets.dancingCarrotino,
               width: 200,
               frameDuration: Duration(milliseconds: 150),
-              fit: BoxFit.contain,
+              fit: BoxFit.fill,
               loop: true,
             ),
           ),
@@ -115,6 +121,9 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

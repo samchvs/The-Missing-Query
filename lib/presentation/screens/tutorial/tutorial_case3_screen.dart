@@ -153,11 +153,15 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
 
     _userFadeController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _popupUserFadeController.forward();
+        if (!_isTableUnlocked) {
+          _popupUserFadeController.forward();
+        }
       }
     });
 
-    _queryController = SQLSyntaxController();
+    _queryController = SQLSyntaxController(
+      text: "SELECT * FROM Hallway_Logs;"
+    );
 
     _runHintController = AnimationController(
       vsync: this,
@@ -227,7 +231,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     });
 
     _queryController.addListener(() {
-      final text = _queryController.text.trim();
+      final text = _queryController.text.trim().replaceAll(RegExp(r'\s+'), ' ');
       if (text.length == _targetQuery.length) {
         final textPart1 = text.substring(0, 14).toUpperCase();
         final targetPart1 = _targetQuery.substring(0, 14).toUpperCase();
@@ -268,7 +272,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   }
 
   bool _isQueryCorrect() {
-    final text = _queryController.text.trim();
+    final text = _queryController.text.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (text.length != _targetQuery.length) return false;
     final textPart1 = text.substring(0, 14).toUpperCase();
     final targetPart1 = _targetQuery.substring(0, 14).toUpperCase();
@@ -282,14 +286,20 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.only(top: 20.0),
+              padding: const EdgeInsets.only(top: 10.0),
               child: Image.asset(AppAssets.tutorialCase3Title, width: 420),
             ),
           ),
@@ -314,7 +324,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 setState(() {
                                   _isQueryClicked = true;
                                   _hintMarkedAsDone = true;
-                                  _isHintDismissed = false;
                                 });
                                 _hintController.stop();
                                 SFXController().playPopup();
@@ -365,17 +374,17 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
           AnimatedBuilder(
             animation: Listenable.merge([_walkAnimation, _exitAnimation]),
             builder: (context, child) {
-              final double screenWidth = MediaQuery.of(context).size.width;
+              const double canvasWidth = 800.0;
               final double totalTranslation =
-                  (_walkAnimation.value + _exitAnimation.value) * screenWidth;
+                  (_walkAnimation.value + _exitAnimation.value) * canvasWidth;
               return Transform.translate(
                 offset: Offset(totalTranslation, 0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      left: screenWidth * 0.135,
-                      top: 90.0,
+                    padding: const EdgeInsets.only(
+                      left: canvasWidth * 0.13, // Adjusted to the left
+                      top: 85.0,
                     ),
                     child: SizedBox(
                       width: 200,
@@ -465,7 +474,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
             child: Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: const EdgeInsets.only(top: 90.0),
+                padding: const EdgeInsets.only(top: 70.0), // Moved up from 90.0
                 child: IgnorePointer(
                   ignoring: !_showQueryDisplay,
                   child: AnimatedOpacity(
@@ -484,7 +493,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                           Visibility(
                             visible: _isHintDismissed,
                             child: Positioned(
-                              top: 55,
+                              top: 45,
                               left: 25,
                               right: 25,
                               bottom: 45,
@@ -545,7 +554,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                           ),
                           Positioned(
                             top: 9,
-                            right: 25,
+                            right: 15, // Moved a bit to the right
                             child: BouncingButton(
                               onPressed: () {
                                 _popupUserFadeController.reverse();
@@ -553,7 +562,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   if (mounted) {
                                     setState(() {
                                       _isQueryClicked = false;
-                                      _isHintDismissed = false;
                                       _runHintController.reset();
                                       _isRunHintFinished = false;
                                     });
@@ -564,7 +572,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                             ),
                           ),
                           Positioned(
-                            bottom: 5,
+                            bottom: 8, // Moved down from 15
                             left: 15,
                             child: BouncingButton(
                               onPressed: () {
@@ -592,7 +600,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                             ),
                           ),
                           Positioned(
-                            bottom: 5,
+                            bottom: 8, // Moved down from 15
                             right: 10,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -784,7 +792,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                     ),
                     Positioned(
                       top: 20,
-                      right: 20,
+                      right: 15,
                       child: BouncingButton(
                         onPressed: () {
                           setState(() {
@@ -820,7 +828,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
               ],
             ),
           ),
-          KeyboardAccessoryBar(controller: _queryController),
+          KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
           // Darken transition
           IgnorePointer(
             ignoring: !_isTransitioning,
@@ -830,6 +838,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

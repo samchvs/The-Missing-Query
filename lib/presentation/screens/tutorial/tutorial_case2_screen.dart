@@ -25,7 +25,13 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 800,
+            height: 360,
+            child: Stack(
         fit: StackFit.expand,
         children: [
           // Animated Background
@@ -78,6 +84,9 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
             ),
           ),
         ],
+      ),
+          ),
+        ),
       ),
     );
   }

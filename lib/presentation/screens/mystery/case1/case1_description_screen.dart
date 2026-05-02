@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/screens/mystery/case1/case1_map_screen.dart';
@@ -238,7 +238,7 @@ class _CaseDescription1State extends State<CaseDescription1>
   int _profilePageNumber = 1;
 
   final List<String> _descriptions = [
-    "The moonlight reflects off the marble floors of the Giovanni Grand Gallery. Tomorrow, the â€œOrient Seasâ€ collection is supposed to save a 100-year-old dynasty from the brink of bankruptcy. At the center of the room sits the Pearl of the Orient Sea, a gem rumored to be worth more than the building itself. But at 3:00 AM, the vault was opened. The Pearl is gone. ",
+    "The moonlight reflects off the marble floors of the Giovanni Grand Gallery. Tomorrow, the \"Orient Seas\" collection is supposed to save a 100-year-old dynasty from the brink of bankruptcy. At the center of the room sits the Pearl of the Orient Sea, a gem rumored to be worth more than the building itself. But at 3:00 AM, the vault was opened. The Pearl is gone. ",
     "As the lead digital investigator, you've been hired to solve the crime. Your job is to trace the digital footprints, cross-reference the suspects, and recover the Pearl.",
   ];
 
@@ -355,7 +355,7 @@ class _CaseDescription1State extends State<CaseDescription1>
                 ),
               ),
               Positioned(
-                top: 0,
+                top: 15,
                 left: 20,
                 right: 20,
                 child: SizedBox(
@@ -415,7 +415,10 @@ class _CaseDescription1State extends State<CaseDescription1>
               bottom: 2,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 28),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 28,
+                ),
               ),
             ),
           ],
@@ -435,7 +438,9 @@ class _CaseDescription1State extends State<CaseDescription1>
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible ? 'assets/mystery/case_bg1.png' : 'assets/mystery/case_bg.png',
+                _isBoardVisible
+                    ? 'assets/mystery/case_bg1.png'
+                    : 'assets/mystery/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),
@@ -480,7 +485,10 @@ class _CaseDescription1State extends State<CaseDescription1>
               bottom: 40,
               child: InkWell(
                 onTap: () => onButtonTap(_handleNext),
-                child: Image.asset('assets/mystery/next_button.png', height: 30),
+                child: Image.asset(
+                  'assets/mystery/next_button.png',
+                  height: 30,
+                ),
               ),
             ),
           ],
@@ -489,4 +497,3 @@ class _CaseDescription1State extends State<CaseDescription1>
     );
   }
 }
-
