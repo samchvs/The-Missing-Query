@@ -46,3 +46,5 @@ app.*.map.json
 
 # Supabase credentials — never commit
 lib/core/config/supabase_config.dart
+android/.kotlin/
+
