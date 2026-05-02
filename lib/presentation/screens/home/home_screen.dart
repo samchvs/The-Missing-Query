@@ -11,6 +11,7 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:graphics_project/core/constants/app_routes.dart';
+import 'package:graphics_project/presentation/screens/mystery/case_selection_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -168,7 +169,19 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 3.0),
               child: BouncingButton(
-                onPressed: () {},
+                onPressed: () {
+                  HomeMusicController().stop();
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 500),
+                      reverseTransitionDuration: Duration.zero,
+                      pageBuilder: (_, __, ___) => const CaseSelectionScreen(),
+                      transitionsBuilder: (_, animation, __, child) =>
+                          FadeTransition(opacity: animation, child: child),
+                    ),
+                  );
+                },
                 child: Image.asset(AppAssets.playBtn, width: 110),
               ),
             ),

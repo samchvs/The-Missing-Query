@@ -95,29 +95,54 @@ flutter:
     - assets/bg-audio/tutorial-music.mp3
     - assets/bg-audio/home-music.mp3
     - assets/about_tab/
+  # Mystery Game Assets
+    - assets/mystery/
+    - assets/mystery/audio/
+    - assets/mystery/audio/case1/backAlley/
+    - assets/mystery/audio/case1/giovanni/
+    - assets/mystery/audio/case1/loupe/
+    - assets/mystery/audio/case1/municipal/
+    - assets/mystery/audio/case1/pearlDistrict/
+    - assets/mystery/audio/case1/police/
+    - assets/mystery/audio/case1/viore/
+    - assets/mystery/audio/case2/comlab/
+    - assets/mystery/audio/case2/dean/
+    - assets/mystery/audio/case2/guidance/
+    - assets/mystery/audio/case2/gym/
+    - assets/mystery/audio/case2/icto/
+    - assets/mystery/audio/case2/it/
+    - assets/mystery/audio/case3/bank/
+    - assets/mystery/audio/case3/cell/
+    - assets/mystery/audio/case3/cityPolice/
+    - assets/mystery/audio/case3/cordova/
+    - assets/mystery/audio/case3/hospital/
+    - assets/mystery/audio/case3/huang/
+    - assets/mystery/audio/case3/logistics/
+    - assets/mystery/audio/case3/lowe/
+    - assets/mystery/audio/case3/skyline/
+    - assets/mystery/audio/case3/wasteCorp/
+    - assets/mystery/character_profile/character_profile1/
+    - assets/mystery/character_profile/character_profile2/
+    - assets/mystery/character_profile/character_profile3/
+    - assets/mystery/Case2/
+    - assets/mystery/Case2/character_profile1/
+    - assets/mystery/Case2/character_profile2/
+    - assets/mystery/Case2/character_profile3/
+    - assets/mystery/Case3/
+    - assets/mystery/Case3/character_profile1/
+    - assets/mystery/Case3/character_profile2/
+    - assets/mystery/Case3/character_profile3/
+    - assets/mystery/Case3/character_profile4/
+    - assets/mystery/Case3/character_profile5/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+  # Custom Fonts (Mystery Game)
+  fonts:
+    - family: Londrina Solid
+      fonts:
+        - asset: assets/mystery/fonts/LondrinaSolid-Black.ttf
+        - asset: assets/mystery/fonts/LondrinaSolid-Light.ttf
+        - asset: assets/mystery/fonts/LondrinaSolid-Regular.ttf
+        - asset: assets/mystery/fonts/LondrinaSolid-Thin.ttf
+    - family: Consolas
+      fonts:
+        - asset: assets/mystery/fonts/consolas.ttf
