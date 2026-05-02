@@ -101,9 +101,15 @@ class _LoginScreenState extends State<LoginScreen> {
         return Scaffold(
           backgroundColor: Colors.black,
           resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Container(
+      body: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: 896,
+            height: 360,
+            child: Stack(
+              children: [
+                Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(AppAssets.loginScreen),
@@ -113,8 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Email Field (was Username)
           Positioned(
-            left: MediaQuery.of(context).size.width * (260 / 896.0),
-            top: MediaQuery.of(context).size.height * (150 / 414.0),
+            left: 260,
+            top: 130,
             child: Row(
               children: [
                 const SizedBox(
@@ -155,8 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Password Field
           Positioned(
-            left: MediaQuery.of(context).size.width * (260 / 896.0),
-            top: MediaQuery.of(context).size.height * (210 / 414.0),
+            left: 260,
+            top: 182,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -235,8 +241,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           // Login Button
           Positioned(
-            left: MediaQuery.of(context).size.width * (400 / 896.0),
-            top: MediaQuery.of(context).size.height * (290 / 414.0),
+            left: 400,
+            top: 252,
             child: controller.isLoading
                 ? const SizedBox(
                     width: 120,
@@ -291,7 +297,10 @@ class _LoginScreenState extends State<LoginScreen> {
             focusNode: _passwordFocus,
             obscureText: true,
           ),
-        ],
+              ],
+            ),
+          ),
+        ),
       ),
         ); // Scaffold
       }, // builder

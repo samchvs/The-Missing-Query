@@ -130,9 +130,15 @@ class _SignupScreenState extends State<SignupScreen> {
         return Scaffold(
           backgroundColor: Colors.black,
           resizeToAvoidBottomInset: false,
-          body: Stack(
-            children: [
-              Container(
+          body: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: SizedBox(
+                width: 896,
+                height: 360,
+                child: Stack(
+                  children: [
+                    Container(
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(AppAssets.signupScreen),
@@ -143,8 +149,8 @@ class _SignupScreenState extends State<SignupScreen> {
               
               // 1. Username Field
               Positioned(
-                left: size.width * (300 / 896.0),
-                top: size.height * (155 / 414.0),
+                left: 300,
+                top: 135,
                 child: _buildInputRow(
                   label: 'Username:',
                   controller: _usernameController,
@@ -154,8 +160,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // 2. Email Field
               Positioned(
-                left: size.width * (300 / 896.0),
-                top: size.height * (200 / 414.0),
+                left: 300,
+                top: 174,
                 child: _buildInputRow(
                   label: 'Email:',
                   controller: _emailController,
@@ -166,8 +172,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // 3. Password Field
               Positioned(
-                left: size.width * (300 / 896.0),
-                top: size.height * (245 / 414.0),
+                left: 300,
+                top: 213,
                 child: _buildInputRow(
                   label: 'Password:',
                   controller: _passwordController,
@@ -181,8 +187,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // Sign Up Button
               Positioned(
-                left: size.width * (400 / 896.0),
-                top: size.height * (295 / 414.0),
+                left: 400,
+                top: 256,
                 child: controller.isLoading
                     ? _buildLoading()
                     : BouncingButton(
@@ -211,7 +217,10 @@ class _SignupScreenState extends State<SignupScreen> {
               KeyboardAccessoryBar(controller: _usernameController, focusNode: _usernameFocus),
               KeyboardAccessoryBar(controller: _emailController, focusNode: _emailFocus),
               KeyboardAccessoryBar(controller: _passwordController, focusNode: _passwordFocus, obscureText: true),
-            ],
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       },
