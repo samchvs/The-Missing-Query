@@ -34,7 +34,6 @@ class _SignupScreenState extends State<SignupScreen> {
   final _validatePassword = const ValidatePasswordUseCase();
   bool _isObscured = true;
   String? _passwordError;
-  String? _usernameError;
 
   @override
   void initState() {
@@ -279,12 +278,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Widget _buildErrorText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(color: AppColors.redAccent, fontSize: 13, fontWeight: FontWeight.bold),
-    );
-  }
+
 
   Widget _buildLoading() {
     return const SizedBox(

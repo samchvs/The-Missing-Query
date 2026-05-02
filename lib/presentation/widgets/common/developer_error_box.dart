@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:graphics_project/core/config/supabase_config.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
@@ -36,17 +36,17 @@ class DeveloperErrorBox extends StatelessWidget {
                   width: 320,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.85),
+                    color: Colors.black.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: showDebug
-                          ? Colors.redAccent.withOpacity(0.5)
-                          : Colors.orangeAccent.withOpacity(0.5),
+                          ? Colors.redAccent.withValues(alpha: 0.5)
+                          : Colors.orangeAccent.withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       ),
@@ -87,7 +87,7 @@ class DeveloperErrorBox extends StatelessWidget {
                               padding: const EdgeInsets.all(4.0),
                               child: Icon(
                                 Icons.close_rounded,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 size: 18,
                               ),
                             ),
@@ -111,7 +111,7 @@ class DeveloperErrorBox extends StatelessWidget {
                         Text(
                           'User saw: "$friendlyError"',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             fontSize: 11,
                             fontStyle: FontStyle.italic,
                           ),
@@ -128,3 +128,4 @@ class DeveloperErrorBox extends StatelessWidget {
     );
   }
 }
+

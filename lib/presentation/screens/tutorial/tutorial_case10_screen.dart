@@ -4,7 +4,6 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/presentation/widgets/common/typewriter_text.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case9_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
@@ -12,7 +11,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
-import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase10Screen extends StatefulWidget {
   const TutorialCase10Screen({super.key});
@@ -25,9 +23,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
     with TickerProviderStateMixin {
   int _dialogueIndex = 0; // 0-indexed for the list below
   bool _isTextFinished = false;
-  Duration _currentFrameDuration = const Duration(milliseconds: 150);
-  
-  
+
   
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;

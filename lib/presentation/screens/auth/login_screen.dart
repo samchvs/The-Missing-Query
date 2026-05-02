@@ -263,10 +263,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   context,
                   PageRouteBuilder(
                     transitionDuration: const Duration(milliseconds: 500),
-                    pageBuilder: (context, _, __) => SplashScreen(
+                    pageBuilder: (context, _, _) => SplashScreen(
                       authController: widget.authController,
                     ),
-                    transitionsBuilder: (_, animation, __, child) {
+                    transitionsBuilder: (_, animation, _, child) {
                       const begin = Offset(-1.0, 0.0);
                       const end = Offset.zero;
                       final tween = Tween(begin: begin, end: end)

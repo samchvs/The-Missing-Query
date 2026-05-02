@@ -91,8 +91,6 @@ class _TypewriterTextState extends State<TypewriterText>
 
         // Build rich text by highlighting specific words
         List<TextSpan> spans = [];
-        String remainingText = visibleText;
-
         // Simple word-based highlighting
         // Note: For a more complex approach, regex would be better
         // but this works for specific unique names.

@@ -9,7 +9,6 @@ import 'package:graphics_project/presentation/widgets/common/sprite_animator.dar
 import 'package:graphics_project/presentation/widgets/common/typewriter_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
-import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class Tutorial3Screen extends StatefulWidget {
   const Tutorial3Screen({super.key});

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 
 class InvestigationTypewriter extends StatefulWidget {
@@ -60,7 +60,7 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.blueGrey, width: 2),
       ),
@@ -76,3 +76,4 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
     );
   }
 }
+

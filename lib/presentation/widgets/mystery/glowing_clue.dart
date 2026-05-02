@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class GlowingClue extends StatefulWidget {
   final Widget child;
@@ -44,12 +44,12 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withOpacity(_glow.value * 0.55),
+                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 20 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withOpacity(_glow.value * 0.35),
+                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -62,3 +62,4 @@ class _GlowingClueState extends State<GlowingClue>
     );
   }
 }
+

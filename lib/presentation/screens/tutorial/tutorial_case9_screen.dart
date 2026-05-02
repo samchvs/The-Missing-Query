@@ -5,7 +5,6 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case7_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case10_screen.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'dart:async';
@@ -21,16 +20,12 @@ class TutorialCase9Screen extends StatefulWidget {
 class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-  bool _showContent = false;
   bool _showNotebook = false;
   bool _isNotebookTaskComplete = false;
   bool _isDiaryTableShown = false;
   bool _isTableUnlocked = false;
-  int _currentTaskIndex = 0;
   bool _hasShownGuidePop8 = false;
   bool _showGuidePop8 = false;
-  bool _hasShownGuidePop9 = false;
   bool _showGuidePop9 = false;
   bool _showMyNotesDetails = false;
   bool _notebookOpenedOnce = false;
@@ -51,10 +46,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
     );
 
     _queryController = SQLSyntaxController(
@@ -84,7 +75,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() {
-          _showContent = true;
           _showGuidePop9 = true;
         });
         _fadeController.forward();
@@ -246,7 +236,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                     if (_showNotebook)
                       Positioned.fill(
                         child: Container(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           child: Stack(
                             children: [
                               GestureDetector(
@@ -408,7 +398,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
           if (_isDiaryTableShown)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 child: Center(
                   child: Container(
                     width: 500,
@@ -607,7 +597,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
           if (_showMyNotesDetails)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 child: Center(
                   child: Stack(
                     alignment: Alignment.center,
@@ -725,3 +715,4 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     return rowContent;
   }
 }
+

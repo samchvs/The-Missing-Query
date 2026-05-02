@@ -60,7 +60,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   // Typewriter logic
   String _typedText = "";
   final String _fullText =
-      "Beanie walks over to the cafeteria counter. A guide question appears over the server’s tablet.";
+      "Beanie walks over to the cafeteria counter. A guide question appears over the serverâ€™s tablet.";
   Timer? _typingTimer;
 
   late SQLSyntaxController _queryController;
@@ -287,8 +287,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   }
 
   TextSpan _buildRichText(String currentText) {
-    const String text =
-        "Beanie walks over to the cafeteria counter. A guide question appears over the server’s screen.";
 
     return TextSpan(
       text: currentText,
@@ -479,7 +477,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                     setState(() => _isGuideShown = false);
                   }
                 },
-                child: Container(color: Colors.black.withOpacity(0.7)),
+                child: Container(color: Colors.black.withValues(alpha: 0.7)),
               ),
             ),
 
@@ -505,7 +503,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                         decoration: InputDecoration(
                           hintText: "Type your answer here...",
                           hintStyle: GoogleFonts.inconsolata(
-                            color: Colors.grey.withOpacity(0.7),
+                            color: Colors.grey.withValues(alpha: 0.7),
                           ),
                           border: InputBorder.none,
                         ),
@@ -705,8 +703,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                       child: BouncingButton(
                         onPressed: () {
                           _fadeController.reverse().then((_) {
-                            if (mounted)
+                            if (mounted) {
                               setState(() => _isSuccessLogShown = false);
+                            }
                           });
                         },
                         child: Image.asset(AppAssets.closeBtn, width: 35),
@@ -799,8 +798,8 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
               right: 0,
               child: Container(
                 color: _errorMessage == "Valid entry"
-                    ? Colors.green.withOpacity(0.9)
-                    : AppColors.redAccent.withOpacity(0.9),
+                    ? Colors.green.withValues(alpha: 0.9)
+                    : AppColors.redAccent.withValues(alpha: 0.9),
                 padding: const EdgeInsets.symmetric(
                   vertical: 12,
                   horizontal: 25,
@@ -821,3 +820,4 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
     );
   }
 }
+

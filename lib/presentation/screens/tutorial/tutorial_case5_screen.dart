@@ -5,7 +5,6 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case4_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';

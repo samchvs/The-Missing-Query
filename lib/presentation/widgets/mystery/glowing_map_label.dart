@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class GlowingMapLabel extends StatefulWidget {
   final String asset;
@@ -48,17 +48,17 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
               boxShadow: _isActive
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFFFD54F).withOpacity(0.7),
+                        color: const Color(0xFFFFD54F).withValues(alpha: 0.7),
                         blurRadius: 28,
                         spreadRadius: 5,
                       ),
                       BoxShadow(
-                        color: const Color(0xFF6A008A).withOpacity(0.5),
+                        color: const Color(0xFF6A008A).withValues(alpha: 0.5),
                         blurRadius: 40,
                         spreadRadius: 6,
                       ),
                       BoxShadow(
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -76,3 +76,4 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
     );
   }
 }
+

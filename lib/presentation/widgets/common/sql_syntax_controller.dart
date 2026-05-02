@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
 
 /// A [TextEditingController] that highlights SQL keywords and can show a ghost hint.
@@ -84,7 +84,7 @@ class SQLSyntaxController extends TextEditingController {
         TextSpan(
           text: remainingHint,
           style: (style ?? const TextStyle()).copyWith(
-            color: Colors.grey.withOpacity(0.5),
+            color: Colors.grey.withValues(alpha: 0.5),
           ),
         ),
       );
@@ -93,3 +93,4 @@ class SQLSyntaxController extends TextEditingController {
     return TextSpan(style: style, children: spans);
   }
 }
+

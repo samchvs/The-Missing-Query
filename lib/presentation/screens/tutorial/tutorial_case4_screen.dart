@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/core/constants/app_strings.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case3_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case5_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
-import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class TutorialCase4Screen extends StatefulWidget {

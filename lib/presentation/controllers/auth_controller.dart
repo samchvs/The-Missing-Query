@@ -13,7 +13,6 @@ import 'package:graphics_project/domain/usecases/get_local_username_usecase.dart
 import 'package:graphics_project/domain/usecases/submit_score_usecase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:graphics_project/core/config/supabase_config.dart';
 
 /// Central auth state holder for the presentation layer.
 /// Wires all use cases and exposes observable state.

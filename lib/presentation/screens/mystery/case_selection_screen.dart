@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:graphics_project/core/utils/page_transitions.dart';
 import 'package:graphics_project/presentation/screens/mystery/case1/case1_description_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_description_screen.dart';
@@ -131,7 +131,7 @@ class CaseFolder extends StatelessWidget {
                 Image.asset(
                   'assets/mystery/folder.png',
                   fit: BoxFit.contain,
-                  color: isLocked ? Colors.black.withOpacity(0.45) : null,
+                  color: isLocked ? Colors.black.withValues(alpha: 0.45) : null,
                   colorBlendMode: isLocked ? BlendMode.srcOver : null,
                 ),
                 if (isLocked)
@@ -162,3 +162,4 @@ class CaseFolder extends StatelessWidget {
     );
   }
 }
+

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:graphics_project/core/constants/app_assets.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
@@ -209,7 +208,7 @@ class _PillThumbShape extends SliderComponentShape {
       ..style = PaintingStyle.fill;
     
     final Paint borderPaint = Paint()
-      ..color = const Color(0xFF263238).withOpacity(0.5)
+      ..color = const Color(0xFF263238).withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
@@ -220,3 +219,4 @@ class _PillThumbShape extends SliderComponentShape {
     context.canvas.drawRRect(rRect, borderPaint);
   }
 }
+

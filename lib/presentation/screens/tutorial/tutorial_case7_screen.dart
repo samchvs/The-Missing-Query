@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
-import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case8_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
@@ -26,7 +24,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   final List<String> _targets = [
     "SELECT student_name FROM Device_Registry WHERE mac_address = '00:1A:2B:3C';",
   ];
-  int _currentStepIndex = 0;
+  final int _currentStepIndex = 0;
   String get _targetQuery => _targets[_currentStepIndex];
 
   late AnimationController _walkController;
@@ -45,8 +43,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   bool _isQuerySuccessful = false;
   bool _isRegistryShown = false;
   bool _isRegistryGuideShown = false;
-  bool _isUpdateSuccessShown = false;
-  String? _errorMessage;
   Timer? _errorTimer;
 
   late SQLSyntaxController _queryController;
@@ -57,7 +53,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
       "Beanie goes to the Campus Security Office to file a report. He matched the MAC address from the tablet to a student.";
   Timer? _typingTimer;
 
-  bool _isQueryBtnShown = false;
   bool _isTypingFinished = false;
   bool _isWaitingForGuide = false; // New flag for UI lock
   late AnimationController _queryFadeController;
@@ -329,13 +324,12 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                         if (mounted) {
                           setState(() {
                             _isOverlayShown = false;
-                            _isQueryBtnShown = true;
                           });
                           _queryFadeController.forward();
                         }
                       });
                     },
-                    child: Container(color: Colors.black.withOpacity(0.7)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.7)),
                   ),
                   Center(
                     child: Stack(
@@ -394,7 +388,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                     _hideQuery();
                   }
                 },
-                child: Container(color: Colors.black.withOpacity(0.7)),
+                child: Container(color: Colors.black.withValues(alpha: 0.7)),
               ),
             ),
 
@@ -542,7 +536,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                 children: [
                   GestureDetector(
                     onTap: () => setState(() => _isRegistryShown = false),
-                    child: Container(color: Colors.black.withOpacity(0.7)),
+                    child: Container(color: Colors.black.withValues(alpha: 0.7)),
                   ),
                   Center(
                     child: Stack(
@@ -557,7 +551,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                   if (_isRegistryGuideShown)
                     Stack(
                       children: [
-                        Container(color: Colors.black.withOpacity(0.5)),
+                        Container(color: Colors.black.withValues(alpha: 0.5)),
                         Center(
                           child: Stack(
                             alignment: Alignment.center,
@@ -619,3 +613,4 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
     );
   }
 }
+

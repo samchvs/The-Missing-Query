@@ -157,10 +157,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    _queryController = SQLSyntaxController(
-      text:
-          "SELECT * FROM Hallway_Logs;", // FIXME: Debug pre-fill. Comment out this line to revert.
-    );
+    _queryController = SQLSyntaxController();
 
     _runHintController = AnimationController(
       vsync: this,

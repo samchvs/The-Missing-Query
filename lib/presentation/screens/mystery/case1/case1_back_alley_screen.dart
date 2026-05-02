@@ -327,12 +327,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.90),
+            color: Colors.white.withValues(alpha: 0.90),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: const Color(0xFF7A4B28), width: 2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.18),
+                color: Colors.black.withValues(alpha: 0.18),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -499,7 +499,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   Widget _buildQuestionPopUp(BoxConstraints constraints) {
     return Container(
-      color: Colors.black.withOpacity(0.5),
+      color: Colors.black.withValues(alpha: 0.5),
       child: Center(
         child: SizedBox(
           width: constraints.maxWidth * 0.68,
@@ -599,7 +599,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   Widget _buildCorrectPopUp(BoxConstraints constraints) {
     return Container(
-      color: Colors.black.withOpacity(0.6),
+      color: Colors.black.withValues(alpha: 0.6),
       child: Center(
         child: SizedBox(
           width: constraints.maxWidth * 0.65,
@@ -628,7 +628,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   Widget _buildWrongPopUp(BoxConstraints constraints) {
     return Container(
-      color: Colors.black.withOpacity(0.6),
+      color: Colors.black.withValues(alpha: 0.6),
       child: Center(
         child: SizedBox(
           width: constraints.maxWidth * 0.65,
@@ -657,7 +657,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   Widget _buildPopUpContainer(BoxConstraints constraints) {
     return Container(
-      color: Colors.black.withOpacity(0.5),
+      color: Colors.black.withValues(alpha: 0.5),
       child: Center(
         child: SizedBox(
           width: constraints.maxWidth * 0.68,
@@ -761,8 +761,8 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       return TableRow(
         decoration: BoxDecoration(
           color: index % 2 == 0
-              ? const Color(0xFFFFF9C4).withOpacity(0.7)
-              : const Color(0xFFF0E68C).withOpacity(0.5),
+              ? const Color(0xFFFFF9C4).withValues(alpha: 0.7)
+              : const Color(0xFFF0E68C).withValues(alpha: 0.5),
         ),
         children: _visibleHeaders.map((header) {
           return Padding(
@@ -979,7 +979,7 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.85),
+        color: Colors.black.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blueAccent, width: 2),
       ),
@@ -1091,12 +1091,12 @@ class _GlowingClueState extends State<GlowingClue>
                   254,
                   255,
                   213,
-                ).withOpacity(_glow.value * 0.40),
+                ).withValues(alpha: _glow.value * 0.40),
                 blurRadius: 13 + (_glow.value * 5),
                 spreadRadius: 1 + (_glow.value * 2),
               ),
               BoxShadow(
-                color: const Color(0xFF6A008A).withOpacity(_glow.value * 0.15),
+                color: const Color(0xFF6A008A).withValues(alpha: _glow.value * 0.15),
                 blurRadius: 24 + (_glow.value * 10),
                 spreadRadius: _glow.value,
               ),
@@ -1164,5 +1164,6 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
+
 
 

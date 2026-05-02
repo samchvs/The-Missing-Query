@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unnecessary_underscores
+// ignore_for_file: unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:graphics_project/core/utils/page_transitions.dart';
@@ -107,17 +107,17 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
               boxShadow: _isActive
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFFFD54F).withOpacity(0.7),
+                        color: const Color(0xFFFFD54F).withValues(alpha: 0.7),
                         blurRadius: 28,
                         spreadRadius: 5,
                       ),
                       BoxShadow(
-                        color: const Color(0xFF6A008A).withOpacity(0.5),
+                        color: const Color(0xFF6A008A).withValues(alpha: 0.5),
                         blurRadius: 40,
                         spreadRadius: 6,
                       ),
                       BoxShadow(
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -169,7 +169,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Lives',
-      barrierColor: Colors.black.withOpacity(0.55),
+      barrierColor: Colors.black.withValues(alpha: 0.55),
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (_, __, ___) {
         return StatefulBuilder(
@@ -178,10 +178,10 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
 
             _livesController.addListener(dialogRefresh);
 
-            return WillPopScope(
-              onWillPop: () async {
+            return PopScope(
+              canPop: true,
+              onPopInvokedWithResult: (didPop, result) {
                 _livesController.removeListener(dialogRefresh);
-                return true;
               },
               child: GestureDetector(
                 onTap: () {
@@ -469,5 +469,6 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
     );
   }
 }
+
 
 

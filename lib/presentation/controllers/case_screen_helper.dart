@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 
@@ -93,7 +93,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
               border: Border.all(color: const Color(0xFFFFD54F), width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
+                  color: Colors.black.withValues(alpha: 0.35),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -155,3 +155,4 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
     );
   }
 }
+

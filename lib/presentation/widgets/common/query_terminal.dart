@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -57,7 +57,7 @@ class QueryTerminal extends StatelessWidget {
                           ghostText,
                           style: GoogleFonts.inconsolata(
                             fontSize: 18,
-                            color: Colors.grey.withOpacity(0.5),
+                            color: Colors.grey.withValues(alpha: 0.5),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -123,3 +123,4 @@ class QueryTerminal extends StatelessWidget {
     );
   }
 }
+

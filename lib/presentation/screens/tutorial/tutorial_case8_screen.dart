@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -6,7 +6,6 @@ import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/widgets/common/query_terminal.dart';
 import 'package:graphics_project/presentation/widgets/common/sql_syntax_controller.dart';
-import 'package:graphics_project/presentation/screens/tutorial/tutorial_case6_screen.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case7_screen.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'dart:async';
@@ -39,7 +38,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   bool _isQueryClicked = false; // Track if query terminal is shown
   String _typedText = "";
   final String _fullText =
-      "My head is spinning! I should create a personal notebook so I don’t forget the clues!";
+      "My head is spinning! I should create a personal notebook so I donâ€™t forget the clues!";
   final String _notebookTarget =
       "CREATE TABLE My_Notes (\nid INT PRIMARY_KEY,\nclue VARCHAR(50),\ndetails VARCHAR(100)\n);";
   final String _notebookTarget2 =
@@ -325,7 +324,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       child: Stack(
                         children: [
                           // Dark Overlay
-                          Container(color: Colors.black.withOpacity(0.7)),
+                          Container(color: Colors.black.withValues(alpha: 0.7)),
 
                           // Spinning Beanie Animation
                           Positioned(
@@ -390,7 +389,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         GestureDetector(
                           onTap: () => setState(() => _isQueryClicked = false),
                           child: Container(
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.black.withValues(alpha: 0.7),
                           ),
                         ),
                         QueryTerminal(
@@ -420,7 +419,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         final bool isKeyboardOpen = keyboardHeight > 0;
 
                         return Container(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           child: Stack(
                             children: [
                               GestureDetector(
@@ -692,7 +691,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                 if (_isDiaryTableShown)
                   Positioned.fill(
                     child: Container(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       child: Center(
                         child: Container(
                           width: 500,
@@ -960,7 +959,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                 if (_showDeviceRegistry)
                   Positioned.fill(
                     child: Container(
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.black.withValues(alpha: 0.7),
                       child: Center(
                         child: Stack(
                           alignment: Alignment.center,
@@ -1107,7 +1106,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
       child: Container(
         width: double.infinity,
         color: isDark
-            ? const Color(0xFFFFE194).withOpacity(0.6)
+            ? const Color(0xFFFFE194).withValues(alpha: 0.6)
             : const Color(0xFFFFF1C1),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
         child: Row(
@@ -1145,3 +1144,4 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
     return rowContent;
   }
 }
+

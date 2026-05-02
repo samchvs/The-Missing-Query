@@ -81,9 +81,9 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 600),
-        pageBuilder: (_, __, ___) =>
+        pageBuilder: (_, _, _) =>
             SplashScreen(authController: widget.authController),
-        transitionsBuilder: (_, animation, __, child) =>
+        transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
       ),
       (route) => false,
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   context,
                   PageRouteBuilder(
                     transitionDuration: const Duration(milliseconds: 500),
-                    pageBuilder: (_, __, ___) => SettingsScreen(
+                    pageBuilder: (_, _, _) => SettingsScreen(
                       username: _currentUsername,
                       characterPath: _currentCharacter,
                       authController: widget.authController,
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                         setState(() => _currentCharacter = newChar);
                       },
                     ),
-                    transitionsBuilder: (_, animation, __, child) =>
+                    transitionsBuilder: (_, animation, _, child) =>
                         FadeTransition(opacity: animation, child: child),
                   ),
                 );
@@ -176,8 +176,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     PageRouteBuilder(
                       transitionDuration: const Duration(milliseconds: 500),
                       reverseTransitionDuration: Duration.zero,
-                      pageBuilder: (_, __, ___) => const CaseSelectionScreen(),
-                      transitionsBuilder: (_, animation, __, child) =>
+                      pageBuilder: (_, _, _) => const CaseSelectionScreen(),
+                      transitionsBuilder: (_, animation, _, child) =>
                           FadeTransition(opacity: animation, child: child),
                     ),
                   );
@@ -197,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   PageRouteBuilder(
                     transitionDuration: const Duration(milliseconds: 500),
                     reverseTransitionDuration: Duration.zero,
-                    pageBuilder: (_, __, ___) => TutorialScreen(),
-                    transitionsBuilder: (_, animation, __, child) =>
+                    pageBuilder: (_, _, _) => TutorialScreen(),
+                    transitionsBuilder: (_, animation, _, child) =>
                         FadeTransition(opacity: animation, child: child),
                   ),
                 );
