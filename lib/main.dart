@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graphics_project/core/config/supabase_config.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/developer_error_box.dart';
@@ -47,8 +49,12 @@ class MyApp extends StatelessWidget {
           )
         : SplashScreen(authController: authController);
 
-    return ChangeNotifierProvider<AuthController>.value(
-      value: authController,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthController>.value(value: authController),
+        ChangeNotifierProvider<PointsController>.value(value: PointsController.instance),
+        ChangeNotifierProvider<LivesController>.value(value: LivesController.instance),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

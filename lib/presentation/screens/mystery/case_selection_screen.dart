@@ -4,10 +4,57 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/screens/mystery/case1/case1_description_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_description_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case3/case3_description_screen.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 // --- SCREEN: CASE SELECTION ---
-class CaseSelectionScreen extends StatelessWidget {
+class CaseSelectionScreen extends StatefulWidget {
   const CaseSelectionScreen({super.key});
+
+  @override
+  State<CaseSelectionScreen> createState() => _CaseSelectionScreenState();
+}
+
+class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
+  bool _isCase2Unlocked = false;
+  bool _isCase3Unlocked = false; // Currently locked
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUnlockStatus();
+  }
+
+  Future<void> _checkUnlockStatus() async {
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Case 2 Unlock Condition: Police Station Solved AND Points >= 550
+    final bool policeSolved = prefs.getBool('case1_police_station_solved_$userId') ?? false;
+    final int points = PointsController.instance.currentPoints;
+
+    setState(() {
+      _isCase2Unlocked = policeSolved && points >= 550;
+      _isCase3Unlocked = false; // Keep Case 3 locked for now
+    });
+  }
+
+  void _showLockedMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Case Locked. Complete previous case to unlock.',
+          style: TextStyle(fontFamily: 'Consolas', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.redAccent,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,53 +103,68 @@ class CaseSelectionScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      BouncingButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            slideRoute(const CaseDescription1()),
-                          );
-                        },
-                        child: const CaseFolder(
-                          caseTitle: "CASE FILE 01:\nTHE PEARL ROBBERY",
-                          isLocked: false,
-                        ),
-                      ),
-                      BouncingButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            slideRoute(const CaseDescription2()),
-                          );
-                        },
-                        child: const CaseFolder(
-                          caseTitle: "CASE FILE 02:\nProject Chimera",
-                          isLocked: false,
-                        ),
-                      ),
+              Consumer<PointsController>(
+                builder: (context, pointsController, child) {
+                  // Trigger a re-check when points change
+                  _checkUnlockStatus();
+                  
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.65,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          BouncingButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                slideRoute(const CaseDescription1()),
+                              ).then((_) => _checkUnlockStatus());
+                            },
+                            child: const CaseFolder(
+                              caseTitle: "CASE FILE 01:\nTHE PEARL ROBBERY",
+                              isLocked: false,
+                            ),
+                          ),
+                          BouncingButton(
+                            onPressed: () {
+                              if (_isCase2Unlocked) {
+                                Navigator.push(
+                                  context,
+                                  slideRoute(const CaseDescription2()),
+                                ).then((_) => _checkUnlockStatus());
+                              } else {
+                                _showLockedMessage();
+                              }
+                            },
+                            child: CaseFolder(
+                              caseTitle: "CASE FILE 02:\nProject Chimera",
+                              isLocked: !_isCase2Unlocked,
+                            ),
+                          ),
 
-                      BouncingButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            slideRoute(const CaseDescription3()),
-                          );
-                        },
-                        child: const CaseFolder(
-                          caseTitle: "CASE FILE 03:\n9-1-1",
-                          isLocked: false,
-                        ),
+                          BouncingButton(
+                            onPressed: () {
+                              if (_isCase3Unlocked) {
+                                Navigator.push(
+                                  context,
+                                  slideRoute(const CaseDescription3()),
+                                ).then((_) => _checkUnlockStatus());
+                              } else {
+                                _showLockedMessage();
+                              }
+                            },
+                            child: CaseFolder(
+                              caseTitle: "CASE FILE 03:\n9-1-1",
+                              isLocked: !_isCase3Unlocked,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
               const Spacer(flex: 2),
             ],
