@@ -13,6 +13,7 @@ import 'package:graphics_project/domain/usecases/get_local_username_usecase.dart
 import 'package:graphics_project/domain/usecases/submit_score_usecase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
 
 /// Central auth state holder for the presentation layer.
 /// Wires all use cases and exposes observable state.
@@ -79,6 +80,9 @@ class AuthController extends ChangeNotifier {
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
     }
+
+    // Load points for this user
+    await PointsController.instance.initializeForUser(_currentUser?.id);
   }
 
   // ──────────────────────────────────────────────
@@ -101,6 +105,7 @@ class AuthController extends ChangeNotifier {
       );
       _localUsername = username;
       await _saveLocalUsername(username);
+      await PointsController.instance.initializeForUser(_currentUser?.id);
       notifyListeners();
       return true;
     } catch (e) {
@@ -122,6 +127,7 @@ class AuthController extends ChangeNotifier {
       _currentUser = await _signIn(email: email, password: password);
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
+      await PointsController.instance.initializeForUser(_currentUser?.id);
       notifyListeners();
       return true;
     } catch (e) {
@@ -139,6 +145,8 @@ class AuthController extends ChangeNotifier {
     try {
       await _signOut();
       _currentUser = null;
+      // Refresh points for guest mode
+      await PointsController.instance.initializeForUser(null);
       // Do NOT clear _localUsername — guest mode keeps working
       notifyListeners();
     } catch (e) {

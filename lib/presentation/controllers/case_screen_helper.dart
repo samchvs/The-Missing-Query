@@ -105,7 +105,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
                 const Text(
                   'OUT OF LIVES',
                   style: TextStyle(
-                    fontFamily: 'Luckiest Guy',
+                    fontFamily: 'Londrina Solid',
                     fontSize: 24,
                     color: Colors.white,
                   ),
@@ -140,7 +140,82 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
                     child: const Text(
                       'OK',
                       style: TextStyle(
-                        fontFamily: 'Luckiest Guy',
+                        fontFamily: 'Londrina Solid',
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showAlreadySolvedPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2B1B3D),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFFFD54F), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'QUERY SOLVED',
+                  style: TextStyle(
+                    fontFamily: 'Londrina Solid',
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'You have already answered this guide question.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Consolas',
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                InkWell(
+                  onTap: () async {
+                    await playButtonSound();
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD54F),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontFamily: 'Londrina Solid',
                         fontSize: 16,
                         color: Colors.black,
                       ),

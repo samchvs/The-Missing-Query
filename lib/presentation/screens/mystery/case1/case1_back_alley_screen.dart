@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class BackAlleyScreen extends StatefulWidget {
   const BackAlleyScreen({super.key});
@@ -212,7 +216,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
   }
 
   String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ').replaceAll(RegExp(r'\.+$'), '');
   }
 
   bool _isBackAlleyCorrectAnswer(String input) {
@@ -232,6 +236,18 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
     if (_isBackAlleyCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case1_back_alley_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(80);
+        await prefs.setBool(solveKey, true);
+      }
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -287,6 +303,18 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+
+            final auth = context.read<AuthController>();
+            final userId = auth.currentUser?.id ?? 'guest';
+            final solveKey = 'case1_back_alley_solved_$userId';
+
+            final prefs = await SharedPreferences.getInstance();
+            final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+            if (alreadySolved) {
+              showAlreadySolvedPopup();
+              return;
+            }
 
             if (!_hasLives) {
               showNoLivesPopup();
@@ -509,7 +537,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                     autofocus: _hasLives,
                     enabled: _hasLives,
                     textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.characters,
+                    textCapitalization: TextCapitalization.none,
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -1125,6 +1153,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

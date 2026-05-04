@@ -141,9 +141,10 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   }
 
   void _validateQuery() {
-    final String userInput = _queryController.text
-        .trim()
-        .replaceAll(RegExp(r'\s+'), ' ');
+    final String userInput = _queryController.text.trim().replaceAll(
+      RegExp(r'\s+'),
+      ' ',
+    );
     final String target = _targetQuery.trim().replaceAll(
       RegExp(r'[\s\n]+'),
       ' ',
@@ -484,7 +485,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                   },
                                   child: Image.asset(
                                     AppAssets.tablesBtn,
-                                     width: 100,
+                                    width: 100,
                                   ),
                                 ),
                                 const Spacer(),
@@ -492,7 +493,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                   onPressed: () => _queryController.clear(),
                                   child: Image.asset(
                                     AppAssets.clearBtn,
-                                     width: 80,
+                                    width: 80,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -500,7 +501,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                   onPressed: _validateQuery,
                                   child: Image.asset(
                                     AppAssets.runBtn,
-                                     width: 110,
+                                    width: 110,
                                   ),
                                 ),
                               ],
@@ -564,7 +565,10 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                   ),
 
                 if (_isQueryClicked && _isHintDismissed && !_isTableShown)
-                  KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
+                  KeyboardAccessoryBar(
+                    controller: _queryController,
+                    hintText: _targetQuery,
+                  ),
 
                 // Device Registry Popup
                 if (_isRegistryShown)

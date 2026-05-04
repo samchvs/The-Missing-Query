@@ -101,207 +101,229 @@ class _LoginScreenState extends State<LoginScreen> {
         return Scaffold(
           backgroundColor: Colors.black,
           resizeToAvoidBottomInset: false,
-      body: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.fill,
-          child: SizedBox(
-            width: 896,
-            height: 360,
-            child: Stack(
-              children: [
-                Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.loginScreen),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          // Email Field (was Username)
-          Positioned(
-            left: 260,
-            top: 130,
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 100,
-                  child: Text(
-                    'Email:',
-                    style: TextStyle(fontSize: 18, color: AppColors.primary),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Stack(
-                  alignment: Alignment.centerLeft,
+          body: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.fill,
+              child: SizedBox(
+                width: 896,
+                height: 360,
+                child: Stack(
                   children: [
-                    Image.asset(AppAssets.inputBox, width: 240),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: _emailController,
-                          focusNode: _emailFocus,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            isDense: true,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.primary,
-                          ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(AppAssets.loginScreen),
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // Password Field
-          Positioned(
-            left: 260,
-            top: 182,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const SizedBox(
-                      width: 100,
-                      child: Text(
-                        'Password:',
-                        style: TextStyle(fontSize: 18, color: AppColors.primary),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        Image.asset(AppAssets.inputBox, width: 240),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(left: 20.0, right: 40.0),
-                          child: SizedBox(
-                            width: 160,
-                            child: TextField(
-                              controller: _passwordController,
-                              focusNode: _passwordFocus,
-                              obscureText: _isObscured,
-                              onChanged: (value) {
-                                setState(() {
-                                  _passwordError = _validatePassword(value);
-                                });
-                              },
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 16,
+                    // Email Field (was Username)
+                    Positioned(
+                      left: 260,
+                      top: 130,
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 100,
+                            child: Text(
+                              'Email:',
+                              style: TextStyle(
+                                fontSize: 18,
                                 color: AppColors.primary,
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          right: 15,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() => _isObscured = !_isObscured);
-                            },
-                            child: Icon(
-                              _isObscured
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: AppColors.primary,
-                              size: 22,
-                            ),
+                          const SizedBox(width: 10),
+                          Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              Image.asset(AppAssets.inputBox, width: 240),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: SizedBox(
+                                  width: 200,
+                                  child: TextField(
+                                    controller: _emailController,
+                                    focusNode: _emailFocus,
+                                    keyboardType: TextInputType.emailAddress,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    // Password Field
+                    Positioned(
+                      left: 260,
+                      top: 182,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 100,
+                                child: Text(
+                                  'Password:',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Image.asset(AppAssets.inputBox, width: 240),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 20.0,
+                                      right: 40.0,
+                                    ),
+                                    child: SizedBox(
+                                      width: 160,
+                                      child: TextField(
+                                        controller: _passwordController,
+                                        focusNode: _passwordFocus,
+                                        obscureText: _isObscured,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _passwordError = _validatePassword(
+                                              value,
+                                            );
+                                          });
+                                        },
+                                        decoration: const InputDecoration(
+                                          border: InputBorder.none,
+                                          isDense: true,
+                                        ),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 15,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(
+                                          () => _isObscured = !_isObscured,
+                                        );
+                                      },
+                                      child: Icon(
+                                        _isObscured
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: AppColors.primary,
+                                        size: 22,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          if (_passwordError != null)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 110.0,
+                                top: 4,
+                              ),
+                              child: Text(
+                                _passwordError!,
+                                style: const TextStyle(
+                                  color: AppColors.redAccent,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Login Button
+                    Positioned(
+                      left: 400,
+                      top: 252,
+                      child: controller.isLoading
+                          ? const SizedBox(
+                              width: 120,
+                              height: 40,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : BouncingButton(
+                              onPressed: _onLogin,
+                              child: Image.asset(
+                                AppAssets.loginInnerBtn,
+                                width: 120,
+                              ),
+                            ),
+                    ),
+                    // Back Button
+                    Positioned(
+                      left: 20,
+                      top: 20,
+                      child: BouncingButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(
+                                milliseconds: 500,
+                              ),
+                              pageBuilder: (context, _, _) => SplashScreen(
+                                authController: widget.authController,
+                              ),
+                              transitionsBuilder: (_, animation, _, child) {
+                                const begin = Offset(-1.0, 0.0);
+                                const end = Offset.zero;
+                                final tween = Tween(
+                                  begin: begin,
+                                  end: end,
+                                ).chain(CurveTween(curve: Curves.easeInOut));
+                                return SlideTransition(
+                                  position: animation.drive(tween),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: Image.asset(AppAssets.backBtn, width: 50),
+                      ),
+                    ),
+                    KeyboardAccessoryBar(
+                      controller: _emailController,
+                      focusNode: _emailFocus,
+                    ),
+                    KeyboardAccessoryBar(
+                      controller: _passwordController,
+                      focusNode: _passwordFocus,
+                      obscureText: true,
                     ),
                   ],
                 ),
-                if (_passwordError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 110.0, top: 4),
-                    child: Text(
-                      _passwordError!,
-                      style: const TextStyle(
-                        color: AppColors.redAccent,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
+              ),
             ),
           ),
-          // Login Button
-          Positioned(
-            left: 400,
-            top: 252,
-            child: controller.isLoading
-                ? const SizedBox(
-                    width: 120,
-                    height: 40,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  )
-                : BouncingButton(
-                    onPressed: _onLogin,
-                    child: Image.asset(AppAssets.loginInnerBtn, width: 120),
-                  ),
-          ),
-          // Back Button
-          Positioned(
-            left: 20,
-            top: 20,
-            child: BouncingButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    transitionDuration: const Duration(milliseconds: 500),
-                    pageBuilder: (context, _, _) => SplashScreen(
-                      authController: widget.authController,
-                    ),
-                    transitionsBuilder: (_, animation, _, child) {
-                      const begin = Offset(-1.0, 0.0);
-                      const end = Offset.zero;
-                      final tween = Tween(begin: begin, end: end)
-                          .chain(CurveTween(curve: Curves.easeInOut));
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
-              child: Image.asset(AppAssets.backBtn, width: 50),
-            ),
-          ),
-          KeyboardAccessoryBar(
-            controller: _emailController,
-            focusNode: _emailFocus,
-          ),
-          KeyboardAccessoryBar(
-            controller: _passwordController,
-            focusNode: _passwordFocus,
-            obscureText: true,
-          ),
-              ],
-            ),
-          ),
-        ),
-      ),
         ); // Scaffold
       }, // builder
     ); // ListenableBuilder

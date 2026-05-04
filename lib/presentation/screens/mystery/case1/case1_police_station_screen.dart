@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 
@@ -32,7 +33,22 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
     initCaseHelper();
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      
+      final text = _answerController.text;
+      final upper = text.toUpperCase();
+      
+      if (text != upper) {
+        // Force the controller to stay uppercase and clear the "composing" region
+        // which fixes the Android predictive text bug.
+        _answerController.value = _answerController.value.copyWith(
+          text: upper,
+          selection: _answerController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      
+      setState(() {});
     });
   }
 
@@ -53,15 +69,30 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
   }
 
   bool _isPoliceCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {
-      'MARCO GIOVANNI, CASSIAN MILLER, SILAS VANE',
-      'MARCO GIOVANNI,CASSIAN MILLER,SILAS VANE',
-      'MARCO GIOVANNI, CASSIAN MILLER, AND SILAS VANE',
+    final normalized = _normalizeAnswer(input)
+        .replaceAll(',', ' ')
+        .replaceAll(' AND ', ' ');
+    
+    final words = normalized.split(' ').where((w) => w.isNotEmpty).toList();
+    
+    const validComponents = {
+      'MARCO', 'GIOVANNI', 
+      'CASSIAN', 'MILLER', 
+      'SILAS', 'VANE'
     };
-
-    return acceptedAnswers.contains(normalized);
+    
+    if (words.isEmpty) return false;
+    for (final word in words) {
+      if (!validComponents.contains(word)) {
+        return false; 
+      }
+    }
+    
+    final hasMarco = words.contains('MARCO');
+    final hasCassian = words.contains('CASSIAN');
+    final hasSilas = words.contains('SILAS');
+    
+    return hasMarco && hasCassian && hasSilas;
   }
 
   void _submitAnswer() async {
@@ -293,17 +324,33 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                     enabled: _hasLives,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    inputFormatters: [
+                      UpperCaseTextFormatter(),
+                    ],
+                    onChanged: (value) {
+                      final upper = value.toUpperCase();
+                      if (value != upper) {
+                        _answerController.value = _answerController.value.copyWith(
+                          text: upper,
+                          selection: _answerController.selection,
+                          composing: TextRange.empty,
+                        );
+                      }
+                    },
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Luckiest Guy',
+                      fontFamily: 'Londrina Solid',
                     ),
                     decoration: InputDecoration(
                       hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
                       hintStyle: const TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
+                        fontFamily: 'Londrina Solid',
                       ),
                       border: InputBorder.none,
                     ),
@@ -661,6 +708,16 @@ class _AnimatedPopupState extends State<AnimatedPopup>
         position: _slide,
         child: ScaleTransition(scale: _scale, child: widget.child),
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

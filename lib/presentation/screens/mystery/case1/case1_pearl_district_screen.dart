@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class PearlDistrictScreen extends StatefulWidget {
   const PearlDistrictScreen({super.key});
@@ -116,12 +120,12 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
         .trim()
         .toUpperCase()
         .replaceAll(',', '')
-        .replaceAll(RegExp(r'\s+'), ' ');
+        .replaceAll(RegExp(r'\s+'), '');
   }
 
   bool _isPearlCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {'4500000', '4 500 000', '4500000.00'};
+    const acceptedAnswers = {'4500000', '4500000.00'};
     return acceptedAnswers.contains(normalized);
   }
 
@@ -136,6 +140,18 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
 
     if (_isPearlCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case1_pearl_district_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(80);
+        await prefs.setBool(solveKey, true);
+      }
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -194,6 +210,18 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case1_pearl_district_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -340,106 +368,6 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildQuestionPopUp(BoxConstraints constraints) {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.5),
-      child: Center(
-        child: SizedBox(
-          width: constraints.maxWidth * 0.68,
-          height: constraints.maxHeight * 0.65,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/mystery/insurance_question.png',
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Positioned(
-                top: 25,
-                right: 15,
-                child: InkWell(
-                  onTap: () => onButtonTap(() {
-                    setState(() => isQuestionVisible = false);
-                  }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.25,
-                left: constraints.maxWidth * 0.08,
-                right: constraints.maxWidth * 0.08,
-                child: const Text(
-                  "How much debt does Giovanni Ltd actually carrying?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Consolas',
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.44,
-                left: constraints.maxWidth * 0.15,
-                right: constraints.maxWidth * 0.10,
-                child: Opacity(
-                  opacity: 0.50,
-                  child: TextField(
-                    controller: _answerController,
-                    autofocus: _hasLives,
-                    enabled: _hasLives,
-                    textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.characters,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Luckiest Guy',
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 35,
-                right: 0,
-                child: Center(
-                  child: Opacity(
-                    opacity: _hasLives ? 1.0 : 0.45,
-                    child: InkWell(
-                      onTap: () async {
-                        await playButtonSound();
-                        if (_hasLives) {
-                          _submitAnswer();
-                        } else {
-                          showNoLivesPopup();
-                        }
-                      },
-                      child: Image.asset(
-                        'assets/mystery/submit_button.png',
-                        height: 35,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -764,78 +692,102 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
       ),
     );
   }
-}
 
-class InvestigationTypewriter extends StatefulWidget {
-  final String text;
-  final VoidCallback onFinished;
-  final Duration typingDuration;
-
-  const InvestigationTypewriter({
-    super.key,
-    required this.text,
-    required this.onFinished,
-    required this.typingDuration,
-  });
-
-  @override
-  State<InvestigationTypewriter> createState() =>
-      _InvestigationTypewriterState();
-}
-
-class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
-  String _displayedText = "";
-  int _charIndex = 0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTyping();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _startTyping() {
-    final int delayMs = widget.text.isEmpty
-        ? 40
-        : (widget.typingDuration.inMilliseconds / widget.text.length).round();
-
-    _timer = Timer.periodic(Duration(milliseconds: delayMs), (timer) {
-      if (_charIndex < widget.text.length) {
-        if (mounted) {
-          setState(() {
-            _displayedText += widget.text[_charIndex];
-            _charIndex++;
-          });
-        }
-      } else {
-        _timer?.cancel();
-        widget.onFinished();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildQuestionPopUp(BoxConstraints constraints) {
     return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blueAccent, width: 2),
-      ),
-      child: Text(
-        _displayedText,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontFamily: 'Consolas',
+      color: Colors.black.withValues(alpha: 0.5),
+      child: Center(
+        child: SizedBox(
+          width: constraints.maxWidth * 0.68,
+          height: constraints.maxHeight * 0.65,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/mystery/insurance_question.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Positioned(
+                top: 25,
+                right: 15,
+                child: InkWell(
+                  onTap: () => onButtonTap(() {
+                    setState(() => isQuestionVisible = false);
+                  }),
+                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.25,
+                left: constraints.maxWidth * 0.08,
+                right: constraints.maxWidth * 0.08,
+                child: const Text(
+                  "How much debt does Giovanni Ltd actually carrying?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Consolas',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.44,
+                left: constraints.maxWidth * 0.15,
+                right: constraints.maxWidth * 0.10,
+                child: Opacity(
+                  opacity: 0.50,
+                  child: TextField(
+                    controller: _answerController,
+                    autofocus: _hasLives,
+                    enabled: _hasLives,
+                    textAlign: TextAlign.center,
+                    textCapitalization: TextCapitalization.none,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Luckiest Guy',
+                    ),
+                    decoration: InputDecoration(
+                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 35,
+                right: 0,
+                child: Center(
+                  child: Opacity(
+                    opacity: _hasLives ? 1.0 : 0.45,
+                    child: InkWell(
+                      onTap: () async {
+                        await playButtonSound();
+                        if (_hasLives) {
+                          _submitAnswer();
+                        } else {
+                          showNoLivesPopup();
+                        }
+                      },
+                      child: Image.asset(
+                        'assets/mystery/submit_button.png',
+                        height: 35,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1006,5 +958,78 @@ class _AnimatedPopupState extends State<AnimatedPopup>
   }
 }
 
+class InvestigationTypewriter extends StatefulWidget {
+  final String text;
+  final VoidCallback onFinished;
+  final Duration typingDuration;
 
+  const InvestigationTypewriter({
+    super.key,
+    required this.text,
+    required this.onFinished,
+    required this.typingDuration,
+  });
 
+  @override
+  State<InvestigationTypewriter> createState() =>
+      _InvestigationTypewriterState();
+}
+
+class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
+  String _displayedText = "";
+  int _charIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTyping();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTyping() {
+    final int delayMs = widget.text.isEmpty
+        ? 40
+        : (widget.typingDuration.inMilliseconds / widget.text.length).round();
+
+    _timer = Timer.periodic(Duration(milliseconds: delayMs), (timer) {
+      if (_charIndex < widget.text.length) {
+        if (mounted) {
+          setState(() {
+            _displayedText += widget.text[_charIndex];
+            _charIndex++;
+          });
+        }
+      } else {
+        _timer?.cancel();
+        widget.onFinished();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blueAccent, width: 2),
+      ),
+      child: Text(
+        _displayedText,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontFamily: 'Consolas',
+        ),
+      ),
+    );
+  }
+}

@@ -11,6 +11,11 @@ import 'package:graphics_project/presentation/screens/mystery/case1/case1_police
 import 'package:graphics_project/presentation/screens/mystery/case1/case1_municipal_screen.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class FloatingBubble extends StatefulWidget {
   final Widget child;
@@ -146,12 +151,33 @@ class CaseMap1 extends StatefulWidget {
 
 class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
   final LivesController _livesController = LivesController.instance;
+  bool _isPoliceStationUnlocked = false;
 
   @override
   void initState() {
     super.initState();
     initCaseHelper();
     _livesController.addListener(_refresh);
+    _checkPoliceStationStatus();
+  }
+
+  Future<void> _checkPoliceStationStatus() async {
+    if (!mounted) return;
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final prefs = await SharedPreferences.getInstance();
+
+    final q1 = prefs.getBool('case1_exhibition_hall_solved_$userId') ?? false;
+    final q2 = prefs.getBool('case1_loupe_solved_$userId') ?? false;
+    final q3 = prefs.getBool('case1_viore_solved_$userId') ?? false;
+    final q4 = prefs.getBool('case1_back_alley_solved_$userId') ?? false;
+    final q5 = prefs.getBool('case1_pearl_district_solved_$userId') ?? false;
+
+    if (mounted) {
+      setState(() {
+        _isPoliceStationUnlocked = q1 && q2 && q3 && q4 && q5;
+      });
+    }
   }
 
   @override
@@ -367,6 +393,7 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
                   context,
                   'assets/mystery/police_station.png',
                   110,
+                  isLocked: !_isPoliceStationUnlocked,
                 ),
               ),
               Positioned(
@@ -420,9 +447,14 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
                                 const SizedBox(width: 10),
                                 _buildLivesHUDItem(context),
                                 const SizedBox(width: 10),
-                                _buildHUDItem(
-                                  'assets/mystery/points.png',
-                                  '1000 POINTS',
+                                ListenableBuilder(
+                                  listenable: PointsController.instance,
+                                  builder: (context, _) {
+                                    return _buildHUDItem(
+                                      'assets/mystery/points.png',
+                                      '${PointsController.instance.currentPoints} POINTS',
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -440,31 +472,100 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
     );
   }
 
-  Widget _buildMapLabel(BuildContext context, String asset, double width) {
-    return FloatingBubble(
-      child: GlowingMapLabel(
-        asset: asset,
-        width: width,
-        onTap: () => onButtonTap(() {
-          if (asset.contains('exhibition_hall')) {
-            Navigator.push(context, fadeRoute(const ExhibitionHallScreen()));
-          } else if (asset.contains('viore_hq')) {
-            Navigator.push(context, fadeRoute(const VioreHqScreen()));
-          } else if (asset.contains('back_alley')) {
-            Navigator.push(context, fadeRoute(const BackAlleyScreen()));
-          } else if (asset.contains('insurance')) {
-            Navigator.push(context, fadeRoute(const PearlDistrictScreen()));
-          } else if (asset.contains('the_loupe')) {
-            Navigator.push(context, fadeRoute(const LoupeScreen()));
-          } else if (asset.contains('police_station')) {
-            Navigator.push(context, fadeRoute(const PoliceStationScreen()));
-          } else if (asset.contains('municipal')) {
-            Navigator.push(context, fadeRoute(const MunicipalScreen()));
-          } else {
-            debugPrint("Location tapped: $asset");
-          }
-        }),
-      ),
+  Widget _buildMapLabel(
+    BuildContext context,
+    String asset,
+    double width, {
+    bool isLocked = false,
+  }) {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        if (isLocked)
+          Positioned(
+            bottom: -15,
+            child: ShakeWidget(
+              delay: const Duration(seconds: 1),
+              child: const Icon(
+                Icons.lock,
+                color: Colors.yellow,
+                size: 100,
+                shadows: [
+                  Shadow(
+                    color: Colors.black54,
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        FloatingBubble(
+          child: GlowingMapLabel(
+            asset: asset,
+            width: width,
+            onTap: () => onButtonTap(() {
+              if (isLocked) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Location locked. Please clear the remaining areas first.',
+                      style: TextStyle(
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor: Colors.redAccent,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                return;
+              }
+
+              if (asset.contains('exhibition_hall')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const ExhibitionHallScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('viore_hq')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const VioreHqScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('back_alley')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const BackAlleyScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('insurance')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const PearlDistrictScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('the_loupe')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const LoupeScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('police_station')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const PoliceStationScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else if (asset.contains('municipal')) {
+                Navigator.push(
+                  context,
+                  fadeRoute(const MunicipalScreen()),
+                ).then((_) => _checkPoliceStationStatus());
+              } else {
+                debugPrint("Location tapped: $asset");
+              }
+            }),
+          ),
+        ),
+      ],
     );
   }
 

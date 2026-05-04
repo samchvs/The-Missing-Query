@@ -13,10 +13,7 @@ import 'package:graphics_project/presentation/controllers/home_music_controller.
 class SignupScreen extends StatefulWidget {
   final AuthController authController;
 
-  const SignupScreen({
-    super.key,
-    required this.authController,
-  });
+  const SignupScreen({super.key, required this.authController});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -26,11 +23,11 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
+
   final FocusNode _usernameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
-  
+
   final _validatePassword = const ValidatePasswordUseCase();
   bool _isObscured = true;
   String? _passwordError;
@@ -139,84 +136,99 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Stack(
                   children: [
                     Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(AppAssets.signupScreen),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              
-              // 1. Username Field
-              Positioned(
-                left: 300,
-                top: 135,
-                child: _buildInputRow(
-                  label: 'Username:',
-                  controller: _usernameController,
-                  focusNode: _usernameFocus,
-                ),
-              ),
-
-              // 2. Email Field
-              Positioned(
-                left: 300,
-                top: 174,
-                child: _buildInputRow(
-                  label: 'Email:',
-                  controller: _emailController,
-                  focusNode: _emailFocus,
-                  inputType: TextInputType.emailAddress,
-                ),
-              ),
-
-              // 3. Password Field
-              Positioned(
-                left: 300,
-                top: 213,
-                child: _buildInputRow(
-                  label: 'Password:',
-                  controller: _passwordController,
-                  focusNode: _passwordFocus,
-                  isPassword: true,
-                  onChanged: (v) {
-                    setState(() => _passwordError = _validatePassword(v));
-                  },
-                ),
-              ),
-
-              // Sign Up Button
-              Positioned(
-                left: 400,
-                top: 256,
-                child: controller.isLoading
-                    ? _buildLoading()
-                    : BouncingButton(
-                        onPressed: _onSignup,
-                        child: Image.asset(AppAssets.signupInnerBtn, width: 100),
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(AppAssets.signupScreen),
+                          fit: BoxFit.fill,
+                        ),
                       ),
-              ),
+                    ),
 
-              // Back Button
-              Positioned(
-                left: 20,
-                top: 20,
-                child: BouncingButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SplashScreen(authController: widget.authController),
+                    // 1. Username Field
+                    Positioned(
+                      left: 300,
+                      top: 135,
+                      child: _buildInputRow(
+                        label: 'Username:',
+                        controller: _usernameController,
+                        focusNode: _usernameFocus,
                       ),
-                    );
-                  },
-                  child: Image.asset(AppAssets.backBtn, width: 50),
-                ),
-              ),
+                    ),
 
-              KeyboardAccessoryBar(controller: _usernameController, focusNode: _usernameFocus),
-              KeyboardAccessoryBar(controller: _emailController, focusNode: _emailFocus),
-              KeyboardAccessoryBar(controller: _passwordController, focusNode: _passwordFocus, obscureText: true),
+                    // 2. Email Field
+                    Positioned(
+                      left: 300,
+                      top: 174,
+                      child: _buildInputRow(
+                        label: 'Email:',
+                        controller: _emailController,
+                        focusNode: _emailFocus,
+                        inputType: TextInputType.emailAddress,
+                      ),
+                    ),
+
+                    // 3. Password Field
+                    Positioned(
+                      left: 300,
+                      top: 213,
+                      child: _buildInputRow(
+                        label: 'Password:',
+                        controller: _passwordController,
+                        focusNode: _passwordFocus,
+                        isPassword: true,
+                        onChanged: (v) {
+                          setState(() => _passwordError = _validatePassword(v));
+                        },
+                      ),
+                    ),
+
+                    // Sign Up Button
+                    Positioned(
+                      left: 400,
+                      top: 256,
+                      child: controller.isLoading
+                          ? _buildLoading()
+                          : BouncingButton(
+                              onPressed: _onSignup,
+                              child: Image.asset(
+                                AppAssets.signupInnerBtn,
+                                width: 100,
+                              ),
+                            ),
+                    ),
+
+                    // Back Button
+                    Positioned(
+                      left: 20,
+                      top: 20,
+                      child: BouncingButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SplashScreen(
+                                authController: widget.authController,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.asset(AppAssets.backBtn, width: 50),
+                      ),
+                    ),
+
+                    KeyboardAccessoryBar(
+                      controller: _usernameController,
+                      focusNode: _usernameFocus,
+                    ),
+                    KeyboardAccessoryBar(
+                      controller: _emailController,
+                      focusNode: _emailFocus,
+                    ),
+                    KeyboardAccessoryBar(
+                      controller: _passwordController,
+                      focusNode: _passwordFocus,
+                      obscureText: true,
+                    ),
                   ],
                 ),
               ),
@@ -248,7 +260,7 @@ class _SignupScreenState extends State<SignupScreen> {
         Stack(
           alignment: Alignment.centerLeft,
           children: [
-            Image.asset(AppAssets.inputBox, width: 190), 
+            Image.asset(AppAssets.inputBox, width: 190),
             Padding(
               padding: const EdgeInsets.only(left: 15.0, right: 35.0),
               child: SizedBox(
@@ -265,7 +277,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     border: InputBorder.none,
                     isDense: true,
                   ),
-                  style: const TextStyle(fontSize: 14, color: AppColors.primary),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -287,13 +302,16 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-
-
   Widget _buildLoading() {
     return const SizedBox(
       width: 120,
       height: 40,
-      child: Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2)),
+      child: Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+          strokeWidth: 2,
+        ),
+      ),
     );
   }
 }

@@ -42,7 +42,7 @@ class _GhostTextController extends TextEditingController {
 
     // If the user has typed something that doesn't match the hint (ignoring whitespace/case),
     // we stop showing the ghost hint to avoid confusion.
-    // We use trimRight() on input so that a trailing space doesn't break the match 
+    // We use trimRight() on input so that a trailing space doesn't break the match
     // if the hint doesn't have a space at that exact position yet.
     if (!normHint.startsWith(normInput.trimRight())) {
       return TextSpan(style: resolved, text: input);
@@ -75,7 +75,7 @@ class _GhostTextController extends TextEditingController {
       }
     }
 
-    // 3. The ghost text is the remainder of the hint, with newlines replaced by spaces 
+    // 3. The ghost text is the remainder of the hint, with newlines replaced by spaces
     // for the single-line accessory bar display.
     if (hintIdx >= hintRaw.length) {
       return TextSpan(style: resolved, text: input);
@@ -202,11 +202,6 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     if (keyboardHeight <= 0) return const SizedBox.shrink();
 
-    // Scale the keyboard height to the local coordinate system (360 reference height)
-    final double screenHeight = MediaQuery.of(context).size.height;
-    final double scaleY = screenHeight > 0 ? (screenHeight / 360.0) : 1.0;
-    final double localBottom = keyboardHeight / scaleY;
-
     return ListenableBuilder(
       listenable: Listenable.merge([
         if (widget.focusNode != null) widget.focusNode!,
@@ -217,16 +212,26 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
             (widget.focusNode?.hasFocus ?? true) || _internalFocus.hasFocus;
         if (!hasFocus) return const SizedBox.shrink();
 
-        return Positioned(
-          left: 0,
-          right: 0,
-          bottom: localBottom,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: double.infinity,
-              height: 55,
-              decoration: const BoxDecoration(
+        return Positioned.fill(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double screenHeight = MediaQuery.of(context).size.height;
+              // Automatically determine if parent stack is scaled by comparing screen height to stack max height
+              final double scaleY = screenHeight > 0 && constraints.maxHeight > 0
+                  ? (screenHeight / constraints.maxHeight)
+                  : 1.0;
+              final double localBottom = keyboardHeight / scaleY;
+
+              return Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: localBottom),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: double.infinity,
+                      height: 55,
+                      decoration: const BoxDecoration(
                 color: AppColors.white,
                 boxShadow: [
                   BoxShadow(
@@ -275,6 +280,10 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
                 ],
               ),
             ),
+          ),
+                ),
+              );
+            },
           ),
         );
       },

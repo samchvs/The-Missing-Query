@@ -159,9 +159,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    _queryController = SQLSyntaxController(
-      text: "SELECT * FROM Hallway_Logs;"
-    );
+    _queryController = SQLSyntaxController(text: "SELECT * FROM Hallway_Logs;");
 
     _runHintController = AnimationController(
       vsync: this,
@@ -293,411 +291,85 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
             width: 800,
             height: 360,
             child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Image.asset(AppAssets.tutorialCase3Title, width: 420),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 40.0),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Transform.translate(
-                          offset: const Offset(20.0, -10.0),
-                          child: BouncingButton(
-                            onPressed: () {
-                              if (!_isQueryClicked) {
-                                setState(() {
-                                  _isQueryClicked = true;
-                                  _hintMarkedAsDone = true;
-                                });
-                                _hintController.stop();
-                                SFXController().playPopup();
-                                _userFadeController.forward();
-                              }
-                            },
-                            child: Image.asset(AppAssets.queryBtn, width: 100),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        AnimatedOpacity(
-                          opacity: (_isQueryClicked || _isTableUnlocked)
-                              ? 0.0
-                              : 1.0,
-                          duration: const Duration(milliseconds: 600),
-                          child: Image.asset(
-                            AppAssets.tutorialCase3Pop,
-                            width: 250,
-                          ),
-                        ),
-                      ],
-                    ),
-                    AnimatedBuilder(
-                      animation: _hintController,
-                      builder: (context, child) {
-                        return AnimatedOpacity(
-                          opacity: (_hintMarkedAsDone || _isTableUnlocked)
-                              ? 0.0
-                              : _hintOpacity.value,
-                          duration: const Duration(milliseconds: 500),
-                          child: Transform.translate(
-                            offset: _hintOffset.value,
-                            child: Transform.scale(
-                              scale: _hintScale.value,
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Image.asset(AppAssets.mousePointer, width: 40),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Beanie Walking Animation
-          AnimatedBuilder(
-            animation: Listenable.merge([_walkAnimation, _exitAnimation]),
-            builder: (context, child) {
-              const double canvasWidth = 800.0;
-              final double totalTranslation =
-                  (_walkAnimation.value + _exitAnimation.value) * canvasWidth;
-              return Transform.translate(
-                offset: Offset(totalTranslation, 0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
+              fit: StackFit.expand,
+              children: [
+                Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
+                Align(
+                  alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: canvasWidth * 0.13, // Adjusted to the left
-                      top: 85.0,
-                    ),
-                    child: SizedBox(
-                      width: 200,
-                      height: 200,
-                      child: AnimatedBuilder(
-                        animation: _spriteController,
-                        builder: (context, child) {
-                          if (_walkController.isCompleted && !_isExiting) {
-                            return Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Transform.translate(
-                                offset: const Offset(-52.0, 5),
-                                child: ClipRect(
-                                  child: Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: AppAnimations.worriedBeanie(
-                                      width: 300,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          } else {
-                            final String currentImage =
-                                _spriteController.value < 0.5
-                                ? AppAssets.beanieWalking1
-                                : AppAssets.beanieWalking2;
-                            return Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Transform.translate(
-                                offset: Offset(
-                                  -45.0,
-                                  -45 +
-                                      (Curves.easeInOut.transform(
-                                            (_spriteController.value * 2) % 1.0,
-                                          ) *
-                                          10),
-                                ),
-                                child: Image.asset(currentImage, width: 70),
-                              ),
-                            );
-                          }
-                        },
-                      ),
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Image.asset(
+                      AppAssets.tutorialCase3Title,
+                      width: 420,
                     ),
                   ),
                 ),
-              );
-            },
-          ),
-          // Next button (placed behind interactive overlays)
-          if (_isTableUnlocked && !_isTableShown)
-            Positioned(
-              bottom: 30,
-              right: 30,
-              child: BouncingButton(
-                onPressed: () {
-                  if (!_isExiting) {
-                    setState(() {
-                      _isExiting = true;
-                      _isTableShown = false; // Hide table if open
-                    });
-                    _spriteController.repeat();
-                    _exitController.forward();
-                  }
-                },
-                child: AnimatedOpacity(
-                  opacity: _isExiting ? 0.0 : 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: ShakeWidget(
-                    child: Image.asset(AppAssets.nextBtn, width: 100),
-                  ),
-                ),
-              ),
-            ),
-          // Dark overlay
-          IgnorePointer(
-            ignoring: !_isQueryClicked,
-            child: FadeTransition(
-              opacity: _userFadeAnimation,
-              child: Container(color: Colors.black.withValues(alpha: 0.7)),
-            ),
-          ),
-          // Query display
-          IgnorePointer(
-            ignoring: !_isQueryClicked,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 70.0), // Moved up from 90.0
-                child: IgnorePointer(
-                  ignoring: !_showQueryDisplay,
-                  child: AnimatedOpacity(
-                    opacity: _showQueryDisplay ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 500),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 40.0),
                     child: FadeTransition(
-                      opacity: _userFadeAnimation,
+                      opacity: _fadeAnimation,
                       child: Stack(
-                        alignment: Alignment.topRight,
+                        alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: [
-                          Image.asset(
-                            AppAssets.tutorialQueryDisplay,
-                            width: 450,
-                          ),
-                          Visibility(
-                            visible: _isHintDismissed,
-                            child: Positioned(
-                              top: 45,
-                              left: 25,
-                              right: 25,
-                              bottom: 45,
-                              child: Stack(
-                                children: [
-                                  ValueListenableBuilder<TextEditingValue>(
-                                    valueListenable: _queryController,
-                                    builder: (context, value, _) {
-                                      final String userInput = value.text;
-                                      String ghostText = '';
-                                      if (userInput.length <
-                                          _targetQuery.length) {
-                                        final spaces = ' ' * userInput.length;
-                                        ghostText =
-                                            spaces +
-                                            _targetQuery.substring(
-                                              userInput.length,
-                                            );
-                                      }
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 10,
-                                        ),
-                                        child: Text(
-                                          ghostText,
-                                          style: GoogleFonts.inconsolata(
-                                            fontSize: 18,
-                                            color: AppColors.primary.withValues(
-                                              alpha: 0.3,
-                                            ),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  TextField(
-                                    controller: _queryController,
-                                    maxLines: null,
-                                    style: GoogleFonts.inconsolata(
-                                      fontSize: 18,
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 9,
-                            right: 15, // Moved a bit to the right
-                            child: BouncingButton(
-                              onPressed: () {
-                                _popupUserFadeController.reverse();
-                                _userFadeController.reverse().then((_) {
-                                  if (mounted) {
-                                    setState(() {
-                                      _isQueryClicked = false;
-                                      _runHintController.reset();
-                                      _isRunHintFinished = false;
-                                    });
-                                  }
-                                });
-                              },
-                              child: Image.asset(AppAssets.closeBtn, width: 20),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 8, // Moved down from 15
-                            left: 15,
-                            child: BouncingButton(
-                              onPressed: () {
-                                if (_isTableUnlocked) {
-                                  setState(() {
-                                    _showQueryDisplay = false;
-                                    _isTableShown = true;
-                                  });
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Table is locked. Run your query successfully first!",
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Image.asset(
-                                AppAssets.tablesBtn,
-                                width: 80,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 8, // Moved down from 15
-                            right: 10,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                BouncingButton(
-                                  onPressed: () => _queryController.clear(),
-                                  child: Image.asset(
-                                    AppAssets.clearBtn,
-                                    width: 75,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                BouncingButton(
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Transform.translate(
+                                offset: const Offset(20.0, -10.0),
+                                child: BouncingButton(
                                   onPressed: () {
-                                    if (_isQueryCorrect()) {
+                                    if (!_isQueryClicked) {
                                       setState(() {
-                                        _isRunHintFinished = true;
-                                        _showQueryDisplay = false;
-                                        _isTableShown = true;
-                                        _isTableUnlocked = true;
+                                        _isQueryClicked = true;
+                                        _hintMarkedAsDone = true;
                                       });
-                                    } else {
-                                      _runHintController.stop();
+                                      _hintController.stop();
+                                      SFXController().playPopup();
+                                      _userFadeController.forward();
                                     }
                                   },
                                   child: Image.asset(
-                                    AppAssets.runBtn,
+                                    AppAssets.queryBtn,
                                     width: 100,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            top: 60,
-                            right: -30,
-                            child: FadeTransition(
-                              opacity: _popupUserFadeAnimation,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Image.asset(
-                                    AppAssets.tutorialSelectHintBox,
-                                    width: 300,
-                                  ),
-                                  Positioned(
-                                    bottom: 20,
-                                    right: 35,
-                                    child: BouncingButton(
-                                      onPressed: () {
-                                        _popupUserFadeController.reverse().then(
-                                          (_) {
-                                            if (mounted) {
-                                              setState(
-                                                () => _isHintDismissed = true,
-                                              );
-                                            }
-                                          },
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        color: Colors.transparent,
-                                        child: Image.asset(
-                                          AppAssets.okayBtn,
-                                          width: 75,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: -2,
-                            right: 80,
-                            child: AnimatedBuilder(
-                              animation: _runHintController,
-                              builder: (context, child) {
-                                return Opacity(
-                                  opacity: _isRunHintFinished
-                                      ? 0.0
-                                      : _runHintOpacity.value,
-                                  child: Transform.translate(
-                                    offset: _runHintOffset.value,
-                                    child: Transform.scale(
-                                      scale: _runHintScale.value,
-                                      child: child,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Image.asset(
-                                AppAssets.mousePointer,
-                                width: 40,
+                              const SizedBox(height: 10),
+                              AnimatedOpacity(
+                                opacity: (_isQueryClicked || _isTableUnlocked)
+                                    ? 0.0
+                                    : 1.0,
+                                duration: const Duration(milliseconds: 600),
+                                child: Image.asset(
+                                  AppAssets.tutorialCase3Pop,
+                                  width: 250,
+                                ),
                               ),
+                            ],
+                          ),
+                          AnimatedBuilder(
+                            animation: _hintController,
+                            builder: (context, child) {
+                              return AnimatedOpacity(
+                                opacity: (_hintMarkedAsDone || _isTableUnlocked)
+                                    ? 0.0
+                                    : _hintOpacity.value,
+                                duration: const Duration(milliseconds: 500),
+                                child: Transform.translate(
+                                  offset: _hintOffset.value,
+                                  child: Transform.scale(
+                                    scale: _hintScale.value,
+                                    child: child,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Image.asset(
+                              AppAssets.mousePointer,
+                              width: 40,
                             ),
                           ),
                         ],
@@ -705,140 +377,508 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          // Result Table
-          IgnorePointer(
-            ignoring: !_isTableShown,
-            child: AnimatedOpacity(
-              opacity: _isTableShown ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 500),
-              child: Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Image.asset(AppAssets.tutorialTable, width: 500),
-                    Positioned(
-                      top: 105,
-                      left: 23,
-                      right: 21,
-                      child: Column(
-                        children: _tableData.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final data = entry.value;
-                          final bool isLast = index == _tableData.length - 1;
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: isLast
-                                  ? null
-                                  : const Border(
-                                      bottom: BorderSide(
-                                        color: AppColors.tableRowBorder,
-                                        width: 1.5,
+                // Beanie Walking Animation
+                AnimatedBuilder(
+                  animation: Listenable.merge([_walkAnimation, _exitAnimation]),
+                  builder: (context, child) {
+                    const double canvasWidth = 800.0;
+                    final double totalTranslation =
+                        (_walkAnimation.value + _exitAnimation.value) *
+                        canvasWidth;
+                    return Transform.translate(
+                      offset: Offset(totalTranslation, 0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: canvasWidth * 0.13, // Adjusted to the left
+                            top: 85.0,
+                          ),
+                          child: SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: AnimatedBuilder(
+                              animation: _spriteController,
+                              builder: (context, child) {
+                                if (_walkController.isCompleted &&
+                                    !_isExiting) {
+                                  return Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Transform.translate(
+                                      offset: const Offset(-52.0, 5),
+                                      child: ClipRect(
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: AppAnimations.worriedBeanie(
+                                            width: 300,
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                  );
+                                } else {
+                                  final String currentImage =
+                                      _spriteController.value < 0.5
+                                      ? AppAssets.beanieWalking1
+                                      : AppAssets.beanieWalking2;
+                                  return Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Transform.translate(
+                                      offset: Offset(
+                                        -45.0,
+                                        -45 +
+                                            (Curves.easeInOut.transform(
+                                                  (_spriteController.value *
+                                                          2) %
+                                                      1.0,
+                                                ) *
+                                                10),
+                                      ),
+                                      child: Image.asset(
+                                        currentImage,
+                                        width: 70,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: Row(
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                // Next button (placed behind interactive overlays)
+                if (_isTableUnlocked && !_isTableShown)
+                  Positioned(
+                    bottom: 30,
+                    right: 30,
+                    child: BouncingButton(
+                      onPressed: () {
+                        if (!_isExiting) {
+                          setState(() {
+                            _isExiting = true;
+                            _isTableShown = false; // Hide table if open
+                          });
+                          _spriteController.repeat();
+                          _exitController.forward();
+                        }
+                      },
+                      child: AnimatedOpacity(
+                        opacity: _isExiting ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: ShakeWidget(
+                          child: Image.asset(AppAssets.nextBtn, width: 100),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Dark overlay
+                IgnorePointer(
+                  ignoring: !_isQueryClicked,
+                  child: FadeTransition(
+                    opacity: _userFadeAnimation,
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+                // Query display
+                IgnorePointer(
+                  ignoring: !_isQueryClicked,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 70.0,
+                      ), // Moved up from 90.0
+                      child: IgnorePointer(
+                        ignoring: !_showQueryDisplay,
+                        child: AnimatedOpacity(
+                          opacity: _showQueryDisplay ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 500),
+                          child: FadeTransition(
+                            opacity: _userFadeAnimation,
+                            child: Stack(
+                              alignment: Alignment.topRight,
+                              clipBehavior: Clip.none,
                               children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    data['id']!,
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.inconsolata(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
+                                Image.asset(
+                                  AppAssets.tutorialQueryDisplay,
+                                  width: 450,
+                                ),
+                                Visibility(
+                                  visible: _isHintDismissed,
+                                  child: Positioned(
+                                    top: 45,
+                                    left: 25,
+                                    right: 25,
+                                    bottom: 45,
+                                    child: Stack(
+                                      children: [
+                                        ValueListenableBuilder<
+                                          TextEditingValue
+                                        >(
+                                          valueListenable: _queryController,
+                                          builder: (context, value, _) {
+                                            final String userInput = value.text;
+                                            String ghostText = '';
+                                            if (userInput.length <
+                                                _targetQuery.length) {
+                                              final spaces =
+                                                  ' ' * userInput.length;
+                                              ghostText =
+                                                  spaces +
+                                                  _targetQuery.substring(
+                                                    userInput.length,
+                                                  );
+                                            }
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 10,
+                                                  ),
+                                              child: Text(
+                                                ghostText,
+                                                style: GoogleFonts.inconsolata(
+                                                  fontSize: 18,
+                                                  color: AppColors.primary
+                                                      .withValues(alpha: 0.3),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        TextField(
+                                          controller: _queryController,
+                                          maxLines: null,
+                                          style: GoogleFonts.inconsolata(
+                                            fontSize: 18,
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 10,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 60.0),
-                                    child: Text(
-                                      data['name']!,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.inconsolata(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
-                                      ),
+                                Positioned(
+                                  top: 9,
+                                  right: 15, // Moved a bit to the right
+                                  child: BouncingButton(
+                                    onPressed: () {
+                                      _popupUserFadeController.reverse();
+                                      _userFadeController.reverse().then((_) {
+                                        if (mounted) {
+                                          setState(() {
+                                            _isQueryClicked = false;
+                                            _runHintController.reset();
+                                            _isRunHintFinished = false;
+                                          });
+                                        }
+                                      });
+                                    },
+                                    child: Image.asset(
+                                      AppAssets.closeBtn,
+                                      width: 20,
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 30.0),
-                                    child: Text(
-                                      data['time']!,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.inconsolata(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
+                                Positioned(
+                                  bottom: 8, // Moved down from 15
+                                  left: 15,
+                                  child: BouncingButton(
+                                    onPressed: () {
+                                      if (_isTableUnlocked) {
+                                        setState(() {
+                                          _showQueryDisplay = false;
+                                          _isTableShown = true;
+                                        });
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Table is locked. Run your query successfully first!",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Image.asset(
+                                      AppAssets.tablesBtn,
+                                      width: 80,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 8, // Moved down from 15
+                                  right: 10,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      BouncingButton(
+                                        onPressed: () =>
+                                            _queryController.clear(),
+                                        child: Image.asset(
+                                          AppAssets.clearBtn,
+                                          width: 75,
+                                        ),
                                       ),
+                                      const SizedBox(width: 8),
+                                      BouncingButton(
+                                        onPressed: () {
+                                          if (_isQueryCorrect()) {
+                                            setState(() {
+                                              _isRunHintFinished = true;
+                                              _showQueryDisplay = false;
+                                              _isTableShown = true;
+                                              _isTableUnlocked = true;
+                                            });
+                                          } else {
+                                            _runHintController.stop();
+                                          }
+                                        },
+                                        child: Image.asset(
+                                          AppAssets.runBtn,
+                                          width: 100,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 60,
+                                  right: -30,
+                                  child: FadeTransition(
+                                    opacity: _popupUserFadeAnimation,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Image.asset(
+                                          AppAssets.tutorialSelectHintBox,
+                                          width: 300,
+                                        ),
+                                        Positioned(
+                                          bottom: 20,
+                                          right: 35,
+                                          child: BouncingButton(
+                                            onPressed: () {
+                                              _popupUserFadeController
+                                                  .reverse()
+                                                  .then((_) {
+                                                    if (mounted) {
+                                                      setState(
+                                                        () => _isHintDismissed =
+                                                            true,
+                                                      );
+                                                    }
+                                                  });
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(12),
+                                              color: Colors.transparent,
+                                              child: Image.asset(
+                                                AppAssets.okayBtn,
+                                                width: 75,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: -2,
+                                  right: 80,
+                                  child: AnimatedBuilder(
+                                    animation: _runHintController,
+                                    builder: (context, child) {
+                                      return Opacity(
+                                        opacity: _isRunHintFinished
+                                            ? 0.0
+                                            : _runHintOpacity.value,
+                                        child: Transform.translate(
+                                          offset: _runHintOffset.value,
+                                          child: Transform.scale(
+                                            scale: _runHintScale.value,
+                                            child: child,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.asset(
+                                      AppAssets.mousePointer,
+                                      width: 40,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        }).toList(),
+                          ),
+                        ),
                       ),
                     ),
-                    Positioned(
-                      top: 20,
-                      right: 15,
-                      child: BouncingButton(
-                        onPressed: () {
-                          setState(() {
-                            _isTableShown = false;
-                            _isQueryClicked = false;
-                            _showQueryDisplay = true;
-                          });
-                          _userFadeController.reverse();
-                        },
-                        child: Image.asset(AppAssets.closeBtn, width: 25),
+                  ),
+                ),
+                // Result Table
+                IgnorePointer(
+                  ignoring: !_isTableShown,
+                  child: AnimatedOpacity(
+                    opacity: _isTableShown ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Center(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Image.asset(AppAssets.tutorialTable, width: 500),
+                          Positioned(
+                            top: 105,
+                            left: 23,
+                            right: 21,
+                            child: Column(
+                              children: _tableData.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final data = entry.value;
+                                final bool isLast =
+                                    index == _tableData.length - 1;
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    border: isLast
+                                        ? null
+                                        : const Border(
+                                            bottom: BorderSide(
+                                              color: AppColors.tableRowBorder,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 5.0,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          data['id']!,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.inconsolata(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 60.0,
+                                          ),
+                                          child: Text(
+                                            data['name']!,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.inconsolata(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 30.0,
+                                          ),
+                                          child: Text(
+                                            data['time']!,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.inconsolata(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          Positioned(
+                            top: 20,
+                            right: 15,
+                            child: BouncingButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isTableShown = false;
+                                  _isQueryClicked = false;
+                                  _showQueryDisplay = true;
+                                });
+                                _userFadeController.reverse();
+                              },
+                              child: Image.asset(AppAssets.closeBtn, width: 25),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-          // Navigation
-          Positioned(
-            left: 20,
-            top: 20,
-            child: Row(
-              children: [
-                BouncingButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Image.asset(AppAssets.backBtn, width: 50),
+                // Navigation
+                Positioned(
+                  left: 20,
+                  top: 20,
+                  child: Row(
+                    children: [
+                      BouncingButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Image.asset(AppAssets.backBtn, width: 50),
+                      ),
+                      const SizedBox(width: 15),
+                      BouncingButton(
+                        onPressed: () =>
+                            TutorialMusicController.goHome(context),
+                        child: Image.asset(AppAssets.homeBtn, width: 50),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 15),
-                BouncingButton(
-                  onPressed: () => TutorialMusicController.goHome(context),
-                  child: Image.asset(AppAssets.homeBtn, width: 50),
+                KeyboardAccessoryBar(
+                  controller: _queryController,
+                  hintText: _targetQuery,
+                ),
+                // Darken transition
+                IgnorePointer(
+                  ignoring: !_isTransitioning,
+                  child: FadeTransition(
+                    opacity: _darkenAnimation,
+                    child: Container(color: Colors.black),
+                  ),
                 ),
               ],
             ),
-          ),
-          KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
-          // Darken transition
-          IgnorePointer(
-            ignoring: !_isTransitioning,
-            child: FadeTransition(
-              opacity: _darkenAnimation,
-              child: Container(color: Colors.black),
-            ),
-          ),
-        ],
-      ),
           ),
         ),
       ),

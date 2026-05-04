@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class ExhibitionHallScreen extends StatefulWidget {
   const ExhibitionHallScreen({super.key});
@@ -218,6 +222,18 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
 
     if (_answerController.text.trim().toUpperCase() == "172.16.10.20") {
       await playCorrectSound();
+      
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case1_exhibition_hall_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(80);
+        await prefs.setBool(solveKey, true);
+      }
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -273,6 +289,18 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+
+            final auth = context.read<AuthController>();
+            final userId = auth.currentUser?.id ?? 'guest';
+            final solveKey = 'case1_exhibition_hall_solved_$userId';
+
+            final prefs = await SharedPreferences.getInstance();
+            final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+            if (alreadySolved) {
+              showAlreadySolvedPopup();
+              return;
+            }
 
             if (!_hasLives) {
               showNoLivesPopup();

@@ -115,7 +115,8 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text: "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';", // Debug pre-fill
+      text:
+          "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';", // Debug pre-fill
     );
   }
 
@@ -137,20 +138,17 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
         setState(() {
           _isQueryClicked = false;
           _isTableShown = false;
-
         });
       }
     });
   }
 
   void _validateQuery() {
-    final String userInput = _queryController.text
-        .trim()
-        .replaceAll(RegExp(r'\s+'), ' ');
-    final String target = _targetQuery.trim().replaceAll(
+    final String userInput = _queryController.text.trim().replaceAll(
       RegExp(r'\s+'),
       ' ',
     );
+    final String target = _targetQuery.trim().replaceAll(RegExp(r'\s+'), ' ');
 
     final bool isMatch =
         userInput == target || userInput == target.replaceAll(';', '');
@@ -190,322 +188,364 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
             width: 800,
             height: 360,
             child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Background
-          Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
-
-          // 1.2 Title Image
-          Positioned(
-            top: 10,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Image.asset(AppAssets.tutorialCase5Title, width: 450),
-            ),
-          ),
-
-          // 1.5 Beanie Animation (Walking into Worried spot)
-          AnimatedBuilder(
-            animation: Listenable.merge([_walkController, _exitController]),
-            builder: (context, child) {
-              const double canvasWidth = 800.0;
-              final double walkTranslation = _isExiting
-                  ? _exitAnimation.value * canvasWidth
-                  : _walkAnimation.value * canvasWidth;
-              return Positioned(
-                left: (canvasWidth * 0.135) + walkTranslation,
-                top: 120.0, // Moved up from 137.0
-                child: SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: !_isWalking
-                      ? Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Transform.translate(
-                            offset: const Offset(-52.0, 5),
-                            child: ClipRect(
-                              child: Align(
-                                alignment: Alignment.bottomCenter,
-                                child: AppAnimations.worriedBeanie(width: 300),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Transform.translate(
-                            offset: const Offset(-52.0, -35.0), // Matched stationary offset to prevent overshooting
-                            child: AppAnimations.walkingBeanie(width: 70),
-                          ),
-                        ),
-                ),
-              );
-            },
-          ),
-
-          // 2. Query Button and Where Display
-          Positioned(
-            right: 20,
-            top: MediaQuery.of(context).size.height / 2 - 120,
-            child: Column(
+              fit: StackFit.expand,
               children: [
-                BouncingButton(
-                  onPressed: () {
-                    setState(() => _isQueryClicked = true);
-                    SFXController().playPopup();
-                    _fadeController.forward();
+                // 1. Background
+                Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
+
+                // 1.2 Title Image
+                Positioned(
+                  top: 10,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Image.asset(
+                      AppAssets.tutorialCase5Title,
+                      width: 450,
+                    ),
+                  ),
+                ),
+
+                // 1.5 Beanie Animation (Walking into Worried spot)
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _walkController,
+                    _exitController,
+                  ]),
+                  builder: (context, child) {
+                    const double canvasWidth = 800.0;
+                    final double walkTranslation = _isExiting
+                        ? _exitAnimation.value * canvasWidth
+                        : _walkAnimation.value * canvasWidth;
+                    return Positioned(
+                      left: (canvasWidth * 0.135) + walkTranslation,
+                      top: 120.0, // Moved up from 137.0
+                      child: SizedBox(
+                        width: 200,
+                        height: 200,
+                        child: !_isWalking
+                            ? Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Transform.translate(
+                                  offset: const Offset(-52.0, 5),
+                                  child: ClipRect(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: AppAnimations.worriedBeanie(
+                                        width: 300,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Transform.translate(
+                                  offset: const Offset(
+                                    -52.0,
+                                    -35.0,
+                                  ), // Matched stationary offset to prevent overshooting
+                                  child: AppAnimations.walkingBeanie(width: 70),
+                                ),
+                              ),
+                      ),
+                    );
                   },
-                  child: Image.asset(AppAssets.queryBtn, width: 100),
                 ),
-                const SizedBox(height: 10),
-                AnimatedOpacity(
-                  opacity: _isExiting ? 0.0 : 1.0,
-                  duration: const Duration(milliseconds: 500),
-                  child: Image.asset(AppAssets.case5WhereDisplay, width: 250),
-                ),
-              ],
-            ),
-          ),
 
-          // 3. Success Next Button (Moved BELOW the overlay in the stack)
-          if (_isQuerySuccessful && !_isExiting)
-            Positioned(
-              bottom: 20,
-              right: 40,
-              child: AnimatedBuilder(
-                animation: _shakeAnimation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(_shakeAnimation.value, 0),
-                    child: child,
-                  );
-                },
-                child: BouncingButton(
-                  onPressed: () {
-                    setState(() {
-                      _isExiting = true;
-                      _isWalking = true;
-                    });
-                    _exitController.forward().then((_) {
-                      if (mounted) {
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                const TutorialCase6Screen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-                                child,
-                          ),
-                        ).then((_) {
-                          if (mounted) {
-                            setState(() {
-                              _isExiting = false;
-                              _isWalking = false;
-                            });
-                            _exitController.reset();
-                          }
-                        });
-                      }
-                    });
-                  },
-                  child: Image.asset(AppAssets.nextBtn, width: 100),
-                ),
-              ),
-            ),
-
-          // 4. Dark Overlay (Dimming the nextPage-btn if it's there)
-          if (_isQueryClicked || _isTableShown)
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: GestureDetector(
-                onTap: () {
-                  if (_isTableShown) {
-                    setState(() {
-                      _isTableShown = false;
-
-                    });
-                  } else {
-                    _hideQuery();
-                  }
-                },
-                child: Container(color: Colors.black.withValues(alpha: 0.7)),
-              ),
-            ),
-
-          // 5. Query Display Panel
-          if (_isQueryClicked && !_isTableShown)
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Image.asset(AppAssets.tutorialQueryDisplay, width: 500),
-
-                    if (_isHintDismissed)
-                      Positioned(
-                        top: 75,
-                        left: 45,
-                        right: 45,
-                        bottom: 80,
-                        child: TextField(
-                          controller: _queryController,
-                          maxLines: null,
-                          autofocus: true,
-                          style: GoogleFonts.inconsolata(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.all(10),
-                          ),
+                // 2. Query Button and Where Display
+                Positioned(
+                  right: 20,
+                  top: MediaQuery.of(context).size.height / 2 - 120,
+                  child: Column(
+                    children: [
+                      BouncingButton(
+                        onPressed: () {
+                          setState(() => _isQueryClicked = true);
+                          SFXController().playPopup();
+                          _fadeController.forward();
+                        },
+                        child: Image.asset(AppAssets.queryBtn, width: 100),
+                      ),
+                      const SizedBox(height: 10),
+                      AnimatedOpacity(
+                        opacity: _isExiting ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Image.asset(
+                          AppAssets.case5WhereDisplay,
+                          width: 250,
                         ),
                       ),
+                    ],
+                  ),
+                ),
 
-                    Positioned(
-                      top: 10,
-                      right: 15,
+                // 3. Success Next Button (Moved BELOW the overlay in the stack)
+                if (_isQuerySuccessful && !_isExiting)
+                  Positioned(
+                    bottom: 20,
+                    right: 40,
+                    child: AnimatedBuilder(
+                      animation: _shakeAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(_shakeAnimation.value, 0),
+                          child: child,
+                        );
+                      },
                       child: BouncingButton(
-                        onPressed: _hideQuery,
-                        child: Image.asset(AppAssets.closeBtn, width: 25),
+                        onPressed: () {
+                          setState(() {
+                            _isExiting = true;
+                            _isWalking = true;
+                          });
+                          _exitController.forward().then((_) {
+                            if (mounted) {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                  pageBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                      ) => const TutorialCase6Screen(),
+                                  transitionsBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) => child,
+                                ),
+                              ).then((_) {
+                                if (mounted) {
+                                  setState(() {
+                                    _isExiting = false;
+                                    _isWalking = false;
+                                  });
+                                  _exitController.reset();
+                                }
+                              });
+                            }
+                          });
+                        },
+                        child: Image.asset(AppAssets.nextBtn, width: 100),
                       ),
                     ),
+                  ),
 
-                    if (_isHintDismissed)
-                      Positioned(
-                        bottom: 4, // Moved down from 5
-                        left: 20,
-                        right: 20,
-                        child: Row(
-                          children: [
-                            BouncingButton(
-                              onPressed: () {
-                                if (_isQuerySuccessful) {
-                                  setState(() => _isTableShown = true);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Table is locked. Run your query successfully first!",
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Image.asset(
-                                AppAssets.tablesBtn,
-                                width: 100, // Reduced from 110
+                // 4. Dark Overlay (Dimming the nextPage-btn if it's there)
+                if (_isQueryClicked || _isTableShown)
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (_isTableShown) {
+                          setState(() {
+                            _isTableShown = false;
+                          });
+                        } else {
+                          _hideQuery();
+                        }
+                      },
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+
+                // 5. Query Display Panel
+                if (_isQueryClicked && !_isTableShown)
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Center(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Image.asset(
+                            AppAssets.tutorialQueryDisplay,
+                            width: 500,
+                          ),
+
+                          if (_isHintDismissed)
+                            Positioned(
+                              top: 75,
+                              left: 45,
+                              right: 45,
+                              bottom: 80,
+                              child: TextField(
+                                controller: _queryController,
+                                maxLines: null,
+                                autofocus: true,
+                                style: GoogleFonts.inconsolata(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.all(10),
+                                ),
                               ),
                             ),
-                            const Spacer(),
-                            BouncingButton(
-                              onPressed: () => _queryController.clear(),
-                              child: Image.asset(AppAssets.clearBtn, width: 80), // Reduced from 90
-                            ),
-                            const SizedBox(width: 12),
-                            BouncingButton(
-                              onPressed: _validateQuery,
-                              child: Image.asset(AppAssets.runBtn, width: 110), // Reduced from 120
-                            ),
-                          ],
-                        ),
-                      ),
 
-                    if (!_isHintDismissed)
-                      Positioned(
-                        top: 80,
-                        right: -40,
+                          Positioned(
+                            top: 10,
+                            right: 15,
+                            child: BouncingButton(
+                              onPressed: _hideQuery,
+                              child: Image.asset(AppAssets.closeBtn, width: 25),
+                            ),
+                          ),
+
+                          if (_isHintDismissed)
+                            Positioned(
+                              bottom: 4, // Moved down from 5
+                              left: 20,
+                              right: 20,
+                              child: Row(
+                                children: [
+                                  BouncingButton(
+                                    onPressed: () {
+                                      if (_isQuerySuccessful) {
+                                        setState(() => _isTableShown = true);
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Table is locked. Run your query successfully first!",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Image.asset(
+                                      AppAssets.tablesBtn,
+                                      width: 100, // Reduced from 110
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  BouncingButton(
+                                    onPressed: () => _queryController.clear(),
+                                    child: Image.asset(
+                                      AppAssets.clearBtn,
+                                      width: 80,
+                                    ), // Reduced from 90
+                                  ),
+                                  const SizedBox(width: 12),
+                                  BouncingButton(
+                                    onPressed: _validateQuery,
+                                    child: Image.asset(
+                                      AppAssets.runBtn,
+                                      width: 110,
+                                    ), // Reduced from 120
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          if (!_isHintDismissed)
+                            Positioned(
+                              top: 80,
+                              right: -40,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.asset(
+                                    AppAssets.tutorial5SelectHintBox,
+                                    width: 320,
+                                  ),
+                                  Positioned(
+                                    bottom: 25,
+                                    right: 45,
+                                    child: BouncingButton(
+                                      onPressed: () {
+                                        setState(() => _isHintDismissed = true);
+                                      },
+                                      child: Image.asset(
+                                        AppAssets.okayBtn,
+                                        width: 85,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // 6. Hallway / Student Accounts Logs Display
+                if (_isTableShown)
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Center(
+                      child: SizedBox(
+                        width: 670,
                         child: Stack(
                           alignment: Alignment.center,
+                          clipBehavior: Clip.none,
                           children: [
                             Image.asset(
-                              AppAssets.tutorial5SelectHintBox,
-                              width: 320,
+                              AppAssets.studentAccountsLogs,
+                              width: 550,
                             ),
+
                             Positioned(
-                              bottom: 25,
-                              right: 45,
+                              top: 10,
+                              right: 70,
                               child: BouncingButton(
-                                onPressed: () {
-                                  setState(() => _isHintDismissed = true);
-                                },
+                                onPressed: _hideQuery,
                                 child: Image.asset(
-                                  AppAssets.okayBtn,
-                                  width: 85,
+                                  AppAssets.closeBtn,
+                                  width: 35,
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                  ],
-                ),
-              ),
-            ),
+                    ),
+                  ),
 
-          // 6. Hallway / Student Accounts Logs Display
-          if (_isTableShown)
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Center(
-                child: SizedBox(
-                  width: 670,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
+                // 7. Navigation (Global)
+                Positioned(
+                  left: 20,
+                  top: 20,
+                  child: Row(
                     children: [
-                      Image.asset(
-                        AppAssets.studentAccountsLogs,
-                        width: 550,
+                      BouncingButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Image.asset(AppAssets.backBtn, width: 50),
                       ),
-
-                      Positioned(
-                        top: 10,
-                        right: 70,
-                        child: BouncingButton(
-                        onPressed: _hideQuery,
-                          child: Image.asset(AppAssets.closeBtn, width: 35),
-                        ),
+                      const SizedBox(width: 15),
+                      BouncingButton(
+                        onPressed: () =>
+                            TutorialMusicController.goHome(context),
+                        child: Image.asset(AppAssets.homeBtn, width: 50),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ),
 
-          // 7. Navigation (Global)
-          Positioned(
-            left: 20,
-            top: 20,
-            child: Row(
-              children: [
-                BouncingButton(
-                  onPressed: () {
-                        Navigator.pop(context);
-                  },
-                  child: Image.asset(AppAssets.backBtn, width: 50),
-                ),
-                const SizedBox(width: 15),
-                BouncingButton(
-                  onPressed: () => TutorialMusicController.goHome(context),
-                  child: Image.asset(AppAssets.homeBtn, width: 50),
-                ),
+                if (_isQueryClicked && _isHintDismissed && !_isTableShown)
+                  KeyboardAccessoryBar(
+                    controller: _queryController,
+                    hintText: _targetQuery,
+                  ),
               ],
             ),
-          ),
-
-          if (_isQueryClicked && _isHintDismissed && !_isTableShown)
-            KeyboardAccessoryBar(controller: _queryController, hintText: _targetQuery),
-        ],
-      ),
           ),
         ),
       ),

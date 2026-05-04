@@ -127,6 +127,7 @@ class _FrameAnimationState extends State<FrameAnimation> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       for (final frame in widget.frames) {
+        if (!mounted) return;
         await precacheImage(AssetImage(frame), context);
       }
 

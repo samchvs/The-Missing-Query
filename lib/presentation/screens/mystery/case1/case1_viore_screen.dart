@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class VioreHqScreen extends StatefulWidget {
   const VioreHqScreen({super.key});
@@ -125,7 +129,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
 
   bool _isVioreCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {'VIORE CORP', 'VIORE'};
+    const acceptedAnswers = {'VIORE CORP', 'VIORE', 'VIORE CORP.'};
     return acceptedAnswers.contains(normalized);
   }
 
@@ -140,6 +144,18 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
 
     if (_isVioreCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case1_viore_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(80);
+        await prefs.setBool(solveKey, true);
+      }
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -195,6 +211,18 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+
+            final auth = context.read<AuthController>();
+            final userId = auth.currentUser?.id ?? 'guest';
+            final solveKey = 'case1_viore_solved_$userId';
+
+            final prefs = await SharedPreferences.getInstance();
+            final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+            if (alreadySolved) {
+              showAlreadySolvedPopup();
+              return;
+            }
 
             if (!_hasLives) {
               showNoLivesPopup();
@@ -341,106 +369,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     );
   }
 
-  Widget _buildQuestionPopUp(BoxConstraints constraints) {
-    return Container(
-      color: Colors.black.withValues(alpha: 0.5),
-      child: Center(
-        child: SizedBox(
-          width: constraints.maxWidth * 0.68,
-          height: constraints.maxHeight * 0.65,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/mystery/viore_question.png',
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Positioned(
-                top: 25,
-                right: 15,
-                child: InkWell(
-                  onTap: () => onButtonTap(() {
-                    setState(() => isQuestionVisible = false);
-                  }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.25,
-                left: constraints.maxWidth * 0.08,
-                right: constraints.maxWidth * 0.08,
-                child: const Text(
-                  "Who is the owner of the NullByte-v7 software?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Consolas',
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.44,
-                left: constraints.maxWidth * 0.15,
-                right: constraints.maxWidth * 0.10,
-                child: Opacity(
-                  opacity: 0.50,
-                  child: TextField(
-                    controller: _answerController,
-                    autofocus: _hasLives,
-                    enabled: _hasLives,
-                    textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.characters,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Luckiest Guy',
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: constraints.maxHeight * 0.005,
-                left: 35,
-                right: 0,
-                child: Center(
-                  child: Opacity(
-                    opacity: _hasLives ? 1.0 : 0.45,
-                    child: InkWell(
-                      onTap: () async {
-                        await playButtonSound();
-                        if (_hasLives) {
-                          _submitAnswer();
-                        } else {
-                          showNoLivesPopup();
-                        }
-                      },
-                      child: Image.asset(
-                        'assets/mystery/submit_button.png',
-                        height: 35,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCorrectPopUp(BoxConstraints constraints) {
     return Container(
       color: Colors.black.withValues(alpha: 0.6),
@@ -525,7 +453,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/intelligence.png', fit: BoxFit.fill),
+          child: Image.asset('assets/mystery/viore_logs.png', fit: BoxFit.fill),
         ),
         Positioned(
           top: 10,
@@ -581,7 +509,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
       case 'unique_software':
         return 4;
       case 'license_status':
-        return 4;
+        return 3;
       case 'asset_value':
         return 3;
       default:
@@ -755,6 +683,106 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             });
           },
           child: Image.asset(asset, width: width, fit: BoxFit.contain),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestionPopUp(BoxConstraints constraints) {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.5),
+      child: Center(
+        child: SizedBox(
+          width: constraints.maxWidth * 0.68,
+          height: constraints.maxHeight * 0.65,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/mystery/viore_question.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Positioned(
+                top: 25,
+                right: 15,
+                child: InkWell(
+                  onTap: () => onButtonTap(() {
+                    setState(() => isQuestionVisible = false);
+                  }),
+                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.25,
+                left: constraints.maxWidth * 0.08,
+                right: constraints.maxWidth * 0.08,
+                child: const Text(
+                  "Which company owns the software 'NullByte-v7' and has an asset value of 1,500,000?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Consolas',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.44,
+                left: constraints.maxWidth * 0.15,
+                right: constraints.maxWidth * 0.10,
+                child: Opacity(
+                  opacity: 0.50,
+                  child: TextField(
+                    controller: _answerController,
+                    autofocus: _hasLives,
+                    enabled: _hasLives,
+                    textAlign: TextAlign.center,
+                    textCapitalization: TextCapitalization.none,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Luckiest Guy',
+                    ),
+                    decoration: InputDecoration(
+                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 35,
+                right: 0,
+                child: Center(
+                  child: Opacity(
+                    opacity: _hasLives ? 1.0 : 0.45,
+                    child: InkWell(
+                      onTap: () async {
+                        await playButtonSound();
+                        if (_hasLives) {
+                          _submitAnswer();
+                        } else {
+                          showNoLivesPopup();
+                        }
+                      },
+                      child: Image.asset(
+                        'assets/mystery/submit_button.png',
+                        height: 32,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1003,6 +1031,3 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
     );
   }
 }
-
-
-

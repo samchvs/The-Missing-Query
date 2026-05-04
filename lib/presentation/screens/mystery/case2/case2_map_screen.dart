@@ -10,6 +10,7 @@ import 'package:graphics_project/presentation/screens/mystery/case2/case2_dean_s
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_guidance_screen.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
 
 class FloatingBubble extends StatefulWidget {
   final Widget child;
@@ -410,9 +411,14 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
                                 const SizedBox(width: 10),
                                 _buildLivesHUDItem(context),
                                 const SizedBox(width: 10),
-                                _buildHUDItem(
-                                  'assets/mystery/points.png',
-                                  '1000 POINTS',
+                                ListenableBuilder(
+                                  listenable: PointsController.instance,
+                                  builder: (context, _) {
+                                    return _buildHUDItem(
+                                      'assets/mystery/points.png',
+                                      '${PointsController.instance.currentPoints} POINTS',
+                                    );
+                                  },
                                 ),
                               ],
                             ),
