@@ -300,7 +300,7 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                 child: _buildOverlayIcon(
                   'assets/mystery/investigate.png',
                   30,
-                  "A small numeric keypad mounted beside the instructorâ€™s computer.",
+                  "A small numeric keypad mounted beside the instructor's computer.",
                   'audio/case2/comlab/1.mp3',
                   const Duration(seconds: 4),
                 ),

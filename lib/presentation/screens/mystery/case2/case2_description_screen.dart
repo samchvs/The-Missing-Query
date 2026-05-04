@@ -271,9 +271,8 @@ class _CaseDescription2State extends State<CaseDescription2>
   int _profilePageNumber = 1;
 
   final List<String> _descriptions = [
-    "At 03:00 AM on March 31st, the Global Innovators Scholarship committee received a silent alert for Jamie, the schoolâ€™s top programmer and frontrunner for the \$50,000 award.",
-    "Jamieâ€™s submission, Project Chimeraâ€”a revolutionary security protocolâ€”was found to be identical to an old GitHub repository from 2023. Jamie claims he has been framed, but the universityâ€™s internal server shows Jamie's account performed the upload.",
-    "As the lead digital auditor, youâ€™ve been brought in to solve the crime. Your job is to query the server logs, cross-reference the physical access data, and find the ghost in the machine before a brilliant career is deleted forever.",
+    "At 03:00 AM on March 31st, the Global Innovators Scholarship committee received a silent alert for Jamie, the school's top programmer and frontrunner for the \$50,000 award. Jamie’s submission, Project Chimera—a revolutionary security protocol—was found to be identical to an old GitHub repository from 2023. Jamie claims he has been framed, but the university’s internal server shows Jamie's account performed the upload.",
+    "As the lead digital auditor, you’ve been brought in to solve the crime. Your job is to query the server logs, cross-reference the physical access data, and find the ghost in the machine before a brilliant career is deleted forever.",
   ];
 
   @override
