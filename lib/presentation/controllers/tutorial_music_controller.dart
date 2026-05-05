@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorialMusicController with WidgetsBindingObserver {
   static final TutorialMusicController _instance = TutorialMusicController._internal();
@@ -25,6 +26,13 @@ class TutorialMusicController with WidgetsBindingObserver {
       ),
     );
     AudioPlayer.global.setAudioContext(audioContext);
+    _loadVolume();
+  }
+
+  Future<void> _loadVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    _volume = prefs.getDouble('music_volume') ?? 1.0;
+    await _audioPlayer.setVolume(_volume);
   }
 
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -54,6 +62,8 @@ class TutorialMusicController with WidgetsBindingObserver {
   Future<void> setVolume(double volume) async {
     _volume = volume;
     await _audioPlayer.setVolume(volume);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('music_volume', volume);
   }
 
   double get volume => _volume;

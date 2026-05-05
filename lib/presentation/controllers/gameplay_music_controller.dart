@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GameplayMusicController with WidgetsBindingObserver {
   static final GameplayMusicController _instance = GameplayMusicController._internal();
@@ -8,10 +9,18 @@ class GameplayMusicController with WidgetsBindingObserver {
 
   GameplayMusicController._internal() {
     WidgetsBinding.instance.addObserver(this);
+    _loadVolume();
   }
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isExpectedToPlay = false;
+  double _volume = 1.0;
+
+  Future<void> _loadVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    _volume = prefs.getDouble('music_volume') ?? 1.0;
+    await _audioPlayer.setVolume(_volume);
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -26,11 +35,11 @@ class GameplayMusicController with WidgetsBindingObserver {
     }
   }
 
-  double _volume = 1.0;
-
   Future<void> setVolume(double volume) async {
     _volume = volume;
     await _audioPlayer.setVolume(volume);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('music_volume', volume);
   }
 
   double get volume => _volume;
@@ -39,10 +48,10 @@ class GameplayMusicController with WidgetsBindingObserver {
     try {
       _isExpectedToPlay = true;
       
-      if (_audioPlayer.state == PlayerState.playing) return;
-      
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.setVolume(_volume); 
+      
+      if (_audioPlayer.state == PlayerState.playing) return;
       
       if (_audioPlayer.state == PlayerState.paused) {
         await _audioPlayer.resume();
