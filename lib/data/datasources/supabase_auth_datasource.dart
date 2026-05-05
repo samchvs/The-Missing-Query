@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graphics_project/domain/entities/app_user.dart';
 
@@ -94,26 +95,37 @@ class SupabaseAuthDataSource {
         .update({'username': username}).eq('id', userId);
   }
 
+  /// Returns the current high_score from the profiles table.
+  Future<int> getHighScore(String userId) async {
+    try {
+      final response = await _client
+          .from('profiles')
+          .select('high_score')
+          .eq('id', userId)
+          .maybeSingle();
+      
+      if (response == null) return 0;
+      return (response['high_score'] as int?) ?? 0;
+    } catch (e) {
+      debugPrint('Error fetching high score: $e');
+      return 0;
+    }
+  }
+
   /// Updates high_score only if [score] is greater than the current stored value.
   Future<void> submitHighScore({
     required String userId,
     required int score,
   }) async {
-    // Fetch current high score first
-    final row = await _client
-        .from('profiles')
-        .select('high_score')
-        .eq('id', userId)
-        .single();
-
-    final currentBest = (row['high_score'] as int?) ?? 0;
+    final currentBest = await getHighScore(userId);
     if (score > currentBest) {
-      await submitScore(userId: userId, score: score);
+      await _updateScoreDirectly(userId: userId, score: score);
     }
   }
 
   /// Directly updates the high_score in the profiles table.
-  Future<void> submitScore({
+  /// Used by submitHighScore after validation.
+  Future<void> _updateScoreDirectly({
     required String userId,
     required int score,
   }) async {
@@ -121,4 +133,10 @@ class SupabaseAuthDataSource {
         .from('profiles')
         .update({'high_score': score}).eq('id', userId);
   }
+
+  /// Alias for submitHighScore to maintain backwards compatibility with Repo interface
+  Future<void> submitScore({
+    required String userId,
+    required int score,
+  }) => submitHighScore(userId: userId, score: score);
 }

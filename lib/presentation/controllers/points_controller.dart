@@ -31,7 +31,8 @@ class PointsController extends ChangeNotifier {
   }
 
   /// Loads points for all known cases from local storage.
-  Future<void> initializeForUser(String? userId) async {
+  /// If [remoteScore] is provided (e.g. from Supabase), it ensures local points match or exceed it.
+  Future<void> initializeForUser(String? userId, {int? remoteScore}) async {
     _currentUserId = userId;
     final prefs = await SharedPreferences.getInstance();
     
@@ -39,6 +40,17 @@ class PointsController extends ChangeNotifier {
     const cases = ['case1', 'case2', 'case3'];
     for (final c in cases) {
       _casePoints[c] = prefs.getInt(_getStorageKey(userId, c)) ?? 0;
+    }
+
+    // --- REMOTE SYNC ---
+    // If a remote score exists and is higher than our total local sum,
+    // we need to bridge the gap. We'll add the difference to Case 1.
+    if (remoteScore != null && remoteScore > totalPoints) {
+      final difference = remoteScore - totalPoints;
+      _casePoints['case1'] = (_casePoints['case1'] ?? 0) + difference;
+      
+      // Persist the synced value immediately
+      await prefs.setInt(_getStorageKey(userId, 'case1'), _casePoints['case1']!);
     }
 
     // --- MIGRATION ---

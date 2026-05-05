@@ -45,7 +45,9 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   Future<void> playClueSound(String audioPath) async {
     try {
       await voicePlayer.stop();
-      await voicePlayer.play(AssetSource(audioPath));
+      // Ensure the path starts with mystery/ as per pubspec.yaml assets
+      final fullPath = audioPath.startsWith('mystery/') ? audioPath : 'mystery/$audioPath';
+      await voicePlayer.play(AssetSource(fullPath));
     } catch (e) {
       debugPrint('Clue sound error: $e');
     }

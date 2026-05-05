@@ -23,4 +23,7 @@ abstract class AuthRepository {
 
   /// Submits the total accumulated points to the user's profile.
   Future<void> submitScore({required String userId, required int score});
+
+  /// Fetches the user's high score from their remote profile.
+  Future<int> getScore(String userId);
 }

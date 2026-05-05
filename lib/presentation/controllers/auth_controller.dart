@@ -83,7 +83,14 @@ class AuthController extends ChangeNotifier {
     }
 
     // Load points and lives for this user
-    await PointsController.instance.initializeForUser(_currentUser?.id);
+    int remoteScore = 0;
+    if (_currentUser != null) {
+      remoteScore = await _authRepo.getScore(_currentUser!.id);
+    }
+    await PointsController.instance.initializeForUser(
+      _currentUser?.id, 
+      remoteScore: remoteScore,
+    );
     await LivesController.instance.initializeForUser(_currentUser?.id);
 
     // Auto-sync total points to Supabase whenever they change
@@ -114,7 +121,9 @@ class AuthController extends ChangeNotifier {
       );
       _localUsername = username;
       await _saveLocalUsername(username);
-      await PointsController.instance.initializeForUser(_currentUser?.id);
+      
+      // For sign up, remote score is always 0
+      await PointsController.instance.initializeForUser(_currentUser?.id, remoteScore: 0);
       await LivesController.instance.initializeForUser(_currentUser?.id);
       notifyListeners();
       return true;
@@ -137,7 +146,13 @@ class AuthController extends ChangeNotifier {
       _currentUser = await _signIn(email: email, password: password);
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
-      await PointsController.instance.initializeForUser(_currentUser?.id);
+
+      // Fetch remote score before initializing PointsController to prevent overwriting with 0
+      final remoteScore = await _authRepo.getScore(_currentUser!.id);
+      await PointsController.instance.initializeForUser(
+        _currentUser?.id, 
+        remoteScore: remoteScore,
+      );
       await LivesController.instance.initializeForUser(_currentUser?.id);
       notifyListeners();
       return true;
