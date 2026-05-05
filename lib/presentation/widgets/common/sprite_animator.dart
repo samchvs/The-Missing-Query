@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A reusable widget that animates a sequence of images (frames).
 class SpriteAnimator extends StatefulWidget {
   final List<String> frames;
   final Duration frameDuration;

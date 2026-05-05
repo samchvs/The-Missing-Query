@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:graphics_project/presentation/screens/mystery/case1/case1_map_screen.dart';
 
 class PoliceStationScreen extends StatefulWidget {
   const PoliceStationScreen({super.key});
@@ -36,10 +37,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
 
     _answerController.addListener(() {
       if (!mounted) return;
-      
+
       final text = _answerController.text;
       final upper = text.toUpperCase();
-      
+
       if (text != upper) {
         // Force the controller to stay uppercase and clear the "composing" region
         // which fixes the Android predictive text bug.
@@ -49,7 +50,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           composing: TextRange.empty,
         );
       }
-      
+
       setState(() {});
     });
   }
@@ -71,29 +72,32 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
   }
 
   bool _isPoliceCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input)
-        .replaceAll(',', ' ')
-        .replaceAll(' AND ', ' ');
-    
+    final normalized = _normalizeAnswer(
+      input,
+    ).replaceAll(',', ' ').replaceAll(' AND ', ' ');
+
     final words = normalized.split(' ').where((w) => w.isNotEmpty).toList();
-    
+
     const validComponents = {
-      'MARCO', 'GIOVANNI', 
-      'CASSIAN', 'MILLER', 
-      'SILAS', 'VANE'
+      'MARCO',
+      'GIOVANNI',
+      'CASSIAN',
+      'MILLER',
+      'SILAS',
+      'VANE',
     };
-    
+
     if (words.isEmpty) return false;
     for (final word in words) {
       if (!validComponents.contains(word)) {
-        return false; 
+        return false;
       }
     }
-    
+
     final hasMarco = words.contains('MARCO');
     final hasCassian = words.contains('CASSIAN');
     final hasSilas = words.contains('SILAS');
-    
+
     return hasMarco && hasCassian && hasSilas;
   }
 
@@ -191,7 +195,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/police_loc.png', fit: BoxFit.fill),
+                child: Image.asset(
+                  'assets/mystery/police_loc.png',
+                  fit: BoxFit.fill,
+                ),
               ),
               SafeArea(
                 child: Padding(
@@ -316,12 +323,15 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
               ),
               Positioned(
                 top: 25,
-                right: 15,
+                right: 10,
                 child: InkWell(
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -353,17 +363,16 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                     textCapitalization: TextCapitalization.characters,
                     autocorrect: false,
                     enableSuggestions: false,
-                    inputFormatters: [
-                      UpperCaseTextFormatter(),
-                    ],
+                    inputFormatters: [UpperCaseTextFormatter()],
                     onChanged: (value) {
                       final upper = value.toUpperCase();
                       if (value != upper) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: upper,
-                          selection: _answerController.selection,
-                          composing: TextRange.empty,
-                        );
+                        _answerController.value = _answerController.value
+                            .copyWith(
+                              text: upper,
+                              selection: _answerController.selection,
+                              composing: TextRange.empty,
+                            );
                       }
                     },
                     style: const TextStyle(
@@ -425,16 +434,54 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
                 right: 110,
                 child: InkWell(
-                  onTap: () => onButtonTap(() {
-                    setState(() => isCorrectVisible = false);
-                  }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  onTap: () async {
+                    await playButtonSound();
+                    if (mounted) {
+                      setState(() {
+                        isCorrectVisible = false;
+                      });
+                    }
+
+                    // Check if they reached the point threshold for the ending
+                    if (PointsController.instance.currentPoints >= 550) {
+                      await showCutscene(
+                        videoAsset: 'assets/mystery/Endings/Case1_Ending.mp4',
+                        onFinished: () {
+                          if (!mounted) return;
+                          // Navigate back to CaseMap1 without sliding
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) =>
+                                  const CaseMap1(showSolvedDialog: true),
+                              transitionDuration: const Duration(milliseconds: 1000),
+                              reverseTransitionDuration: Duration.zero,
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                            (route) => false,
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -454,7 +501,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -463,7 +513,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -665,12 +718,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -741,13 +798,13 @@ class _AnimatedPopupState extends State<AnimatedPopup>
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return TextEditingValue(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,
     );
   }
 }
-
-
-

@@ -155,6 +155,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
   void initState() {
     super.initState();
     initCaseHelper();
+    PointsController.instance.setActiveCase('case3');
     _livesController.addListener(_refresh);
   }
 

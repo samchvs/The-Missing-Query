@@ -32,9 +32,9 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
     final userId = auth.currentUser?.id ?? 'guest';
     final prefs = await SharedPreferences.getInstance();
     
-    // Case 2 Unlock Condition: Police Station Solved AND Points >= 550
+    // Case 2 Unlock Condition: Police Station Solved AND Case 1 Points >= 550
     final bool policeSolved = prefs.getBool('case1_police_station_solved_$userId') ?? false;
-    final int points = PointsController.instance.currentPoints;
+    final int points = PointsController.instance.getPointsForCase('case1');
 
     setState(() {
       _isCase2Unlocked = policeSolved && points >= 550;

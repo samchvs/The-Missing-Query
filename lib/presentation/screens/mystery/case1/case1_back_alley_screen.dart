@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
@@ -198,11 +199,35 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _sqlController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _sqlController.value = _sqlController.value.copyWith(
+          text: upper,
+          selection: _sqlController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _answerController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _answerController.value = _answerController.value.copyWith(
+          text: upper,
+          selection: _answerController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
   }
 
@@ -216,7 +241,11 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
   }
 
   String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ').replaceAll(RegExp(r'\.+$'), '');
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .replaceAll(RegExp(r'\.+$'), '');
   }
 
   bool _isBackAlleyCorrectAnswer(String input) {
@@ -508,7 +537,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -537,7 +569,20 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                     autofocus: _hasLives,
                     enabled: _hasLives,
                     textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.none,
+                    textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    inputFormatters: [UpperCaseTextFormatter()],
+                    onChanged: (value) {
+                      final upper = value.toUpperCase();
+                      if (value != upper) {
+                        _answerController.value = _answerController.value.copyWith(
+                          text: upper,
+                          selection: _answerController.selection,
+                          composing: TextRange.empty,
+                        );
+                      }
+                    },
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -596,7 +641,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -605,7 +653,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -625,7 +676,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -634,7 +688,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -670,7 +727,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/security_cam.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/security_cam.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -771,7 +831,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/backalley_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/backalley_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -824,11 +887,25 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                           fontFamily: 'Consolas',
                           height: 1.5,
                         ),
+                        textCapitalization: TextCapitalization.characters,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (value) {
+                          final upper = value.toUpperCase();
+                          if (value != upper) {
+                            _sqlController.value = _sqlController.value.copyWith(
+                              text: upper,
+                              selection: _sqlController.selection,
+                              composing: TextRange.empty,
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),
@@ -852,7 +929,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -860,7 +940,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -868,7 +951,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -1085,7 +1171,9 @@ class _GlowingClueState extends State<GlowingClue>
                 spreadRadius: 1 + (_glow.value * 2),
               ),
               BoxShadow(
-                color: const Color(0xFF6A008A).withValues(alpha: _glow.value * 0.15),
+                color: const Color(
+                  0xFF6A008A,
+                ).withValues(alpha: _glow.value * 0.15),
                 blurRadius: 24 + (_glow.value * 10),
                 spreadRadius: _glow.value,
               ),
@@ -1150,6 +1238,19 @@ class _AnimatedPopupState extends State<AnimatedPopup>
         position: _slide,
         child: ScaleTransition(scale: _scale, child: widget.child),
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }

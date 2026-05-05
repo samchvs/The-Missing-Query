@@ -98,7 +98,11 @@ flutter:
     - assets/about_tab/
   # Mystery Game Assets
     - assets/mystery/
+    - assets/mystery/Endings/
     - assets/mystery/audio/
+    - assets/mystery/character_profile/
+    - assets/mystery/Case2/
+    - assets/mystery/Case3/
     - assets/mystery/audio/case1/backAlley/
     - assets/mystery/audio/case1/giovanni/
     - assets/mystery/audio/case1/loupe/

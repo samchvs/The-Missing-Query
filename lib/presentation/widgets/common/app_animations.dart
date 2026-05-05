@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/sprite_animator.dart';
 
-/// This file contains all the pre-defined animations for the app.
-/// You can add more animations here as future needs arise.
+
 class AppAnimations {
   
   /// The 8-frame animation for Beanie.
-  /// Call this with: AppAnimations.helloBeanie()
   static Widget helloBeanie({Key? key, double? width, double? height, Duration? frameDuration}) {
     return SpriteAnimator(
       key: key,
@@ -19,7 +17,6 @@ class AppAnimations {
   }
 
   /// 2-frame walking animation for Beanie
-  /// Call this with: AppAnimations.walkingBeanie()
   static Widget walkingBeanie({double? width, double? height, Duration? frameDuration}) {
     return SpriteAnimator(
       frames: AppAssets.walkingBeanieFrames,
@@ -30,7 +27,6 @@ class AppAnimations {
   }
 
   /// The 8-frame worried animation for Beanie.
-  /// Call this with: AppAnimations.worriedBeanie()
   static Widget worriedBeanie({
     double? width,
     double? height,

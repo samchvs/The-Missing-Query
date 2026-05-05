@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/gameplay_music_controller.dart';
 
 class AudioTab extends StatefulWidget {
   const AudioTab({super.key});
@@ -44,6 +45,7 @@ class _AudioTabState extends State<AudioTab> {
               setState(() => _musicVolume = val);
               HomeMusicController().setVolume(val);
               TutorialMusicController().setVolume(val);
+              GameplayMusicController().setVolume(val);
             },
           ),
         ],

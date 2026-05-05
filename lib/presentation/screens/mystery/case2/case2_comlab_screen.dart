@@ -1,8 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class ComlabScreen extends StatefulWidget {
   const ComlabScreen({super.key});
@@ -100,11 +106,27 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      final text = _sqlController.text;
+      if (text != text.toUpperCase()) {
+        _sqlController.value = _sqlController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _sqlController.selection,
+        );
+      }
+      setState(() {});
     });
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
+      setState(() {});
     });
   }
 
@@ -123,7 +145,7 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
 
   bool _isComlabCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {'JAMIE WILLSON', 'JAMIE'};
+    const acceptedAnswers = {'JAMIE WILSON', 'JAMIE'};
     return acceptedAnswers.contains(normalized);
   }
 
@@ -138,6 +160,19 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
 
     if (_isComlabCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case2_comlab_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(100);
+        await prefs.setBool(solveKey, true);
+      }
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -409,12 +444,21 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                     enabled: _hasLives,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Luckiest Guy',
                     ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _answerController.value = _answerController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _answerController.selection,
+                        );
+                      }
+                    },
                     decoration: InputDecoration(
                       hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
                       hintStyle: const TextStyle(
@@ -477,6 +521,24 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                     setState(() => isCorrectVisible = false);
                   }),
                   child: Image.asset('assets/mystery/close_button.png', height: 20),
+                ),
+              ),
+              Positioned(
+                bottom: 60,
+                left: 0,
+                right: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'QUERY SOLVED',
+                      style: TextStyle(
+                        fontFamily: 'Londrina Solid',
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -697,11 +759,21 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                           fontFamily: 'Consolas',
                           height: 1.5,
                         ),
+                        textCapitalization: TextCapitalization.characters,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (value) {
+                          if (value != value.toUpperCase()) {
+                            _sqlController.value = _sqlController.value.copyWith(
+                              text: value.toUpperCase(),
+                              selection: _sqlController.selection,
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),

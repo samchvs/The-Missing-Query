@@ -8,7 +8,7 @@ class LivesController extends ChangeNotifier {
   factory LivesController() => instance;
 
   LivesController._internal() {
-    _init();
+    _startTicker();
   }
 
   static const int maxLives = 5;
@@ -16,6 +16,7 @@ class LivesController extends ChangeNotifier {
 
   int _currentLives = maxLives;
   final List<DateTime> _pendingRefills = [];
+  String? _currentUserId;
 
   Timer? _ticker;
   bool _initialized = false;
@@ -24,36 +25,39 @@ class LivesController extends ChangeNotifier {
   bool get isFull => _currentLives >= maxLives;
 
   // ================= INIT =================
-  Future<void> _init() async {
+  Future<void> initializeForUser(String? userId) async {
+    _currentUserId = userId;
     await _loadData();
-    _startTicker();
     _initialized = true;
     notifyListeners();
   }
 
   // ================= STORAGE =================
+  String _getLivesKey() => 'lives_${_currentUserId ?? "guest"}';
+  String _getRefillsKey() => 'refills_${_currentUserId ?? "guest"}';
+
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    prefs.setInt('lives', _currentLives);
+    prefs.setInt(_getLivesKey(), _currentLives);
 
     final timestamps = _pendingRefills
         .map((e) => e.millisecondsSinceEpoch)
         .toList();
 
-    prefs.setString('refills', jsonEncode(timestamps));
+    prefs.setString(_getRefillsKey(), jsonEncode(timestamps));
   }
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    _currentLives = prefs.getInt('lives') ?? maxLives;
+    _currentLives = prefs.getInt(_getLivesKey()) ?? maxLives;
 
-    final raw = prefs.getString('refills');
+    final raw = prefs.getString(_getRefillsKey());
 
+    _pendingRefills.clear();
     if (raw != null) {
       final List decoded = jsonDecode(raw);
-      _pendingRefills.clear();
       _pendingRefills.addAll(
         decoded.map((e) => DateTime.fromMillisecondsSinceEpoch(e)),
       );

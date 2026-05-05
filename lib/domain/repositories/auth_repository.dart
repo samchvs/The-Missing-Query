@@ -21,4 +21,7 @@ abstract class AuthRepository {
 
   /// Returns the currently authenticated user from the active session, or null.
   AppUser? getCurrentUser();
+
+  /// Submits the total accumulated points to the user's profile.
+  Future<void> submitScore({required String userId, required int score});
 }

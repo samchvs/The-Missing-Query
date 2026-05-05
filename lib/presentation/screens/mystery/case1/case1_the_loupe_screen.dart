@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
@@ -99,11 +100,35 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _sqlController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _sqlController.value = _sqlController.value.copyWith(
+          text: upper,
+          selection: _sqlController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _answerController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _answerController.value = _answerController.value.copyWith(
+          text: upper,
+          selection: _answerController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
   }
 
@@ -438,7 +463,20 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                     autofocus: _hasLives,
                     enabled: _hasLives,
                     textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.none,
+                    textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    inputFormatters: [UpperCaseTextFormatter()],
+                    onChanged: (value) {
+                      final upper = value.toUpperCase();
+                      if (value != upper) {
+                        _answerController.value = _answerController.value.copyWith(
+                          text: upper,
+                          selection: _answerController.selection,
+                          composing: TextRange.empty,
+                        );
+                      }
+                    },
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -720,6 +758,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                         minLines: 12,
                         scrollController: _sqlScrollController,
                         cursorColor: Colors.black,
+                        textCapitalization: TextCapitalization.characters,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         style: const TextStyle(
                           color: Colors.transparent,
                           fontSize: 14,
@@ -731,7 +773,17 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (value) {
+                          final upper = value.toUpperCase();
+                          if (value != upper) {
+                            _sqlController.value = _sqlController.value.copyWith(
+                              text: upper,
+                              selection: _sqlController.selection,
+                              composing: TextRange.empty,
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),
@@ -1053,3 +1105,16 @@ class _AnimatedPopupState extends State<AnimatedPopup>
 }
 
 
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}

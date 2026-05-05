@@ -13,6 +13,7 @@ import 'package:graphics_project/presentation/controllers/lives_controller.dart'
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/screens/mystery/case_selection_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
@@ -143,7 +144,8 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
 }
 
 class CaseMap1 extends StatefulWidget {
-  const CaseMap1({super.key});
+  final bool showSolvedDialog;
+  const CaseMap1({super.key, this.showSolvedDialog = false});
 
   @override
   State<CaseMap1> createState() => _CaseMap1State();
@@ -157,8 +159,32 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
   void initState() {
     super.initState();
     initCaseHelper();
+    PointsController.instance.setActiveCase('case1');
     _livesController.addListener(_refresh);
     _checkPoliceStationStatus();
+
+    if (widget.showSolvedDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            showCaseSolvedDialog(
+              title: 'CONGRATULATIONS!',
+              message:
+                  'Case 1 is officially resolved. New leads have opened up in Case 2. Report to the next scene to continue.',
+              onOkPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CaseSelectionScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+            );
+          }
+        });
+      });
+    }
   }
 
   Future<void> _checkPoliceStationStatus() async {

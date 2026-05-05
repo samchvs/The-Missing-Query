@@ -108,9 +108,17 @@ class SupabaseAuthDataSource {
 
     final currentBest = (row['high_score'] as int?) ?? 0;
     if (score > currentBest) {
-      await _client
-          .from('profiles')
-          .update({'high_score': score}).eq('id', userId);
+      await submitScore(userId: userId, score: score);
     }
+  }
+
+  /// Directly updates the high_score in the profiles table.
+  Future<void> submitScore({
+    required String userId,
+    required int score,
+  }) async {
+    await _client
+        .from('profiles')
+        .update({'high_score': score}).eq('id', userId);
   }
 }

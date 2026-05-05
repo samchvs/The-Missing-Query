@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
@@ -288,11 +290,27 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      final text = _sqlController.text;
+      if (text != text.toUpperCase()) {
+        _sqlController.value = _sqlController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _sqlController.selection,
+        );
+      }
+      setState(() {});
     });
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
+      setState(() {});
     });
   }
 
@@ -608,12 +626,21 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                     enabled: hasLives,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Luckiest Guy',
                     ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _answerController.value = _answerController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _answerController.selection,
+                        );
+                      }
+                    },
                     decoration: InputDecoration(
                       hintText: hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
                       hintStyle: const TextStyle(
@@ -895,6 +922,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                       ),
                       TextField(
                         controller: _sqlController,
+                        textCapitalization: TextCapitalization.characters,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         autofocus: true,
                         maxLines: null,
                         minLines: 12,
@@ -911,7 +940,15 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (value) {
+                          if (value != value.toUpperCase()) {
+                            _sqlController.value = _sqlController.value.copyWith(
+                              text: value.toUpperCase(),
+                              selection: _sqlController.selection,
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),

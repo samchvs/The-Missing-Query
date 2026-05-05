@@ -44,4 +44,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String userId,
     required int score,
   }) => _dataSource.submitHighScore(userId: userId, score: score);
+
+  @override
+  Future<void> submitScore({
+    required String userId,
+    required int score,
+  }) => _dataSource.submitScore(userId: userId, score: score);
 }

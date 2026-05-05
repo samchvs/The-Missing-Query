@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 
@@ -88,11 +89,35 @@ class _MunicipalScreenState extends State<MunicipalScreen>
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _sqlController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _sqlController.value = _sqlController.value.copyWith(
+          text: upper,
+          selection: _sqlController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
 
     _answerController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+
+      final text = _answerController.text;
+      final upper = text.toUpperCase();
+
+      if (text != upper) {
+        _answerController.value = _answerController.value.copyWith(
+          text: upper,
+          selection: _answerController.selection,
+          composing: TextRange.empty,
+        );
+      }
+      setState(() {});
     });
   }
 
@@ -293,7 +318,10 @@ class _MunicipalScreenState extends State<MunicipalScreen>
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/public_records.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/public_records.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -394,7 +422,10 @@ class _MunicipalScreenState extends State<MunicipalScreen>
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/municipal_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/municipal_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -447,11 +478,25 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                           fontFamily: 'Consolas',
                           height: 1.5,
                         ),
+                        textCapitalization: TextCapitalization.characters,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (value) {
+                          final upper = value.toUpperCase();
+                          if (value != upper) {
+                            _sqlController.value = _sqlController.value.copyWith(
+                              text: upper,
+                              selection: _sqlController.selection,
+                              composing: TextRange.empty,
+                            );
+                          }
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),
@@ -475,7 +520,10 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -483,7 +531,10 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -491,7 +542,10 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -698,12 +752,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -772,4 +830,15 @@ class _AnimatedPopupState extends State<AnimatedPopup>
   }
 }
 
-
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
