@@ -471,8 +471,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                           _hideQuery();
                         } else if (_isSuccessLogShown) {
                           _fadeController.reverse().then((_) {
-                            if (mounted)
+                            if (mounted) {
                               setState(() => _isSuccessLogShown = false);
+                            }
                           });
                         } else if (_isGuideShown) {
                           setState(() => _isGuideShown = false);

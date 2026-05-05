@@ -8,9 +8,14 @@ import 'package:graphics_project/presentation/screens/mystery/case2/case2_it_scr
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_icto_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_dean_screen.dart';
 import 'package:graphics_project/presentation/screens/mystery/case2/case2_guidance_screen.dart';
+import 'package:graphics_project/presentation/screens/mystery/case_selection_screen.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class FloatingBubble extends StatefulWidget {
   final Widget child;
@@ -138,7 +143,8 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
 }
 
 class CaseMap2 extends StatefulWidget {
-  const CaseMap2({super.key});
+  final bool showSolvedDialog;
+  const CaseMap2({super.key, this.showSolvedDialog = false});
 
   @override
   State<CaseMap2> createState() => _CaseMap2State();
@@ -146,6 +152,7 @@ class CaseMap2 extends StatefulWidget {
 
 class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
   final LivesController _livesController = LivesController.instance;
+  bool _isGuidanceUnlocked = false;
 
   @override
   void initState() {
@@ -153,6 +160,30 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
     initCaseHelper();
     PointsController.instance.setActiveCase('case2');
     _livesController.addListener(_refresh);
+    _checkGuidanceStatus();
+
+    if (widget.showSolvedDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            showCaseSolvedDialog(
+              title: 'CONGRATULATIONS!',
+              message:
+                  'Case 2 is successfully closed. You have unraveled the secrets of Project Chimera. New challenges await in Case 3.',
+              onOkPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CaseSelectionScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+            );
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -164,6 +195,25 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
 
   void _refresh() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _checkGuidanceStatus() async {
+    if (!mounted) return;
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final prefs = await SharedPreferences.getInstance();
+
+    final q1 = prefs.getBool('case2_comlab_solved_$userId') ?? false;
+    final q2 = prefs.getBool('case2_icto_solved_$userId') ?? false;
+    final q3 = prefs.getBool('case2_it_solved_$userId') ?? false;
+    final q4 = prefs.getBool('case2_gym_solved_$userId') ?? false;
+    final q5 = prefs.getBool('case2_dean_solved_$userId') ?? false;
+
+    if (mounted) {
+      setState(() {
+        _isGuidanceUnlocked = q1 && q2 && q3 && q4 && q5;
+      });
+    }
   }
 
   void _showLivesPopup(BuildContext context) {
@@ -341,6 +391,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
                   context,
                   'assets/mystery/Case2/guidance.png',
                   110,
+                  isLocked: !_isGuidanceUnlocked,
                 ),
               ),
               Positioned(
@@ -437,29 +488,83 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
     );
   }
 
-  Widget _buildMapLabel(BuildContext context, String asset, double width) {
-    return FloatingBubble(
-      child: GlowingMapLabel(
-        asset: asset,
-        width: width,
-        onTap: () => onButtonTap(() {
-          if (asset.contains('comlab')) {
-            Navigator.push(context, fadeRoute(const ComlabScreen()));
-          } else if (asset.contains('gym')) {
-            Navigator.push(context, fadeRoute(const GymScreen()));
-          } else if (asset.contains('it')) {
-            Navigator.push(context, fadeRoute(const ITScreen()));
-          } else if (asset.contains('guidance')) {
-            Navigator.push(context, fadeRoute(const GuidanceScreen()));
-          } else if (asset.contains('icto')) {
-            Navigator.push(context, fadeRoute(const IctoScreen()));
-          } else if (asset.contains('dean')) {
-            Navigator.push(context, fadeRoute(const DeanScreen()));
-          } else {
-            debugPrint("Location tapped: $asset");
-          }
-        }),
-      ),
+  Widget _buildMapLabel(
+    BuildContext context,
+    String asset,
+    double width, {
+    bool isLocked = false,
+  }) {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        if (isLocked)
+          Positioned(
+            bottom: -15,
+            child: ShakeWidget(
+              delay: const Duration(seconds: 1),
+              child: const Icon(
+                Icons.lock,
+                color: Colors.yellow,
+                size: 100,
+                shadows: [
+                  Shadow(
+                    color: Colors.black54,
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        FloatingBubble(
+          child: GlowingMapLabel(
+            asset: asset,
+            width: width,
+            onTap: () => onButtonTap(() {
+              if (isLocked) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Location locked. Please clear the remaining areas first.',
+                      style: TextStyle(
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor: Colors.redAccent,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                return;
+              }
+
+              if (asset.contains('comlab')) {
+                Navigator.push(context, fadeRoute(const ComlabScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else if (asset.contains('gym')) {
+                Navigator.push(context, fadeRoute(const GymScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else if (asset.contains('it')) {
+                Navigator.push(context, fadeRoute(const ITScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else if (asset.contains('guidance')) {
+                Navigator.push(context, fadeRoute(const GuidanceScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else if (asset.contains('icto')) {
+                Navigator.push(context, fadeRoute(const IctoScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else if (asset.contains('dean')) {
+                Navigator.push(context, fadeRoute(const DeanScreen()))
+                    .then((_) => _checkGuidanceStatus());
+              } else {
+                debugPrint("Location tapped: $asset");
+              }
+            }),
+          ),
+        ),
+      ],
     );
   }
 

@@ -122,7 +122,6 @@ class _SignupScreenState extends State<SignupScreen> {
       listenable: widget.authController,
       builder: (context, _) {
         final controller = widget.authController;
-        final size = MediaQuery.of(context).size;
 
         return Scaffold(
           backgroundColor: Colors.black,

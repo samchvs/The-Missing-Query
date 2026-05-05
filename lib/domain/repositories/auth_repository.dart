@@ -1,7 +1,6 @@
 import 'package:graphics_project/domain/entities/app_user.dart';
 
-/// Abstract contract for authentication.
-/// No Supabase imports — inner layer only.
+
 abstract class AuthRepository {
   /// Signs up a new user with email, password, and display username.
   Future<AppUser> signUp({

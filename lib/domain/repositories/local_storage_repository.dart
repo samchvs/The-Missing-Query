@@ -1,5 +1,4 @@
-/// Abstract contract for local device storage.
-/// Keeps SharedPreferences out of the domain layer.
+/// Local device storage.
 abstract class LocalStorageRepository {
   Future<void> saveUsername(String username);
   Future<String?> getUsername();

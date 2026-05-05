@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
@@ -23,6 +22,7 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
+  bool _isSolved = false;
 
   String? activeInvestigationText;
   Duration? activeTypingDuration;
@@ -128,6 +128,20 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
       }
       setState(() {});
     });
+
+    _checkIfSolved();
+  }
+
+  Future<void> _checkIfSolved() async {
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final solveKey = 'case2_comlab_solved_$userId';
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isSolved = prefs.getBool(solveKey) ?? false;
+      });
+    }
   }
 
   @override
@@ -140,13 +154,16 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
   }
 
   String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll(',', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isComlabCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {'JAMIE WILSON', 'JAMIE'};
-    return acceptedAnswers.contains(normalized);
+    return normalized == 'JAMIE WILSON' || normalized == 'JAMIE';
   }
 
   void _submitAnswer() async {
@@ -161,6 +178,7 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
     if (_isComlabCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
 
+      if (!mounted) return;
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
       final solveKey = 'case2_comlab_solved_$userId';
@@ -171,13 +189,20 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
       if (!alreadySolved) {
         await PointsController.instance.addPoints(100);
         await prefs.setBool(solveKey, true);
+        if (mounted) {
+          setState(() {
+            _isSolved = true;
+          });
+        }
       }
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
     } else {
       livesManager.deductLife();
       await playWrongSound();
@@ -232,19 +257,34 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
             onTap: () async {
               await playButtonSound();
 
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case2_comlab_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
+
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;
               }
 
-              setState(() {
-                isQuestionVisible = true;
-                isQueryVisible = false;
-                isTableVisible = false;
-              });
+              if (mounted) {
+                setState(() {
+                  isQuestionVisible = true;
+                  isQueryVisible = false;
+                  isTableVisible = false;
+                });
+              }
             },
             child: Opacity(
-              opacity: _hasLives ? 1.0 : 0.45,
+              opacity: (_hasLives && !_isSolved) ? 1.0 : 0.45,
               child: Image.asset(
                 'assets/mystery/asterisk.png',
                 width: width,
@@ -521,24 +561,6 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                     setState(() => isCorrectVisible = false);
                   }),
                   child: Image.asset('assets/mystery/close_button.png', height: 20),
-                ),
-              ),
-              Positioned(
-                bottom: 60,
-                left: 0,
-                right: 0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'QUERY SOLVED',
-                      style: TextStyle(
-                        fontFamily: 'Londrina Solid',
-                        fontSize: 24,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],

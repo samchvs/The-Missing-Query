@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:graphics_project/core/utils/text_formatters.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class ITScreen extends StatefulWidget {
   const ITScreen({super.key});
@@ -19,6 +22,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
+  bool _isSolved = false;
 
   String? activeInvestigationText;
   Duration? activeTypingDuration;
@@ -119,6 +123,20 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
       }
       setState(() {});
     });
+
+    _checkIfSolved();
+  }
+
+  Future<void> _checkIfSolved() async {
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final solveKey = 'case2_it_solved_$userId';
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isSolved = prefs.getBool(solveKey) ?? false;
+      });
+    }
   }
 
   @override
@@ -131,17 +149,16 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
   }
 
   String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ', ') // Standardize comma spacing
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isItCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {
-      'MORRIS_J, 508, 510',
-      'MORRIS_J 508 510',
-      'MORRIS_J,508,510',
-    };
-    return acceptedAnswers.contains(normalized);
+    return normalized == 'MORRIS_J, 508, 510' || normalized == 'MORRIES_J, 508, 510';
   }
 
   void _submitAnswer() async {
@@ -155,19 +172,42 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
     if (_isItCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
+      if (!mounted) return;
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case2_it_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(100);
+        await prefs.setBool(solveKey, true);
+        if (mounted) {
+          setState(() {
+            _isSolved = true;
+          });
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
     } else {
       livesManager.deductLife();
       await playWrongSound();
-      setState(() {
-        isQuestionVisible = false;
-        isWrongVisible = true;
-        isCorrectVisible = false;
-      });
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isWrongVisible = true;
+          isCorrectVisible = false;
+        });
+      }
     }
   }
 
@@ -214,19 +254,34 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
             onTap: () async {
               await playButtonSound();
 
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case2_it_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
+
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;
               }
 
-              setState(() {
-                isQuestionVisible = true;
-                isQueryVisible = false;
-                isTableVisible = false;
-              });
+              if (mounted) {
+                setState(() {
+                  isQuestionVisible = true;
+                  isQueryVisible = false;
+                  isTableVisible = false;
+                });
+              }
             },
             child: Opacity(
-              opacity: _hasLives ? 1.0 : 0.45,
+              opacity: (_hasLives && !_isSolved) ? 1.0 : 0.45,
               child: Image.asset(
                 'assets/mystery/asterisk.png',
                 width: width,
@@ -1069,6 +1124,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

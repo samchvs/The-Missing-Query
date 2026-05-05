@@ -245,6 +245,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   }) async {
     // Pause gameplay music
     await GameplayMusicController().stop();
+    if (!mounted) return;
 
     await showGeneralDialog(
       context: context,
@@ -385,6 +386,12 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
           .catchError((error) {
             debugPrint("Video Player Error: $error");
             if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to load video: $error'),
+                  backgroundColor: Colors.red,
+                ),
+              );
               widget.onFinished(); // Skip if it fails to load
             }
           });

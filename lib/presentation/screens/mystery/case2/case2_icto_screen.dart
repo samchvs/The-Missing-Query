@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class IctoScreen extends StatefulWidget {
   const IctoScreen({super.key});
@@ -19,9 +22,12 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
+  bool _isSolved = false;
 
   String? activeInvestigationText;
   Duration? activeTypingDuration;
+
+  bool get _hasLives => hasLives;
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
@@ -38,222 +44,30 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
   ];
 
   final List<List<String>> _networkTraffic = [
-    [
-      '901',
-      '192.168.1.10',
-      'Jamie Wilson',
-      '12.4',
-      '2026-03-31 1:15:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '902',
-      '192.168.1.45',
-      'Noah Smith',
-      '4.2',
-      '2026-03-31 1:30:00',
-      'UDP',
-      'NORMAL',
-    ],
-    [
-      '903',
-      '192.168.1.12',
-      'Paula Manalo',
-      '8.9',
-      '2026-03-31 1:45:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '904',
-      '192.168.1.05',
-      'Rachel Berry',
-      '1.1',
-      '2026-03-31 2:00:00',
-      'HTTP',
-      'NORMAL',
-    ],
-    [
-      '905',
-      '192.168.1.22',
-      'Riley Quinn',
-      '15.5',
-      '2026-03-31 2:15:00',
-      'HTTPS',
-      'NORMAL',
-    ],
-    [
-      '906',
-      '192.168.1.33',
-      'Sam Rivera',
-      '3.3',
-      '2026-03-31 2:30:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '907',
-      '192.168.1.10',
-      'Jamie Wilson',
-      '9',
-      '2026-03-31 2:45:00',
-      'UDP',
-      'NORMAL',
-    ],
-    [
-      '908',
-      '192.168.1.55',
-      'Jordan Lee',
-      '5.6',
-      '2026-03-31 3:00:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '909',
-      '192.168.1.12',
-      'Paula Manalo',
-      '12',
-      '2026-03-31 3:05:00',
-      'HTTPS',
-      'NORMAL',
-    ],
-    [
-      '910',
-      '192.168.1.88',
-      'Cheyenne Hart',
-      '62000',
-      '2026-03-31 3:10:00',
-      'UDP',
-      'CONGESTION',
-    ],
-    [
-      '911',
-      '192.168.1.03',
-      'Maya Chen',
-      '2.5',
-      '2026-03-31 3:12:00',
-      'SSH',
-      'STEALTH',
-    ],
-    [
-      '912',
-      '192.168.1.10',
-      'Jamie Wilson',
-      '0.8',
-      '2026-03-31 3:15:00',
-      'TCP',
-      'CONGESTED',
-    ],
-    [
-      '913',
-      '192.168.1.45',
-      'Noah Smith',
-      '1.2',
-      '2026-03-31 3:20:00',
-      'HTTP',
-      'CONGESTED',
-    ],
-    [
-      '914',
-      '192.168.1.03',
-      'Maya Chen',
-      '1.1',
-      '2026-03-31 4:00:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '915',
-      '192.168.1.22',
-      'Riley Quinn',
-      '22',
-      '2026-03-31 5:00:00',
-      'HTTPS',
-      'NORMAL',
-    ],
-    [
-      '916',
-      '192.168.1.88',
-      'Cheyenne Hart',
-      '450',
-      '2026-03-31 6:30:00',
-      'UDP',
-      'NORMAL',
-    ],
-    [
-      '917',
-      '192.168.1.15',
-      'Angelo Ramos',
-      '5.5',
-      '2026-03-31 7:45:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '918',
-      '192.168.1.10',
-      'Jamie Wilson',
-      '18.2',
-      '2026-03-31 8:30:00',
-      'HTTPS',
-      'NORMAL',
-    ],
-    [
-      '919',
-      '192.168.1.45',
-      'Noah Smith',
-      '7.7',
-      '2026-03-31 9:15:00',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '920',
-      '192.168.1.05',
-      'Rachel Berry',
-      '2.9',
-      '2026-03-31 10:00:00',
-      'HTTP',
-      'NORMAL',
-    ],
-    [
-      '922',
-      '192.168.1.03',
-      'Maya Chen',
-      '5',
-      '2026-03-31 12:45:00',
-      'SSH',
-      'NORMAL',
-    ],
-    [
-      '923',
-      '192.168.1.55',
-      'Jordan Lee',
-      '8.2',
-      '2026-03-31 14:20',
-      'TCP',
-      'NORMAL',
-    ],
-    [
-      '924',
-      '192.168.1.12',
-      'Paula Manalo',
-      '10.5',
-      '2026-03-31 15:10',
-      'HTTPS',
-      'NORMAL',
-    ],
-    [
-      '925',
-      '192.168.1.88',
-      'Cheyenne Hart',
-      '1.2',
-      '2026-03-31 16:00',
-      'UDP',
-      'NORMAL',
-    ],
+    ['901', '192.168.1.10', 'Jamie Wilson', '12.4', '2026-03-31 1:15:00', 'TCP', 'NORMAL'],
+    ['902', '192.168.1.45', 'Noah Smith', '4.2', '2026-03-31 1:30:00', 'UDP', 'NORMAL'],
+    ['903', '192.168.1.12', 'Paula Manalo', '8.9', '2026-03-31 1:45:00', 'TCP', 'NORMAL'],
+    ['904', '192.168.1.05', 'Rachel Berry', '1.1', '2026-03-31 2:00:00', 'HTTP', 'NORMAL'],
+    ['905', '192.168.1.22', 'Riley Quinn', '15.5', '2026-03-31 2:15:00', 'HTTPS', 'NORMAL'],
+    ['906', '192.168.1.33', 'Sam Rivera', '3.3', '2026-03-31 2:30:00', 'TCP', 'NORMAL'],
+    ['907', '192.168.1.10', 'Jamie Wilson', '9', '2026-03-31 2:45:00', 'UDP', 'NORMAL'],
+    ['908', '192.168.1.55', 'Jordan Lee', '5.6', '2026-03-31 3:00:00', 'TCP', 'NORMAL'],
+    ['909', '192.168.1.12', 'Paula Manalo', '12', '2026-03-31 3:05:00', 'HTTPS', 'NORMAL'],
+    ['910', '192.168.1.88', 'Cheyenne Hart', '62000', '2026-03-31 3:10:00', 'UDP', 'CONGESTION'],
+    ['911', '192.168.1.03', 'Maya Chen', '2.5', '2026-03-31 3:12:00', 'SSH', 'STEALTH'],
+    ['912', '192.168.1.10', 'Jamie Wilson', '0.8', '2026-03-31 3:15:00', 'TCP', 'CONGESTED'],
+    ['913', '192.168.1.45', 'Noah Smith', '1.2', '2026-03-31 3:20:00', 'HTTP', 'CONGESTED'],
+    ['914', '192.168.1.03', 'Maya Chen', '1.1', '2026-03-31 4:00:00', 'TCP', 'NORMAL'],
+    ['915', '192.168.1.22', 'Riley Quinn', '22', '2026-03-31 5:00:00', 'HTTPS', 'NORMAL'],
+    ['916', '192.168.1.88', 'Cheyenne Hart', '450', '2026-03-31 6:30:00', 'UDP', 'NORMAL'],
+    ['917', '192.168.1.15', 'Angelo Ramos', '5.5', '2026-03-31 7:45:00', 'TCP', 'NORMAL'],
+    ['918', '192.168.1.10', 'Jamie Wilson', '18.2', '2026-03-31 8:30:00', 'HTTPS', 'NORMAL'],
+    ['919', '192.168.1.45', 'Noah Smith', '7.7', '2026-03-31 9:15:00', 'TCP', 'NORMAL'],
+    ['920', '192.168.1.05', 'Rachel Berry', '2.9', '2026-03-31 10:00:00', 'HTTP', 'NORMAL'],
+    ['922', '192.168.1.03', 'Maya Chen', '5', '2026-03-31 12:45:00', 'SSH', 'NORMAL'],
+    ['923', '192.168.1.55', 'Jordan Lee', '8.2', '2026-03-31 14:20', 'TCP', 'NORMAL'],
+    ['924', '192.168.1.12', 'Paula Manalo', '10.5', '2026-03-31 15:10', 'HTTPS', 'NORMAL'],
+    ['925', '192.168.1.88', 'Cheyenne Hart', '1.2', '2026-03-31 16:00', 'UDP', 'NORMAL'],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -312,6 +126,20 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
       }
       setState(() {});
     });
+
+    _checkIfSolved();
+  }
+
+  Future<void> _checkIfSolved() async {
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final solveKey = 'case2_icto_solved_$userId';
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isSolved = prefs.getBool(solveKey) ?? false;
+      });
+    }
   }
 
   @override
@@ -324,17 +152,20 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
   }
 
   String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll(',', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isIctoCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    const acceptedAnswers = {'CHEYENNE HART', 'CHEYENNE'};
-    return acceptedAnswers.contains(normalized);
+    return normalized == 'CHEYENNE HART' || normalized == 'CHEYENNE';
   }
 
   void _submitAnswer() async {
-    if (!hasLives) {
+    if (!_hasLives) {
       setState(() {
         isQuestionVisible = false;
       });
@@ -344,19 +175,42 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
 
     if (_isIctoCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
+      if (!mounted) return;
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case2_icto_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(100);
+        await prefs.setBool(solveKey, true);
+        if (mounted) {
+          setState(() {
+            _isSolved = true;
+          });
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
     } else {
       livesManager.deductLife();
       await playWrongSound();
-      setState(() {
-        isQuestionVisible = false;
-        isWrongVisible = true;
-        isCorrectVisible = false;
-      });
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isWrongVisible = true;
+          isCorrectVisible = false;
+        });
+      }
     }
   }
 
@@ -403,19 +257,34 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
             onTap: () async {
               await playButtonSound();
 
-              if (!hasLives) {
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case2_icto_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
+
+              if (!_hasLives) {
                 showNoLivesPopup();
                 return;
               }
 
-              setState(() {
-                isQuestionVisible = true;
-                isQueryVisible = false;
-                isTableVisible = false;
-              });
+              if (mounted) {
+                setState(() {
+                  isQuestionVisible = true;
+                  isQueryVisible = false;
+                  isTableVisible = false;
+                });
+              }
             },
             child: Opacity(
-              opacity: hasLives ? 1.0 : 0.45,
+              opacity: (_hasLives && !_isSolved) ? 1.0 : 0.45,
               child: Image.asset(
                 'assets/mystery/asterisk.png',
                 width: width,
@@ -622,8 +491,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                   opacity: 0.50,
                   child: TextField(
                     controller: _answerController,
-                    autofocus: hasLives,
-                    enabled: hasLives,
+                    autofocus: _hasLives,
+                    enabled: _hasLives,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
                     inputFormatters: [UpperCaseTextFormatter()],
@@ -642,7 +511,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                       }
                     },
                     decoration: InputDecoration(
-                      hintText: hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
+                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
                       hintStyle: const TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
@@ -658,17 +527,16 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                 right: 0,
                 child: Center(
                   child: Opacity(
-                    opacity: hasLives ? 1.0 : 0.45,
+                    opacity: _hasLives ? 1.0 : 0.45,
                     child: InkWell(
-                      onTap: hasLives
-                          ? () async {
-                              await playButtonSound();
-                              _submitAnswer();
-                            }
-                          : () async {
-                              await playButtonSound();
-                              showNoLivesPopup();
-                            },
+                      onTap: () async {
+                        await playButtonSound();
+                        if (_hasLives) {
+                          _submitAnswer();
+                        } else {
+                          showNoLivesPopup();
+                        }
+                      },
                       child: Image.asset(
                         'assets/mystery/submit_button.png',
                         height: 35,
@@ -846,7 +714,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
     const cellStyle = TextStyle(
       fontFamily: 'Consolas',
       color: Colors.black,
-      fontSize: 9,
+      fontSize: 10,
       fontWeight: FontWeight.w500,
     );
 
@@ -978,9 +846,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                 children: [
                   InkWell(
                     onTap: () => onButtonTap(() {
-                      setState(() {
-                        _sqlController.clear();
-                      });
+                      _sqlController.clear();
                     }),
                     child: Image.asset('assets/mystery/clear_button.png', height: 35),
                   ),
@@ -1270,6 +1136,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

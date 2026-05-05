@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:graphics_project/presentation/screens/mystery/case2/case2_map_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 
 class GuidanceScreen extends StatefulWidget {
   const GuidanceScreen({super.key});
@@ -12,11 +16,11 @@ class GuidanceScreen extends StatefulWidget {
   State<GuidanceScreen> createState() => _GuidanceScreenState();
 }
 
-class _GuidanceScreenState extends State<GuidanceScreen>
-    with CaseScreenHelper {
+class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
+  bool _isSolved = false;
 
   String? activeInvestigationText;
   Duration? activeTypingDuration;
@@ -42,6 +46,20 @@ class _GuidanceScreenState extends State<GuidanceScreen>
       }
       setState(() {});
     });
+
+    _checkIfSolved();
+  }
+
+  Future<void> _checkIfSolved() async {
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final solveKey = 'case2_guidance_solved_$userId';
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isSolved = prefs.getBool(solveKey) ?? false;
+      });
+    }
   }
 
   @override
@@ -52,24 +70,19 @@ class _GuidanceScreenState extends State<GuidanceScreen>
   }
 
   String _normalizeAnswer(String value) {
-  return value
-      .toUpperCase()
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .replaceAll(' AND ', ', ')
-      .replaceAll(', AND', ',')
-      .replaceAll(RegExp(r'\s*,\s*'), ', ')
-      .replaceAll(RegExp(r'\$?\s*12,?500'), '12,500')
-      .trim();
-}
+    return value
+        .trim()
+        .toUpperCase()
+        .replaceAll('\$', '')
+        .replaceAll(' AND ', ', ')
+        .replaceAll(RegExp(r'\s*,\s*'), ', ') // Standardize comma spacing
+        .replaceAll(RegExp(r'\s+'), ' ');
+  }
 
   bool _isPoliceCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {
-      'MAYA CHEN, CHEYENNE HART, 12,500',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    return normalized == 'MAYA CHEN, CHEYENNE HART, 12,500' ||
+        normalized == 'MAYA CHEN, CHEYENNE HART, 12500';
   }
 
   void _submitAnswer() async {
@@ -83,19 +96,42 @@ class _GuidanceScreenState extends State<GuidanceScreen>
 
     if (_isPoliceCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
+      if (!mounted) return;
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case2_guidance_solved_$userId';
+
+      final prefs = await SharedPreferences.getInstance();
+      final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+      if (!alreadySolved) {
+        await PointsController.instance.addPoints(200);
+        await prefs.setBool(solveKey, true);
+        if (mounted) {
+          setState(() {
+            _isSolved = true;
+          });
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
     } else {
       livesManager.deductLife();
       await playWrongSound();
-      setState(() {
-        isQuestionVisible = false;
-        isWrongVisible = true;
-        isCorrectVisible = false;
-      });
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isWrongVisible = true;
+          isCorrectVisible = false;
+        });
+      }
     }
   }
 
@@ -109,17 +145,32 @@ class _GuidanceScreenState extends State<GuidanceScreen>
             onTap: () async {
               await playButtonSound();
 
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case2_guidance_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
+
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;
               }
 
-              setState(() {
-                isQuestionVisible = true;
-              });
+              if (mounted) {
+                setState(() {
+                  isQuestionVisible = true;
+                });
+              }
             },
             child: Opacity(
-              opacity: _hasLives ? 1.0 : 0.45,
+              opacity: (_hasLives && !_isSolved) ? 1.0 : 0.45,
               child: Image.asset(
                 'assets/mystery/asterisk.png',
                 width: width,
@@ -141,7 +192,8 @@ class _GuidanceScreenState extends State<GuidanceScreen>
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/Case2/guidance_loc.png', fit: BoxFit.fill),
+                child: Image.asset('assets/mystery/Case2/guidance_loc.png',
+                    fit: BoxFit.fill),
               ),
               SafeArea(
                 child: Padding(
@@ -374,9 +426,38 @@ class _GuidanceScreenState extends State<GuidanceScreen>
                 top: 10,
                 right: 110,
                 child: InkWell(
-                  onTap: () => onButtonTap(() {
-                    setState(() => isCorrectVisible = false);
-                  }),
+                  onTap: () async {
+                    await playButtonSound();
+                    
+                    // Small delay to allow button click animation/sound to finish
+                    await Future.delayed(const Duration(milliseconds: 300));
+                    if (!mounted) return;
+
+                    // Testing: Trigger cutscene without hiding popup first to keep context stable
+                    await showCutscene(
+                      videoAsset: 'assets/mystery/Endings/Case2_Ending.mp4',
+                      onFinished: () {
+                        if (!mounted) return;
+                        // Navigate back to CaseMap2 without sliding
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                const CaseMap2(showSolvedDialog: true),
+                            transitionDuration: const Duration(milliseconds: 1000),
+                            reverseTransitionDuration: Duration.zero,
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    );
+                  },
                   child: Image.asset('assets/mystery/close_button.png', height: 20),
                 ),
               ),
@@ -681,5 +762,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
