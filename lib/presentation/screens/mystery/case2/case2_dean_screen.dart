@@ -8,7 +8,7 @@ import 'package:graphics_project/presentation/controllers/points_controller.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
-import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class DeanScreen extends StatefulWidget {
@@ -31,7 +31,7 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
 
   bool get _hasLives => hasLives;
 
-  late final SqlSyntaxController _sqlController;
+  late final MysterySqlController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -101,7 +101,7 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
       numericColumns: const {'remaining_bal'},
     );
 
-    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+    _sqlController = MysterySqlController(sqlEngine: _sqlEngine);
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
     _visibleHeaders = List.from(_headers);
@@ -149,6 +149,7 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
+        .replaceAll(';', '')
         .toUpperCase()
         .replaceAll('\$', '')
         .replaceAll(RegExp(r'\s*,\s*'), ', ')
@@ -668,39 +669,55 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.04,
-          right: constraints.maxWidth * 0.02,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Center(
-                  child: Text(
-                    _visibleHeaders[index],
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Positioned(
-          top: constraints.maxHeight * 0.290,
           left: constraints.maxWidth * 0.02,
           right: constraints.maxWidth * 0.03,
           bottom: constraints.maxHeight * 0.05,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Table(
-              columnWidths: {
-                for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
+          child: Column(
+            children: [
+              Table(
+                columnWidths: {
+                  for (int i = 0; i < _visibleHeaders.length; i++)
+                    i: FlexColumnWidth(
+                      _flexForHeader(_visibleHeaders[i]).toDouble(),
+                    ),
+                },
+                children: [
+                  TableRow(
+                    children: _visibleHeaders.map((header) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6.0,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            header,
+                            style: headerStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-              },
-              children: _buildTableRowsList(),
-            ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Table(
+                    columnWidths: {
+                      for (int i = 0; i < _visibleHeaders.length; i++)
+                        i: FlexColumnWidth(
+                          _flexForHeader(_visibleHeaders[i]).toDouble(),
+                        ),
+                    },
+                    children: _buildTableRowsList(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -746,14 +763,17 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
         children: _visibleHeaders.map((header) {
           return Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 5.0,
+              vertical: 12.0,
+              horizontal: 6.0,
             ),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                row[header] ?? '',
+                style: cellStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }).toList(),

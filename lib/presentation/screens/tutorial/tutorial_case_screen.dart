@@ -31,6 +31,15 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCaseScreen), context);
+    precacheImage(AssetImage(AppAssets.case2Screen[0]), context); // Background for Case 2
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
@@ -90,192 +99,204 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
             width: 800,
             height: 360,
             child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(AppAssets.tutorialCaseScreen, fit: BoxFit.fill),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Image.asset(AppAssets.tutorialCaseTitle, width: 350),
-            ),
-          ),
-          Positioned(
-            top: 50,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  Image.asset(AppAssets.caseDisplayBox, width: 580),
-                  Positioned(
-                    right: -60,
-                    top: 120,
-                    child: FadeTransition(
-                      opacity: _characterFade,
-                      child: Stack(
-                        alignment: Alignment.topCenter,
-                        clipBehavior: Clip.none,
-                        children: [
-                          Positioned(
-                            top: -95,
-                            child: SpriteAnimator(
-                              frames: AppAssets.dancingTomathomas,
-                              width: 150,
-                              frameDuration: const Duration(milliseconds: 150),
-                              fit: BoxFit.fill,
-                              loop: true,
-                            ),
-                          ),
-                          Image.asset(AppAssets.userDisplay, width: 100),
-                          Positioned.fill(
-                            child: Center(
-                              child: Text.rich(
-                                TextSpan(
-                                  children: [
-                                    const TextSpan(text: 'click '),
-                                    TextSpan(
-                                      text: 'NEXT',
-                                      style: GoogleFonts.londrinaSolid(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                style: GoogleFonts.londrinaSolid(
-                                  color: AppColors.primary,
-                                  fontSize: 13,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              fit: StackFit.expand,
+              children: [
+                Image.asset(AppAssets.tutorialCaseScreen, fit: BoxFit.fill),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Image.asset(AppAssets.tutorialCaseTitle, width: 350),
                   ),
-                  Positioned(
-                    bottom: 60,
-                    right: 100,
-                    child: FadeTransition(
-                      opacity: _characterFade,
-                      child: BouncingButton(
-                        onPressed: () {
-                          _audioPlayer.stop();
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const TutorialCase2Screen(),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) => child,
-                            ),
-                          );
-                        },
-                        child: ShakeWidget(
-                          child: Image.asset(AppAssets.nextBtn, width: 80),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 140.0,
-                          vertical: 75.0,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Case Description',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.luckiestGuy(
-                                fontSize: 25,
-                                color: AppColors.accent,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Stack(
+                ),
+                Positioned(
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Image.asset(AppAssets.caseDisplayBox, width: 580),
+                        Positioned(
+                          right: -60,
+                          top: 120,
+                          child: FadeTransition(
+                            opacity: _characterFade,
+                            child: Stack(
+                              alignment: Alignment.topCenter,
+                              clipBehavior: Clip.none,
                               children: [
-                                Text(
-                                   _caseText,
-                                   textAlign: TextAlign.left,
-                                   style: GoogleFonts.londrinaSolid(
-                                     fontSize: 13,
-                                     color: Colors.transparent,
-                                   ),
-                                 ),
-                                AnimatedBuilder(
-                                  animation: _charCount,
-                                  builder: (context, _) {
-                                    final visible = _caseText.substring(
-                                      0,
-                                      _charCount.value,
-                                    );
-                                    return Text(
-                                       visible,
-                                       textAlign: TextAlign.left,
-                                       style: GoogleFonts.londrinaSolid(
-                                         fontSize: 13,
-                                         color: AppColors.primaryLight,
-                                       ),
-                                     );
-                                  },
+                                Positioned(
+                                  top: -95,
+                                  child: SpriteAnimator(
+                                    frames: AppAssets.dancingTomathomas,
+                                    width: 150,
+                                    frameDuration: const Duration(
+                                      milliseconds: 150,
+                                    ),
+                                    fit: BoxFit.fill,
+                                    loop: true,
+                                  ),
+                                ),
+                                Image.asset(AppAssets.userDisplay, width: 100),
+                                Positioned.fill(
+                                  child: Center(
+                                    child: Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          const TextSpan(text: 'click '),
+                                          TextSpan(
+                                            text: 'NEXT',
+                                            style: GoogleFonts.londrinaSolid(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      style: GoogleFonts.londrinaSolid(
+                                        color: AppColors.primary,
+                                        fontSize: 13,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          bottom: 60,
+                          right: 100,
+                          child: FadeTransition(
+                            opacity: _characterFade,
+                            child: BouncingButton(
+                              onPressed: () {
+                                _audioPlayer.stop();
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    transitionDuration: const Duration(
+                                      milliseconds: 300,
+                                    ),
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) => const TutorialCase2Screen(),
+                                    transitionsBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child,
+                                        ) => FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: ShakeWidget(
+                                child: Image.asset(
+                                  AppAssets.nextBtn,
+                                  width: 80,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 140.0,
+                                vertical: 75.0,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    'Case Description',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.luckiestGuy(
+                                      fontSize: 25,
+                                      color: AppColors.accent,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Stack(
+                                    children: [
+                                      Text(
+                                        _caseText,
+                                        textAlign: TextAlign.left,
+                                        style: GoogleFonts.londrinaSolid(
+                                          fontSize: 13,
+                                          color: Colors.transparent,
+                                        ),
+                                      ),
+                                      AnimatedBuilder(
+                                        animation: _charCount,
+                                        builder: (context, _) {
+                                          final visible = _caseText.substring(
+                                            0,
+                                            _charCount.value,
+                                          );
+                                          return Text(
+                                            visible,
+                                            textAlign: TextAlign.left,
+                                            style: GoogleFonts.londrinaSolid(
+                                              fontSize: 13,
+                                              color: AppColors.primaryLight,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: 90,
-            right: 180,
-            child: Image.asset(AppAssets.tutorialCaseTicket, width: 120),
-          ),
-          Positioned(
-            left: 20,
-            top: 20,
-            child: Row(
-              children: [
-                BouncingButton(
-                  onPressed: () {
-                    _audioPlayer.stop();
-                    Navigator.pop(context);
-                  },
-                  child: Image.asset(AppAssets.backBtn, width: 50),
                 ),
-                const SizedBox(width: 15),
-                BouncingButton(
-                  onPressed: () {
-                    _audioPlayer.stop();
-                    TutorialMusicController.goHome(context);
-                  },
-                  child: Image.asset(AppAssets.homeBtn, width: 50),
+                Positioned(
+                  top: 90,
+                  right: 180,
+                  child: Image.asset(AppAssets.tutorialCaseTicket, width: 120),
+                ),
+                Positioned(
+                  left: 20,
+                  top: 20,
+                  child: Row(
+                    children: [
+                      BouncingButton(
+                        onPressed: () {
+                          _audioPlayer.stop();
+                          Navigator.pop(context);
+                        },
+                        child: Image.asset(AppAssets.backBtn, width: 50),
+                      ),
+                      const SizedBox(width: 15),
+                      BouncingButton(
+                        onPressed: () {
+                          _audioPlayer.stop();
+                          TutorialMusicController.goHome(context);
+                        },
+                        child: Image.asset(AppAssets.homeBtn, width: 50),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
           ),
         ),
       ),

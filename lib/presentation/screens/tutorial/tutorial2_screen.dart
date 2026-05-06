@@ -15,6 +15,22 @@ class Tutorial2Screen extends StatefulWidget {
 
 class _Tutorial2ScreenState extends State<Tutorial2Screen> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage(AppAssets.tutorial2Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorial3Screen), context);
+    for (var frame in AppAssets.dancingBroccoli) {
+      precacheImage(AssetImage(frame), context);
+    }
+    for (var frame in AppAssets.dancingTomathomas) {
+      precacheImage(AssetImage(frame), context);
+    }
+    for (var frame in AppAssets.dancingCarrotino) {
+      precacheImage(AssetImage(frame), context);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
@@ -38,12 +54,12 @@ class _Tutorial2ScreenState extends State<Tutorial2Screen> {
               Navigator.push(
                 context,
                 PageRouteBuilder(
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
+                  transitionDuration: const Duration(milliseconds: 300),
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       const Tutorial3Screen(),
                   transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) => child,
+                      (context, animation, secondaryAnimation, child) =>
+                          FadeTransition(opacity: animation, child: child),
                 ),
               );
             },

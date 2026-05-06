@@ -63,6 +63,19 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   final bool _isTransitioning = false;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage(AppAssets.beanieWalking1), context);
+    precacheImage(const AssetImage(AppAssets.beanieWalking2), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase4Screen), context); // Precache Case 4
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+    for (var frame in AppAssets.worriedBeanieFrames) {
+      precacheImage(AssetImage(frame), context);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
@@ -209,12 +222,12 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
           Navigator.push(
             context,
             PageRouteBuilder(
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
+              transitionDuration: const Duration(milliseconds: 300),
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const TutorialCase4Screen(),
               transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) => child,
+                  (context, animation, secondaryAnimation, child) =>
+                      FadeTransition(opacity: animation, child: child),
             ),
           ).then((_) {
             if (mounted) {
@@ -293,7 +306,11 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
+                Image.asset(
+                  AppAssets.tutorialCase3Screen,
+                  fit: BoxFit.fill,
+                  gaplessPlayback: true,
+                ),
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
@@ -391,7 +408,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         alignment: Alignment.centerLeft,
                         child: Padding(
                           padding: const EdgeInsets.only(
-                            left: canvasWidth * 0.13, // Adjusted to the left
+                            left: canvasWidth * 0.13,
                             top: 85.0,
                           ),
                           child: SizedBox(
@@ -437,6 +454,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                       child: Image.asset(
                                         currentImage,
                                         width: 70,
+                                        gaplessPlayback: true,
                                       ),
                                     ),
                                   );
@@ -449,7 +467,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                     );
                   },
                 ),
-                // Next button (placed behind interactive overlays)
+                // Next button
                 if (_isTableUnlocked && !_isTableShown)
                   Positioned(
                     bottom: 30,
@@ -459,7 +477,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                         if (!_isExiting) {
                           setState(() {
                             _isExiting = true;
-                            _isTableShown = false; // Hide table if open
+                            _isTableShown = false;
                           });
                           _spriteController.repeat();
                           _exitController.forward();
@@ -474,7 +492,6 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                       ),
                     ),
                   ),
-                // Dark overlay
                 IgnorePointer(
                   ignoring: !_isQueryClicked,
                   child: FadeTransition(
@@ -490,9 +507,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 70.0,
-                      ), // Moved up from 90.0
+                      padding: const EdgeInsets.only(top: 70.0),
                       child: IgnorePointer(
                         ignoring: !_showQueryDisplay,
                         child: AnimatedOpacity(
@@ -576,7 +591,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                 ),
                                 Positioned(
                                   top: 9,
-                                  right: 15, // Moved a bit to the right
+                                  right: 15,
                                   child: BouncingButton(
                                     onPressed: () {
                                       _popupUserFadeController.reverse();
@@ -597,7 +612,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   ),
                                 ),
                                 Positioned(
-                                  bottom: 8, // Moved down from 15
+                                  bottom: 8,
                                   left: 15,
                                   child: BouncingButton(
                                     onPressed: () {
@@ -627,7 +642,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   ),
                                 ),
                                 Positioned(
-                                  bottom: 8, // Moved down from 15
+                                  bottom: 8,
                                   right: 10,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,

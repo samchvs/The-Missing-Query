@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
   bool get _hasLives => hasLives;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final MysterySqlController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -96,20 +97,13 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
       rows: _allAuditMaps,
       numericColumns: const {'keystroke'},
     );
+    _sqlController = MysterySqlController(sqlEngine: _sqlEngine);
 
     _filteredAuditMaps = List.from(_allAuditMaps);
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
-      if (!mounted) return;
-      final text = _sqlController.text;
-      if (text != text.toUpperCase()) {
-        _sqlController.value = _sqlController.value.copyWith(
-          text: text.toUpperCase(),
-          selection: _sqlController.selection,
-        );
-      }
-      setState(() {});
+      if (mounted) setState(() {});
     });
 
     _answerController.addListener(() {
@@ -151,8 +145,9 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
+        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ', ') // Standardize comma spacing
+        .replaceAll(',', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
@@ -644,39 +639,55 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.04,
-          right: constraints.maxWidth * 0.02,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Center(
-                  child: Text(
-                    _visibleHeaders[index],
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Positioned(
-          top: constraints.maxHeight * 0.290,
           left: constraints.maxWidth * 0.02,
           right: constraints.maxWidth * 0.03,
           bottom: constraints.maxHeight * 0.05,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Table(
-              columnWidths: {
-                for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
+          child: Column(
+            children: [
+              Table(
+                columnWidths: {
+                  for (int i = 0; i < _visibleHeaders.length; i++)
+                    i: FlexColumnWidth(
+                      _flexForHeader(_visibleHeaders[i]).toDouble(),
+                    ),
+                },
+                children: [
+                  TableRow(
+                    children: _visibleHeaders.map((header) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6.0,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            header,
+                            style: headerStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-              },
-              children: _buildTableRowsList(),
-            ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Table(
+                    columnWidths: {
+                      for (int i = 0; i < _visibleHeaders.length; i++)
+                        i: FlexColumnWidth(
+                          _flexForHeader(_visibleHeaders[i]).toDouble(),
+                        ),
+                    },
+                    children: _buildTableRowsList(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -718,14 +729,17 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
         children: _visibleHeaders.map((header) {
           return Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 5.0,
+              vertical: 12.0,
+              horizontal: 6.0,
             ),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                row[header] ?? '',
+                style: cellStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }).toList(),

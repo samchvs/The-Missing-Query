@@ -35,11 +35,9 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Query Panel States
   bool _isQueryClicked = false;
   bool _isHintDismissed = false;
   bool _isTableShown = false;
-
   bool _isQuerySuccessful = false;
   bool _isRegistryShown = false;
   bool _isRegistryGuideShown = false;
@@ -47,17 +45,25 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
 
   late SQLSyntaxController _queryController;
 
-  // Typewriter logic
   String _typedText = "";
   final String _fullText =
       "Beanie goes to the Campus Security Office to file a report. He matched the MAC address from the tablet to a student.";
   Timer? _typingTimer;
 
   bool _isTypingFinished = false;
-  bool _isWaitingForGuide = false; // New flag for UI lock
+  bool _isWaitingForGuide = false;
   late AnimationController _queryFadeController;
   late Animation<double> _queryFadeAnimation;
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase7Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase9Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
 
   @override
   void initState() {
@@ -112,7 +118,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
             _isWalking = false;
           });
 
-          // Show overlay after 2 seconds
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
               setState(() {
@@ -157,18 +162,17 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
       setState(() {
         _isQuerySuccessful = true;
         _isRegistryShown = true;
-        _isRegistryGuideShown = false; // Keep hidden initially
-        _isWaitingForGuide = true; // Lock UI during transition
+        _isRegistryGuideShown = false;
+        _isWaitingForGuide = true;
         _isQueryClicked = false;
       });
 
-      // Delay the guide pop-up by 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           SFXController().playCorrectAnswer();
           setState(() {
             _isRegistryGuideShown = true;
-            _isWaitingForGuide = false; // Unlock UI
+            _isWaitingForGuide = false;
           });
         }
       });
@@ -250,7 +254,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                       left: (screenWidth * 0.135) + walkTranslation,
                       bottom: _isWalking ? 12 : -30,
                       child: Container(
-                        width: 220, // Exactly like Case 6
+                        width: 220,
                         alignment: Alignment.center,
                         child: Stack(
                           alignment: Alignment.bottomCenter,
@@ -308,20 +312,24 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                         onPressed: () {
                           Navigator.push(
                             context,
-                            PageRouteBuilder(
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const TutorialCase9Screen(),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) => child,
-                            ),
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(
+                                  milliseconds: 300,
+                                ),
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const TutorialCase9Screen(),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) => FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
+                              ),
                           );
                         },
                         child: Image.asset(AppAssets.nextBtn, width: 100),
@@ -591,7 +599,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                           ),
                         ),
 
-                        // Guide Pop in front of Device Registry
                         if (_isRegistryGuideShown)
                           Stack(
                             children: [
@@ -615,31 +622,33 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                                             _isRegistryGuideShown = false;
                                             _isRegistryShown = false;
                                           });
-                                          // Navigate to Case 9 after finishing Case 7
+
                                           Navigator.push(
                                             context,
-                                            PageRouteBuilder(
-                                              transitionDuration: Duration.zero,
-                                              reverseTransitionDuration:
-                                                  Duration.zero,
-                                              pageBuilder:
-                                                  (
-                                                    context,
-                                                    animation,
-                                                    secondaryAnimation,
-                                                  ) =>
-                                                      const TutorialCase9Screen(),
-                                              transitionsBuilder:
-                                                  (
-                                                    context,
-                                                    animation,
-                                                    secondaryAnimation,
-                                                    child,
-                                                  ) => child,
-                                            ),
-                                          ).then((_) {
-                                            // State is preserved when coming back from Case 9
-                                          });
+                                              PageRouteBuilder(
+                                                transitionDuration:
+                                                    const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                pageBuilder:
+                                                    (
+                                                      context,
+                                                      animation,
+                                                      secondaryAnimation,
+                                                    ) =>
+                                                        const TutorialCase9Screen(),
+                                                transitionsBuilder:
+                                                    (
+                                                      context,
+                                                      animation,
+                                                      secondaryAnimation,
+                                                      child,
+                                                    ) => FadeTransition(
+                                                      opacity: animation,
+                                                      child: child,
+                                                    ),
+                                              ),
+                                          ).then((_) {});
                                         },
                                         child: Image.asset(
                                           AppAssets.okayBtn,

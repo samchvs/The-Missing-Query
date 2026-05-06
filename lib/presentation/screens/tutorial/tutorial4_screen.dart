@@ -17,6 +17,16 @@ class Tutorial4Screen extends StatefulWidget {
 
 class _Tutorial4ScreenState extends State<Tutorial4Screen> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage(AppAssets.tutorial3Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorial4Title), context);
+    precacheImage(const AssetImage(AppAssets.tutorial4Folder), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCaseScreen), context); // Background for Case 1
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
@@ -48,8 +58,6 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
               child: Image.asset(AppAssets.tutorial4Title, width: 420),
             ),
           ),
-          // Folder + display
-          // Folder
           Positioned(
             left: 800 * 0.10,
             top: 360 * 0.15,
@@ -58,13 +66,12 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
+                    transitionDuration: const Duration(milliseconds: 300),
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         const TutorialCaseScreen(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) =>
-                            child,
+                            FadeTransition(opacity: animation, child: child),
                   ),
                 );
               },
@@ -92,7 +99,7 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
           // Text Display Box
           Positioned(
             left: 800 * 0.45,
-            top: 360 * 0.50, // Lowered further to move it down from the folder
+            top: 360 * 0.50, 
             child: Stack(
               alignment: Alignment.center,
               clipBehavior: Clip.none,

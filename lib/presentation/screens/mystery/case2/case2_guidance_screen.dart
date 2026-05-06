@@ -72,6 +72,7 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
+        .replaceAll(';', '')
         .toUpperCase()
         .replaceAll('\$', '')
         .replaceAll(' AND ', ', ')

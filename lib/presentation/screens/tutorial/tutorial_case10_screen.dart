@@ -21,14 +21,21 @@ class TutorialCase10Screen extends StatefulWidget {
 
 class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
     with TickerProviderStateMixin {
-  int _dialogueIndex = 0; // 0-indexed for the list below
+  int _dialogueIndex = 0;
   bool _isTextFinished = false;
 
-  
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription? _audioSubscription;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the finale
+    precacheImage(const AssetImage(AppAssets.case10Finale), context);
+    precacheImage(const AssetImage(AppAssets.challengeBtn), context);
+  }
 
   @override
   void initState() {
@@ -44,11 +51,11 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
       TweenSequenceItem(tween: Tween(begin: 3.0, end: -3.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: -3.0, end: 3.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 3.0, end: 0.0), weight: 5),
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 70), // Long pause
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 70),
     ]).animate(_shakeController);
 
     _shakeController.repeat();
-    
+
     _audioSubscription = _audioPlayer.onPlayerComplete.listen((event) {
       _advanceDialogue();
     });
@@ -123,19 +130,20 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                   children: [
                     // Animated Background
                     Transform.scale(
-                      scale: 1.08, // Slightly scale up to cover potential pixel gaps/white edges
+                      scale: 1.08,
                       child: SpriteAnimator(
                         frames: _allDialogues[_dialogueIndex],
                         frameDuration: const Duration(milliseconds: 150),
                         fit: BoxFit.cover,
-                        loop: _dialogueAudios[_dialogueIndex] != null ||
+                        loop:
+                            _dialogueAudios[_dialogueIndex] != null ||
                             _dialogueIndex == _allDialogues.length - 1,
-                        onComplete:
-                            _dialogueAudios[_dialogueIndex] != null ? null : _advanceDialogue,
+                        onComplete: _dialogueAudios[_dialogueIndex] != null
+                            ? null
+                            : _advanceDialogue,
                       ),
                     ),
 
-                    // Finale Scene Prop
                     if (_dialogueIndex == 7)
                       Positioned(
                         bottom: 20,
@@ -143,10 +151,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            Image.asset(
-                              AppAssets.case10Finale,
-                              width: 240,
-                            ),
+                            Image.asset(AppAssets.case10Finale, width: 240),
                             Positioned(
                               top: 20,
                               bottom: 20,
@@ -171,7 +176,10 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                                     });
                                   }
                                 },
-                                boldWords: const ['Congratulations!', 'SQL Mystery!'],
+                                boldWords: const [
+                                  'Congratulations!',
+                                  'SQL Mystery!',
+                                ],
                               ),
                             ),
                           ],
@@ -193,7 +201,8 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                           ),
                           const SizedBox(width: 10),
                           BouncingButton(
-                            onPressed: () => TutorialMusicController.goHome(context),
+                            onPressed: () =>
+                                TutorialMusicController.goHome(context),
                             child: Image.asset(AppAssets.homeBtn, width: 55),
                           ),
                           const Spacer(),
@@ -218,19 +227,42 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
                             onPressed: () {
                               TutorialMusicController().stop();
                               HomeMusicController().play();
-                              final authController = Provider.of<AuthController>(context, listen: false);
+                              final authController =
+                                  Provider.of<AuthController>(
+                                    context,
+                                    listen: false,
+                                  );
                               Navigator.pushAndRemoveUntil(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(
-                                    username: authController.displayUsername,
-                                    authController: authController,
+                                PageRouteBuilder(
+                                  transitionDuration: const Duration(
+                                    milliseconds: 500,
                                   ),
+                                  pageBuilder:
+                                      (context, animation, secondaryAnimation) =>
+                                          HomeScreen(
+                                            username:
+                                                authController.displayUsername,
+                                            authController: authController,
+                                          ),
+                                  transitionsBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) => FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      ),
                                 ),
                                 (route) => false,
                               );
                             },
-                            child: Image.asset(AppAssets.challengeBtn, width: 180),
+                            child: Image.asset(
+                              AppAssets.challengeBtn,
+                              width: 180,
+                            ),
                           ),
                         ),
                       ),

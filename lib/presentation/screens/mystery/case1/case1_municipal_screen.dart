@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
-import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class MunicipalScreen extends StatefulWidget {
@@ -22,7 +22,7 @@ class _MunicipalScreenState extends State<MunicipalScreen>
   String? activeInvestigationText;
   Duration? activeTypingDuration;
 
-  late final SqlSyntaxController _sqlController;
+  late final MysterySqlController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -89,7 +89,7 @@ class _MunicipalScreenState extends State<MunicipalScreen>
       numericColumns: const {'amount'},
     );
 
-    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+    _sqlController = MysterySqlController(sqlEngine: _sqlEngine);
     _filteredRecordMaps = List.from(_allRecordMaps);
     _visibleHeaders = List.from(_headers);
 
@@ -326,37 +326,53 @@ class _MunicipalScreenState extends State<MunicipalScreen>
           top: constraints.maxHeight * 0.210,
           left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: Text(
-                    _visibleHeaders[index],
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
+          bottom: constraints.maxHeight * 0.05,
+          child: Column(
+            children: [
+              Table(
+                columnWidths: {
+                  for (int i = 0; i < _visibleHeaders.length; i++)
+                    i: FlexColumnWidth(
+                      _flexForHeader(_visibleHeaders[i]).toDouble(),
+                    ),
+                },
+                children: [
+                  TableRow(
+                    children: _visibleHeaders.map((header) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6.0,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            header,
+                            style: headerStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Table(
+                    columnWidths: {
+                      for (int i = 0; i < _visibleHeaders.length; i++)
+                        i: FlexColumnWidth(
+                          _flexForHeader(_visibleHeaders[i]).toDouble(),
+                        ),
+                    },
+                    children: _buildTableRowsList(),
                   ),
                 ),
-              );
-            }),
-          ),
-        ),
-        Positioned(
-          top: constraints.maxHeight * 0.290,
-          left: constraints.maxWidth * 0.03,
-          right: constraints.maxWidth * 0.03,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Table(
-              columnWidths: {
-                for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
-                  ),
-              },
-              children: _buildTableRowsList(),
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -401,11 +417,14 @@ class _MunicipalScreenState extends State<MunicipalScreen>
               vertical: 10.0,
               horizontal: 5.0,
             ),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                row[header] ?? '',
+                style: cellStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }).toList(),

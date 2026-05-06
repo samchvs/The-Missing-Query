@@ -22,6 +22,14 @@ class _TutorialScreenState extends State<TutorialScreen>
   Timer? _hintTimer;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage(AppAssets.tutorialScreen), context);
+    precacheImage(const AssetImage(AppAssets.tutorial2Screen), context);
+    precacheImage(const AssetImage(AppAssets.meetBtn), context);
+  }
+
+  @override
   void initState() {
     super.initState();
     _hintController = AnimationController(
@@ -59,136 +67,150 @@ class _TutorialScreenState extends State<TutorialScreen>
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.fill,
-          child: SizedBox(
-            width: 800,
-            height: 360,
-            child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(
-              AppAssets.tutorialScreen,
-              fit: BoxFit.fill,
-              gaplessPlayback: true,
-            ),
-            Positioned(
-              left: 20,
-              top: 20,
-              child: Row(
-                children: [
-                  BouncingButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Image.asset(AppAssets.backBtn, width: 50),
-                  ),
-                  const SizedBox(width: 15),
-                  BouncingButton(
-                    onPressed: () => TutorialMusicController.goHome(context),
-                    child: Image.asset(AppAssets.homeBtn, width: 50),
-                  ),
-                ],
-              ),
-            ),
-            Align(
-              alignment: const Alignment(0.0, 0.1),
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: SizedBox(
+              width: 800,
+              height: 360,
               child: Stack(
-                alignment: Alignment.center,
+                fit: StackFit.expand,
                 children: [
-                  Image.asset(AppAssets.tutorialDisplay, width: 600),
+                  Image.asset(
+                    AppAssets.tutorialScreen,
+                    fit: BoxFit.fill,
+                    gaplessPlayback: true,
+                  ),
                   Positioned(
-                    top: 35,
-                    left: 0,
-                    right: 0,
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 1500),
-                      builder: (context, opacity, child) {
-                        return Opacity(opacity: opacity, child: child);
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'HEY THERE, DETECTIVE!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF542E2E),
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                    left: 20,
+                    top: 20,
+                    child: Row(
+                      children: [
+                        BouncingButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Image.asset(AppAssets.backBtn, width: 50),
+                        ),
+                        const SizedBox(width: 15),
+                        BouncingButton(
+                          onPressed: () =>
+                              TutorialMusicController.goHome(context),
+                          child: Image.asset(AppAssets.homeBtn, width: 50),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: const Alignment(0.0, 0.1),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(AppAssets.tutorialDisplay, width: 600),
+                        Positioned(
+                          top: 35,
+                          left: 0,
+                          right: 0,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 1500),
+                            builder: (context, opacity, child) {
+                              return Opacity(opacity: opacity, child: child);
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'HEY THERE, DETECTIVE!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Color(0xFF542E2E),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40.0,
+                                  ),
+                                  child: TypewriterText(
+                                    text:
+                                        'Welcome to your first investigation.\n'
+                                        'A case has just come in, and we need your help to solve it.\n'
+                                        "Don't worry! you won't be doing this alone.......",
+                                    style: GoogleFonts.londrinaSolid(
+                                      color: const Color(0xFF542E2E),
+                                      fontSize: 22,
+                                    ),
+                                    duration: const Duration(seconds: 7),
+                                    playAudio: true,
+                                    onFinished: () {
+                                      setState(() => _showMeetButton = true);
+                                      _startHintTimer();
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 5),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                            child: TypewriterText(
-                              text:
-                                  'Welcome to your first investigation.\n'
-                                  'A case has just come in, and we need your help to solve it.\n'
-                                  "Don't worry! you won't be doing this alone.......",
-                              style: GoogleFonts.londrinaSolid(
-                                color: const Color(0xFF542E2E),
-                                fontSize: 22,
-                              ),
-                              duration: const Duration(seconds: 7),
-                              playAudio: true,
-                              onFinished: () {
-                                setState(() => _showMeetButton = true);
-                                _startHintTimer();
-                              },
-                            ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_showMeetButton)
+                    Align(
+                      alignment: const Alignment(0.0, 0.85),
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 1000),
+                        builder: (context, opacity, child) {
+                          return Opacity(opacity: opacity, child: child);
+                        },
+                        child: AnimatedBuilder(
+                          animation: _hintController,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, -10 * _hintController.value),
+                              child: child,
+                            );
+                          },
+                          child: BouncingButton(
+                            onPressed: () {
+                              _hintController.stop();
+                              _hintTimer?.cancel();
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  transitionDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
+                                  pageBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                      ) => const Tutorial2Screen(),
+                                  transitionsBuilder:
+                                      (
+                                        context,
+                                        animation,
+                                        secondaryAnimation,
+                                        child,
+                                      ) => FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Image.asset(AppAssets.meetBtn, width: 170),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
-            if (_showMeetButton)
-              Align(
-                alignment: const Alignment(0.0, 0.85),
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 1000),
-                  builder: (context, opacity, child) {
-                    return Opacity(opacity: opacity, child: child);
-                  },
-                  child: AnimatedBuilder(
-                    animation: _hintController,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, -10 * _hintController.value),
-                        child: child,
-                      );
-                    },
-                    child: BouncingButton(
-                      onPressed: () {
-                        _hintController.stop();
-                        _hintTimer?.cancel();
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: Duration.zero,
-                            reverseTransitionDuration: Duration.zero,
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    const Tutorial2Screen(),
-                            transitionsBuilder:
-                                (context, animation, secondaryAnimation, child) =>
-                                    child,
-                          ),
-                        );
-                      },
-                      child: Image.asset(AppAssets.meetBtn, width: 170),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
           ),
         ),
-      ),
       ),
     );
   }

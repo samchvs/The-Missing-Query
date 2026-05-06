@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
-import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
 import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class BackAlleyScreen extends StatefulWidget {
@@ -31,7 +31,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   bool get _hasLives => hasLives;
 
-  late final SqlSyntaxController _sqlController;
+  late final MysterySqlController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -174,7 +174,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       timeColumns: const {'scheduled_time'},
     );
 
-    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+    _sqlController = MysterySqlController(sqlEngine: _sqlEngine);
 
     _filteredSecurityMaps = List.from(_allSecurityMaps);
     _visibleHeaders = List.from(_headers);
@@ -714,37 +714,53 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
           top: constraints.maxHeight * 0.210,
           left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: Text(
-                    _visibleHeaders[index],
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
+          bottom: constraints.maxHeight * 0.05,
+          child: Column(
+            children: [
+              Table(
+                columnWidths: {
+                  for (int i = 0; i < _visibleHeaders.length; i++)
+                    i: FlexColumnWidth(
+                      _flexForHeader(_visibleHeaders[i]).toDouble(),
+                    ),
+                },
+                children: [
+                  TableRow(
+                    children: _visibleHeaders.map((header) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6.0,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            header,
+                            style: headerStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Table(
+                    columnWidths: {
+                      for (int i = 0; i < _visibleHeaders.length; i++)
+                        i: FlexColumnWidth(
+                          _flexForHeader(_visibleHeaders[i]).toDouble(),
+                        ),
+                    },
+                    children: _buildTableRowsList(),
                   ),
                 ),
-              );
-            }),
-          ),
-        ),
-        Positioned(
-          top: constraints.maxHeight * 0.285,
-          left: constraints.maxWidth * 0.03,
-          right: constraints.maxWidth * 0.03,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Table(
-              columnWidths: {
-                for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
-                  ),
-              },
-              children: _buildTableRowsList(),
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -790,10 +806,14 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         children: _visibleHeaders.map((header) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                row[header] ?? '',
+                style: cellStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }).toList(),

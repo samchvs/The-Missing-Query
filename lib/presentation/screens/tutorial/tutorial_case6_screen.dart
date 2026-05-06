@@ -44,7 +44,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   late AnimationController _exitController;
   late Animation<double> _exitAnimation;
 
-  // Query Panel States
   bool _isQueryClicked = false;
   bool _isHintDismissed = false;
   bool _isTableShown = false;
@@ -54,10 +53,10 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   bool _isTutorialGuidePopShown = false;
   bool _isGuideAnswered = false;
   bool _hasClickedHint = false;
+  bool _hasSeenTutorialGuidePop = false;
   String? _errorMessage;
   Timer? _errorTimer;
 
-  // Typewriter logic
   String _typedText = "";
   final String _fullText =
       "Beanie walks over to the cafeteria counter. A guide question appears over the server's tablet.";
@@ -66,6 +65,15 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   late SQLSyntaxController _queryController;
   late TextEditingController _guideAnswerController;
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase6Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase8Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
 
   @override
   void initState() {
@@ -91,7 +99,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
             setState(() {
               _isWalking = false;
             });
-            // Delay the pop-up by 2 seconds
             Future.delayed(const Duration(seconds: 2), () {
               if (mounted) {
                 setState(() {
@@ -161,12 +168,12 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
           Navigator.push(
             context,
             PageRouteBuilder(
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
+              transitionDuration: const Duration(milliseconds: 300),
               pageBuilder: (context, animation, secondaryAnimation) =>
                   const TutorialCase8Screen(),
               transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) => child,
+                  (context, animation, secondaryAnimation, child) =>
+                      FadeTransition(opacity: animation, child: child),
             ),
           ).then((_) {
             if (mounted) {
@@ -296,7 +303,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
   void _validateGuideAnswer() {
     final entry = _guideAnswerController.text.trim();
 
-    // Check if the answer matches "SCAN-98" strictly
     if (entry != "SCAN-98") {
       _errorTimer?.cancel();
       setState(() {
@@ -306,12 +312,10 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
         if (mounted) setState(() => _errorMessage = null);
       });
     } else {
-      // Correct entry logic
       _errorTimer?.cancel();
       setState(() {
         _errorMessage = "Valid entry";
       });
-      // Show success message briefly before closing
       _errorTimer = Timer(const Duration(milliseconds: 1500), () {
         if (mounted) {
           setState(() {
@@ -348,11 +352,9 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                     final double exitVal = _exitAnimation.value * canvasWidth;
                     return Positioned(
                       left: moveVal + exitVal,
-                      bottom: (_isWalking || _isExiting)
-                          ? 12
-                          : -30, // Worried is lower than walking
+                      bottom: (_isWalking || _isExiting) ? 12 : -30,
                       child: Container(
-                        width: 220, // Match the width of Worried Beanie
+                        width: 220,
                         alignment: Alignment.center,
                         child: Stack(
                           alignment: Alignment.bottomCenter,
@@ -378,7 +380,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                     !_isDisplayShown &&
                     !_isSuccessLogShown)
                   Positioned(
-                    bottom: 20, // Moved down from 40
+                    bottom: 20,
                     right: 40,
                     child: AnimatedBuilder(
                       animation: _shakeAnimation,
@@ -393,7 +395,6 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                           if (!_isExiting) {
                             setState(() {
                               _isExiting = true;
-                              // Hide other UI elements if needed
                             });
                             _exitController.forward();
                           }
@@ -406,12 +407,10 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                       ),
                     ),
                   ),
-
-                // 4. Main Activity Query Button (Positioned at -120 for reliable hit-testing)
                 if (_wasDisplayClosed)
                   Positioned(
                     right: 20,
-                    top: 60, // Fixed canvas top (360/2 - 120)
+                    top: 60,
                     child: AbsorbPointer(
                       absorbing: !_hasClickedHint,
                       child: Opacity(
@@ -420,8 +419,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                           onPressed: () {
                             setState(() => _isQueryClicked = true);
                             SFXController().playPopup();
-                            _fadeController
-                                .forward(); // Reveals the dark overlay
+                            _fadeController.forward();
                           },
                           child: Image.asset(AppAssets.queryBtn, width: 100),
                         ),
@@ -431,13 +429,16 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
                 if (_wasDisplayClosed && !_isQueryClicked && !_isTableShown)
                   Positioned(
-                    left: 350, // Moved left from 367
-                    top: 165, // Fixed canvas top (360/2 - 15)
+                    left: 350,
+                    top: 165,
                     child: BouncingButton(
                       onPressed: () {
                         setState(() {
                           _isGuideShown = true;
-                          _isTutorialGuidePopShown = true;
+                          if (!_hasSeenTutorialGuidePop) {
+                            _isTutorialGuidePopShown = true;
+                            _hasSeenTutorialGuidePop = true;
+                          }
                           _hasClickedHint = true;
                         });
                         SFXController().playPopup();
@@ -553,13 +554,12 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                         setState(() => _isTutorialGuidePopShown = false);
                       },
                       child: Container(
-                        color:
-                            Colors.transparent, // Captures taps on "any space"
+                        color: Colors.transparent,
                         alignment: Alignment.center,
                         child: Image.asset(
                           AppAssets.tutorialGuidepop,
                           width: 380,
-                        ), // Reduced width to make it smaller
+                        ),
                       ),
                     ),
                   ),
@@ -766,7 +766,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
                 if (_isTypingDone && _isDisplayShown)
                   Positioned(
-                    bottom: 20, // Moved down from 40
+                    bottom: 20,
                     right: 40,
                     child: AnimatedBuilder(
                       animation: _shakeAnimation,

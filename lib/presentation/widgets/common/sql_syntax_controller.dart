@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
+import 'package:graphics_project/core/utils/sql_utils.dart';
 
 /// A [TextEditingController] that highlights SQL keywords and can show a ghost hint.
 class SQLSyntaxController extends TextEditingController {
@@ -10,7 +11,28 @@ class SQLSyntaxController extends TextEditingController {
     notifyListeners();
   }
 
-  SQLSyntaxController({super.text, String? hintText}) : _hintText = hintText;
+  bool _isUpdating = false;
+
+  SQLSyntaxController({super.text, String? hintText}) : _hintText = hintText {
+    addListener(_handleTextChange);
+  }
+
+  void _handleTextChange() {
+    if (_isUpdating) return;
+    final currentText = text;
+    if (currentText.isEmpty) return;
+
+    final transformed = SqlUtils.formatSql(currentText, TextRange.empty);
+    if (transformed != currentText) {
+      _isUpdating = true;
+      value = value.copyWith(
+        text: transformed,
+        selection: selection,
+        composing: value.composing,
+      );
+      _isUpdating = false;
+    }
+  }
 
   @override
   TextSpan buildTextSpan({
@@ -63,9 +85,11 @@ class SQLSyntaxController extends TextEditingController {
           color = AppColors.sqlStar;
         }
 
+        final bool isKeyword = SqlUtils.keywords.contains(upperMatch);
+
         spans.add(
           TextSpan(
-            text: matchText,
+            text: isKeyword ? upperMatch : matchText, 
             style: (style ?? const TextStyle()).copyWith(color: color),
           ),
         );

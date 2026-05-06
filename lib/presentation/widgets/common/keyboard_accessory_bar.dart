@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_colors.dart';
+import 'package:graphics_project/core/utils/sql_utils.dart';
 
 /// Custom controller that renders ghost/hint text inline with the user's input
 /// by overriding [buildTextSpan].
@@ -21,7 +22,28 @@ class _GhostTextController extends TextEditingController {
     required this.baseStyle,
     required this.ghostColor,
     String? initialText,
-  }) : super(text: initialText);
+  }) : super(text: initialText) {
+    addListener(_handleTextChange);
+  }
+
+  bool _isUpdating = false;
+
+  void _handleTextChange() {
+    if (_isUpdating) return;
+    final currentText = text;
+    if (currentText.isEmpty) return;
+
+    final transformed = SqlUtils.formatSql(currentText, TextRange.empty);
+    if (transformed != currentText) {
+      _isUpdating = true;
+      value = value.copyWith(
+        text: transformed,
+        selection: selection,
+        composing: value.composing,
+      );
+      _isUpdating = false;
+    }
+  }
 
   @override
   TextSpan buildTextSpan({
@@ -32,20 +54,21 @@ class _GhostTextController extends TextEditingController {
     final String input = text;
     final String? hintRaw = hintText;
     final TextStyle resolved = style ?? baseStyle;
+    final displayedInput = SqlUtils.formatSql(input, TextRange.empty);
 
-    if (hintRaw == null) return TextSpan(style: resolved, text: input);
+    if (hintRaw == null) return TextSpan(style: resolved, text: displayedInput);
 
     // 1. Normalize both for a flexible "on track" check
     // We collapse all whitespace to single spaces and lowercase everything.
-    String normInput = input.replaceAll(RegExp(r'\s+'), ' ');
-    String normHint = hintRaw.replaceAll(RegExp(r'\s+'), ' ');
+    String normInput = input.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    String normHint = hintRaw.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
     // If the user has typed something that doesn't match the hint (ignoring whitespace/case),
     // we stop showing the ghost hint to avoid confusion.
     // We use trimRight() on input so that a trailing space doesn't break the match
     // if the hint doesn't have a space at that exact position yet.
     if (!normHint.startsWith(normInput.trimRight())) {
-      return TextSpan(style: resolved, text: input);
+      return TextSpan(style: resolved, text: displayedInput);
     }
 
     // 2. Determine how much of the original hint to skip.
@@ -65,8 +88,8 @@ class _GhostTextController extends TextEditingController {
       } else if (charHint.trim().isEmpty) {
         // Hint has whitespace here but user hasn't typed it yet; skip it in hint
         hintIdx++;
-      } else if (charIn == charHint) {
-        // Characters match exactly; move both forward
+      } else if (charIn.toLowerCase() == charHint.toLowerCase()) {
+        // Characters match (case-insensitive); move both forward
         inputIdx++;
         hintIdx++;
       } else {
@@ -78,7 +101,7 @@ class _GhostTextController extends TextEditingController {
     // 3. The ghost text is the remainder of the hint, with newlines replaced by spaces
     // for the single-line accessory bar display.
     if (hintIdx >= hintRaw.length) {
-      return TextSpan(style: resolved, text: input);
+      return TextSpan(style: resolved, text: displayedInput);
     }
 
     final String ghost = hintRaw.substring(hintIdx).replaceAll('\n', ' ');
@@ -87,7 +110,7 @@ class _GhostTextController extends TextEditingController {
       style: resolved,
       children: [
         TextSpan(
-          text: input,
+          text: displayedInput,
           style: resolved.copyWith(color: AppColors.primary),
         ),
         TextSpan(
@@ -256,6 +279,15 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
                       // No custom ScrollController — Flutter's default
                       // cursor-following scroll keeps the cursor visible and
                       // naturally shifts the content left as the user types.
+                      onChanged: (val) {
+                        final formatted = SqlUtils.formatSql(val, TextRange.empty);
+                        if (formatted != val) {
+                          _ghostController.value = _ghostController.value.copyWith(
+                            text: formatted,
+                            selection: _ghostController.selection,
+                          );
+                        }
+                      },
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         isDense: true,

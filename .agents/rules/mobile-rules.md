@@ -151,6 +151,17 @@ lib/
   * one small screen device
   * one large screen or tablet layout
 
+## 🛠️ Edit Rules
+
+### Antigravity Precision
+- **Strict Scope Adherence:** Only modify the specific lines, functions, or files explicitly requested. 
+- **No Unsolicited Refactoring:** Do not perform global "cleanups," style adjustments, or "extra" optimizations unless explicitly directed.
+- **Minimal Diffs:** Keep changes surgical. If the task is to fix a bug in a controller, do not touch the UI or the domain layer unless it is technically impossible to complete the task otherwise.
+
+### Quality Control
+- Ensure any edits maintain the **Clean Architecture** boundaries defined above.
+- If an edit requires adding a new dependency, the agent must flag this for approval before proceeding.
+- All code edits must pass existing static analysis and linting rules.
 ---
 
 ## 📦 Asset Usage Rules
@@ -166,7 +177,16 @@ lib/
     static const String beanieWalking1 = 'assets/BeanieWalking1.png';
   }
   ```
+---
 
+## Edit Rules
+
+* **Unit tests** — cover all use cases and validators in `test/domain/`
+* **Widget tests** — cover individual screens and reusable widgets in `test/presentation/`
+* Tests must mirror the `lib/` folder structure inside `test/`
+* No test should depend on a real data source — always mock
+
+---
 ---
 
 ## 🧪 Testing Rules

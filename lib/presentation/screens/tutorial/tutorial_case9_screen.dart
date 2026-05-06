@@ -40,6 +40,15 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
       "UPDATE My_Notes\nSET details = 'SCAN-98 belongs to Broccoliandro'\nWHERE id = 1;";
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase9Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase10Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
@@ -196,7 +205,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                       ),
                     ),
 
-                    // Next Button (Appears after guidepop1 is closed)
+                    // Next Button
                     if (_showNextButton)
                       Positioned(
                         bottom: 20,
@@ -208,8 +217,9 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
+                                  transitionDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
                                   pageBuilder:
                                       (
                                         context,
@@ -222,11 +232,12 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                         animation,
                                         secondaryAnimation,
                                         child,
-                                      ) => child,
+                                      ) => FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      ),
                                 ),
-                              ).then((_) {
-                                // State is preserved when coming back from Case 10
-                              });
+                              ).then((_) {});
                             },
                             child: Image.asset(AppAssets.nextBtn, width: 80),
                           ),
@@ -352,7 +363,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                   ],
                                 ),
                               ),
-                              // Third Guide Pop (Right of notebook)
                               if (_showGuidePop3)
                                 Center(
                                   child: Transform.translate(
@@ -395,7 +405,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
             ),
           ),
 
-          // CRUD Diary Popup (Beanie's Tables)
+          // CRUD Diary Popup
           if (_isDiaryTableShown)
             Positioned.fill(
               child: Container(
@@ -545,8 +555,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                 ),
               ),
             ),
-
-          // Eighth Guide Pop (Right of CRUD Diary Table)
           if (_showGuidePop8)
             Positioned.fill(
               child: Center(
@@ -577,13 +585,11 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
               ),
             ),
 
-          // Keyboard accessory bar
           KeyboardAccessoryBar(
             controller: _queryController,
             hintText: _notebookTarget,
           ),
 
-          // Guide Pop Image (Initial)
           if (_showGuidePop9 && !_notebookOpenedOnce)
             Positioned(
               right: 30,
@@ -597,7 +603,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
               ),
             ),
 
-          // My_Notes Detail Popup
           if (_showMyNotesDetails)
             Positioned.fill(
               child: Container(
@@ -626,7 +631,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
               ),
             ),
 
-          // Guide Pop 1 (Right of My_Notes Detail)
           if (_showGuidePop1)
             Positioned.fill(
               child: Center(

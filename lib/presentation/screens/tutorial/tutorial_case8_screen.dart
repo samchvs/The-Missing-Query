@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -28,14 +28,13 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
 
   // Typewriter logic
   bool _showDialogue = false;
-  bool _isTypingFinished = false; // Track when text is fully displayed
-  bool _showGuidePop = false; // Track when to show the guide pop image
-  bool _showNotebook = false; // Track when to show the notebook layout
-  bool _notebookOpenedOnce = false; // Track if notebook was ever opened
-  bool _showGuidePop2 = false; // Track when to show the secondary guide pop
-  bool _dismissedGuidePop2 =
-      false; // Track if secondary guide pop was dismissed
-  bool _isQueryClicked = false; // Track if query terminal is shown
+  bool _isTypingFinished = false;
+  bool _showGuidePop = false;
+  bool _showNotebook = false;
+  bool _notebookOpenedOnce = false;
+  bool _showGuidePop2 = false;
+  bool _dismissedGuidePop2 = false;
+  bool _isQueryClicked = false;
   String _typedText = "";
   final String _fullText =
       "My head is spinning! I should create a personal notebook so I don't forget the clues!";
@@ -57,11 +56,20 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   bool _hasShownGuidePop8 = false;
   bool _hasShownGuidePop9 = false;
   bool _dismissedGuidePop6 = false;
-  bool _isTableUnlocked = false; // New flag for table access
-  int _currentTaskIndex = 0; // 0: CREATE, 1: INSERT
+  bool _isTableUnlocked = false;
+  int _currentTaskIndex = 0;
   Timer? _typingTimer;
   late SQLSyntaxController _queryController;
   final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase8Screen), context);
+    precacheImage(const AssetImage(AppAssets.tutorialCase7Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
 
   @override
   void initState() {
@@ -82,7 +90,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
           "CREATE TABLE My_Notes (\nid INT PRIMARY_KEY,\nclue VARCHAR(50),\ndetails VARCHAR(100)\n);", // Debug pre-fill
     );
 
-    // Listener to detect when the task is complete
     _queryController.addListener(() {
       if (_isNotebookTaskComplete) return;
 
@@ -98,7 +105,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         ' ',
       );
 
-      // Check if user has finished the query
       if (userInput == targetNormalized ||
           userInput == targetNormalized.replaceAll(';', '')) {
         setState(() {
@@ -110,12 +116,11 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
       }
     });
 
-    // Initial sequence delay
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() => _showContent = true);
         _fadeController.forward();
-        _startTyping(); // Start the typewriter effect automatically
+        _startTyping();
       }
     });
   }
@@ -139,14 +144,13 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         if (_currentTaskIndex == 0) {
           _isDiaryTableShown = true;
           _showGuidePop3 = false;
-          _isTableUnlocked = true; // Unlock table after CREATE TABLE success
+          _isTableUnlocked = true;
 
           if (!_hasShownGuidePop4) {
             _showGuidePop4 = true;
             _hasShownGuidePop4 = true;
           }
         } else {
-          // Success for Task 2
           setState(() {
             _isDiaryTableShown = true;
             if (!_hasShownGuidePop8) {
@@ -198,7 +202,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         _typingTimer?.cancel();
         if (mounted) {
           setState(() {
-            _isTypingFinished = true; // Typing is complete
+            _isTypingFinished = true;
           });
         }
       }
@@ -211,7 +215,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         if (mounted) {
           setState(() {
             _showContent = false;
-            _showGuidePop = true; // Show guide pop after dismissing dialogue
+            _showGuidePop = true;
           });
         }
       });
@@ -231,21 +235,19 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: false, // Prevent design from being pushed up
+      resizeToAvoidBottomInset: false,
       body: SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit
-              .fill, // Scales content to perfectly fit screen while preserving relative layout
+          fit: BoxFit.fill,
           child: SizedBox(
-            width: 800, // Reference width
-            height: 360, // Reference height
+            width: 800,
+            height: 360,
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Background
                 Image.asset(AppAssets.tutorialCase8Screen, fit: BoxFit.fill),
 
-                // Next Button (Positioned at bottom layer with shake hint)
+                // Next Button
                 if (_hasShownGuidePop9)
                   Positioned(
                     bottom: 20,
@@ -255,37 +257,38 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         onPressed: () {
                           Navigator.push(
                             context,
-                            PageRouteBuilder(
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const TutorialCase7Screen(),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) => child,
-                            ),
-                          ).then((_) {
-                            // State is preserved when coming back from Case 7
-                          });
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(
+                                  milliseconds: 300,
+                                ),
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const TutorialCase7Screen(),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) => FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
+                              ),
+                          ).then((_) {});
                         },
                         child: Image.asset(AppAssets.nextBtn, width: 100),
                       ),
                     ),
                   ),
 
-                // Guide Pop Image (Right side upper part)
                 if (_showGuidePop && !_notebookOpenedOnce)
                   Positioned(
                     right: 30,
                     top: 80,
                     child: Image.asset(
                       AppAssets.tutorialCase8GuidePop,
-                      width: 300, // Reasonable size for a guide pop
+                      width: 300,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -311,23 +314,17 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     ],
                   ),
                 ),
-
-                // Notebook Icon (Right Side)
                 Positioned(top: 25, right: 260, child: _buildNotebookButton()),
 
-                // Delayed Content (Overlay + Chat Icon)
                 if (_showContent)
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: GestureDetector(
-                      onTap: _dismissOverlay, // Detect screen tap to dismiss
+                      onTap: _dismissOverlay,
                       behavior: HitTestBehavior.opaque,
                       child: Stack(
                         children: [
-                          // Dark Overlay
                           Container(color: Colors.black.withValues(alpha: 0.7)),
-
-                          // Spinning Beanie Animation
                           Positioned(
                             right: 180,
                             bottom: 10,
@@ -340,32 +337,28 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                               offset: const Offset(-90, -80),
                               child: BouncingButton(
                                 onPressed: () {
-                                  // If finished, clicking the icon also dismisses
                                   if (_isTypingFinished) _dismissOverlay();
                                 },
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                    // The icon background
                                     Image.asset(
                                       AppAssets.chatIcon,
-                                      width: 250, // Reduced from 350
+                                      width: 250,
                                       fit: BoxFit.fill,
                                     ),
-                                    // The text on top of the icon
                                     if (_showDialogue)
                                       Padding(
                                         padding: const EdgeInsets.only(
                                           bottom: 35,
-                                        ), // Increased to move text up further
+                                        ),
                                         child: SizedBox(
-                                          width:
-                                              200, // Reduced to fit inside 250px bubble
+                                          width: 200,
                                           child: Text(
                                             _typedText,
                                             textAlign: TextAlign.center,
                                             style: GoogleFonts.londrinaSolid(
-                                              fontSize: 17, // Reduced from 26
+                                              fontSize: 17,
                                               color: const Color(0xFF4A2C2A),
                                               height: 1.1,
                                             ),
@@ -382,7 +375,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     ),
                   ),
 
-                // SQL Terminal (Table Layout as requested)
+                // SQL Terminal
                 if (_isQueryClicked)
                   Positioned.fill(
                     child: Stack(
@@ -395,13 +388,9 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         ),
                         QueryTerminal(
                           controller: _queryController,
-                          onRun: () {
-                            // Logic for running query
-                          },
+                          onRun: () {},
                           onClear: () => _queryController.clear(),
-                          onShowTables: () {
-                            // Logic for showing tables
-                          },
+                          onShowTables: () {},
                           onClose: () =>
                               setState(() => _isQueryClicked = false),
                         ),
@@ -409,7 +398,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                     ),
                   ),
 
-                // Notebook Layout Overlay
+                // Notebook Layout
                 if (_showNotebook && !_isDiaryTableShown)
                   Positioned.fill(
                     child: Builder(
@@ -433,7 +422,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                   offset: Offset(
                                     -80,
                                     isKeyboardOpen ? -85.0 : 0.0,
-                                  ), // Reduced lift from -110 to -70
+                                  ),
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
@@ -444,8 +433,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           fit: BoxFit.fill,
                                         ),
                                       ),
-                                      // Text Area (TextField + Ghost Hint)
-                                      // Text Area (Live SQL TextField with integrated Ghost Hint)
                                       Positioned(
                                         top: 65,
                                         left: 55,
@@ -467,7 +454,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           ),
                                         ),
                                       ),
-                                      // Close Button (Upper Right of Notebook)
+                                      // Close Button
                                       Positioned(
                                         top: 20,
                                         right: 30,
@@ -543,7 +530,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                   ),
                                 ),
                               ),
-                              // Secondary Guide Pop (Right of notebook)
                               if (_showGuidePop2)
                                 Center(
                                   child: Transform.translate(
@@ -577,7 +563,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     ),
                                   ),
                                 ),
-                              // Third Guide Pop (Right of notebook) - Shows when task is complete
                               if (_showGuidePop3)
                                 Center(
                                   child: Transform.translate(
@@ -610,7 +595,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     ),
                                   ),
                                 ),
-                              // Sixth Guide Pop (Right of notebook) - Shows during INSERT task
                               if (_showGuidePop6)
                                 Center(
                                   child: Transform.translate(
@@ -645,7 +629,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     ),
                                   ),
                                 ),
-                              // Seventh Guide Pop (Right of notebook) - Sequence after pop 6
                               if (_showGuidePop7)
                                 Center(
                                   child: Transform.translate(
@@ -684,8 +667,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       },
                     ),
                   ),
-
-                // Accessory bar for keyboard (Positioned last to be on top of all overlays)
                 KeyboardAccessoryBar(
                   controller: _queryController,
                   hintText: _currentTaskIndex == 0
@@ -693,7 +674,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       : _notebookTarget2,
                 ),
 
-                // CRUD Diary Tables Pop-up
+                // CRUD Diary
                 if (_isDiaryTableShown)
                   Positioned.fill(
                     child: Container(
@@ -703,7 +684,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                           width: 500,
                           height: 300,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFB347), // Main orange
+                            color: const Color(0xFFFFB347),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: const Color(0xFFD38312),
@@ -712,7 +693,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                           ),
                           child: Stack(
                             children: [
-                              // "CRUD DIARY" Tab
                               Positioned(
                                 top: 10,
                                 left: 15,
@@ -767,7 +747,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                   ),
                                   child: Column(
                                     children: [
-                                      // Header: BEANIE'S TABLES
                                       Container(
                                         width: double.infinity,
                                         color: const Color(0xFFFFE194),
@@ -784,7 +763,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           ),
                                         ),
                                       ),
-                                      // Columns: # and TABLE NAME
                                       Container(
                                         width: double.infinity,
                                         color: const Color(0xFFFFF1C1),
@@ -819,7 +797,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           ],
                                         ),
                                       ),
-                                      // Table Rows (Striped)
                                       Expanded(
                                         child: ListView(
                                           padding: EdgeInsets.zero,
@@ -878,8 +855,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                     ),
                   ),
-
-                // Fourth Guide Pop (Right of CRUD Diary) - Shows once when table is first created
                 if (_showGuidePop4)
                   Positioned.fill(
                     child: Center(
@@ -915,8 +890,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                     ),
                   ),
-
-                // Fifth Guide Pop (Right of CRUD Diary) - Sequence after pop 4
                 if (_showGuidePop5)
                   Positioned.fill(
                     child: Center(
@@ -938,8 +911,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                 onPressed: () {
                                   setState(() {
                                     _showGuidePop5 = false;
-                                    _showNotebook =
-                                        false; // Close notebook after dialogue
+                                    _showNotebook = false;
                                     _queryController.clear();
                                     _queryController.text =
                                         _notebookTarget2; // Debug pre-fill
@@ -960,8 +932,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                     ),
                   ),
-
-                // Device Registry Pop-up (Task 2 completion)
                 if (_showDeviceRegistry)
                   Positioned.fill(
                     child: Container(
@@ -994,8 +964,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                     ),
                   ),
-
-                // Eighth Guide Pop (Right of CRUD Diary) - Shows when task 2 is complete
                 if (_showGuidePop8)
                   Positioned.fill(
                     child: Center(
@@ -1028,8 +996,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                       ),
                     ),
                   ),
-
-                // Ninth Guide Pop (Right of Device Registry) - Shows once when registry is opened
                 if (_showGuidePop9)
                   Positioned.fill(
                     child: Center(
@@ -1076,8 +1042,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         SFXController().playPopup();
         setState(() {
           _showNotebook = true;
-          _notebookOpenedOnce =
-              true; // Permanent state change after first click
+          _notebookOpenedOnce = true;
           if (!_dismissedGuidePop2 && _currentTaskIndex == 0) {
             _showGuidePop2 = true;
           }
@@ -1088,8 +1053,6 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
       },
       child: Image.asset(AppAssets.notebookIcon, width: 40),
     );
-
-    // Only add the shake effect once the guide pop is displayed AND if not opened yet
     if (_showGuidePop && !_notebookOpenedOnce) {
       return ShakeWidget(child: button);
     }

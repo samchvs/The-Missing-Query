@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
 
 class BankScreen extends StatefulWidget {
   const BankScreen({super.key});
@@ -23,7 +24,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
   bool get _hasLives => hasLives;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final MysterySqlController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -91,6 +92,8 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       numericColumns: const {'amount'},
     );
 
+    _sqlController = MysterySqlController(sqlEngine: _sqlEngine);
+
     _filteredLedgerMaps = List.from(_allLedgerMaps);
     _visibleHeaders = List.from(_headers);
 
@@ -122,6 +125,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
+        .replaceAll(';', '')
         .toUpperCase()
         .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
@@ -408,7 +412,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -496,7 +503,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -505,7 +515,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -525,7 +538,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -534,7 +550,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -570,7 +589,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case3/transaction_ledger.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -584,39 +606,55 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.04,
-          right: constraints.maxWidth * 0.02,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Center(
-                  child: Text(
-                    _visibleHeaders[index],
-                    style: headerStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Positioned(
-          top: constraints.maxHeight * 0.290,
           left: constraints.maxWidth * 0.02,
           right: constraints.maxWidth * 0.03,
           bottom: constraints.maxHeight * 0.05,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Table(
-              columnWidths: {
-                for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
+          child: Column(
+            children: [
+              Table(
+                columnWidths: {
+                  for (int i = 0; i < _visibleHeaders.length; i++)
+                    i: FlexColumnWidth(
+                      _flexForHeader(_visibleHeaders[i]).toDouble(),
+                    ),
+                },
+                children: [
+                  TableRow(
+                    children: _visibleHeaders.map((header) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6.0,
+                          horizontal: 6.0,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            header,
+                            style: headerStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-              },
-              children: _buildTableRowsList(),
-            ),
+                ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Table(
+                    columnWidths: {
+                      for (int i = 0; i < _visibleHeaders.length; i++)
+                        i: FlexColumnWidth(
+                          _flexForHeader(_visibleHeaders[i]).toDouble(),
+                        ),
+                    },
+                    children: _buildTableRowsList(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -624,20 +662,20 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'trans_id':
-      return 3;
-    case 'recipient_name':
-      return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
-      return 4;
-    default:
-      return 3;
-  }
+    switch (header) {
+      case 'trans_id':
+        return 3;
+      case 'recipient_name':
+        return 3;
+      case 'amount':
+        return 3;
+      case 'sender_name':
+        return 3;
+      case 'source':
+        return 4;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
@@ -660,14 +698,17 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         children: _visibleHeaders.map((header) {
           return Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 5.0,
+              vertical: 12.0,
+              horizontal: 6.0,
             ),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                row[header] ?? '',
+                style: cellStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           );
         }).toList(),
@@ -679,7 +720,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case3/bank_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -760,7 +804,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -768,7 +815,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -776,7 +826,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -983,12 +1036,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -1056,6 +1113,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

@@ -45,11 +45,19 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
   late SQLSyntaxController _queryController;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context); // Background for Case 5
+    precacheImage(const AssetImage(AppAssets.tutorialCase6Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+  }
+
+  @override
   void initState() {
     super.initState();
     TutorialMusicController().play();
 
-    // Fade Animation
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -59,12 +67,9 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
       curve: Curves.easeIn,
     );
 
-    // Hint Shake Animation (Intermittent)
     _shakeController = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 1500,
-      ), // Longer duration to include pause
+      duration: const Duration(milliseconds: 1500),
     );
 
     _shakeAnimation = TweenSequence<double>([
@@ -72,7 +77,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
       TweenSequenceItem(tween: Tween(begin: 3.0, end: -3.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: -3.0, end: 3.0), weight: 10),
       TweenSequenceItem(tween: Tween(begin: 3.0, end: 0.0), weight: 5),
-      TweenSequenceItem(tween: ConstantTween(0.0), weight: 70), // Long pause
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 70),
     ]).animate(_shakeController);
 
     _shakeController.repeat();
@@ -83,7 +88,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     );
     _walkAnimation = Tween<double>(
       begin: -0.6,
-      end: 0.00, // Adjusted more to the right
+      end: 0.00,
     ).animate(CurvedAnimation(parent: _walkController, curve: Curves.easeOut));
 
     _exitController = AnimationController(
@@ -115,8 +120,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text:
-          "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';", // Debug pre-fill
+      text: "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';",
     );
   }
 
@@ -190,10 +194,8 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 1. Background
                 Image.asset(AppAssets.tutorialCase3Screen, fit: BoxFit.fill),
 
-                // 1.2 Title Image
                 Positioned(
                   top: 10,
                   left: 0,
@@ -206,7 +208,6 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   ),
                 ),
 
-                // 1.5 Beanie Animation (Walking into Worried spot)
                 AnimatedBuilder(
                   animation: Listenable.merge([
                     _walkController,
@@ -219,7 +220,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                         : _walkAnimation.value * canvasWidth;
                     return Positioned(
                       left: (canvasWidth * 0.135) + walkTranslation,
-                      top: 120.0, // Moved up from 137.0
+                      top: 120.0,
                       child: SizedBox(
                         width: 200,
                         height: 200,
@@ -241,10 +242,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                             : Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Transform.translate(
-                                  offset: const Offset(
-                                    -52.0,
-                                    -35.0,
-                                  ), // Matched stationary offset to prevent overshooting
+                                  offset: const Offset(-52.0, -35.0),
                                   child: AppAnimations.walkingBeanie(width: 70),
                                 ),
                               ),
@@ -253,7 +251,6 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   },
                 ),
 
-                // 2. Query Button and Where Display
                 Positioned(
                   right: 20,
                   top: MediaQuery.of(context).size.height / 2 - 120,
@@ -280,7 +277,6 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   ),
                 ),
 
-                // 3. Success Next Button (Moved BELOW the overlay in the stack)
                 if (_isQuerySuccessful && !_isExiting)
                   Positioned(
                     bottom: 20,
@@ -304,8 +300,9 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
+                                  transitionDuration: const Duration(
+                                    milliseconds: 300,
+                                  ),
                                   pageBuilder:
                                       (
                                         context,
@@ -318,7 +315,10 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                                         animation,
                                         secondaryAnimation,
                                         child,
-                                      ) => child,
+                                      ) => FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      ),
                                 ),
                               ).then((_) {
                                 if (mounted) {
@@ -337,7 +337,6 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                     ),
                   ),
 
-                // 4. Dark Overlay (Dimming the nextPage-btn if it's there)
                 if (_isQueryClicked || _isTableShown)
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -404,7 +403,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
                           if (_isHintDismissed)
                             Positioned(
-                              bottom: 4, // Moved down from 5
+                              bottom: 4,
                               left: 20,
                               right: 20,
                               child: Row(
@@ -429,7 +428,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                                     },
                                     child: Image.asset(
                                       AppAssets.tablesBtn,
-                                      width: 100, // Reduced from 110
+                                      width: 100,
                                     ),
                                   ),
                                   const Spacer(),
@@ -438,7 +437,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                                     child: Image.asset(
                                       AppAssets.clearBtn,
                                       width: 80,
-                                    ), // Reduced from 90
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   BouncingButton(
@@ -446,7 +445,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                                     child: Image.asset(
                                       AppAssets.runBtn,
                                       width: 110,
-                                    ), // Reduced from 120
+                                    ),
                                   ),
                                 ],
                               ),
@@ -484,7 +483,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                     ),
                   ),
 
-                // 6. Hallway / Student Accounts Logs Display
+                // 6. Hallway
                 if (_isTableShown)
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -517,7 +516,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                     ),
                   ),
 
-                // 7. Navigation (Global)
+                // 7. Navigation
                 Positioned(
                   left: 20,
                   top: 20,

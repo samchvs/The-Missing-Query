@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
+import 'package:graphics_project/core/constants/app_colors.dart';
 import 'package:graphics_project/presentation/screens/tutorial/tutorial_case3_screen.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -22,6 +23,17 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache assets for this screen and the next
+    precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context);
+    precacheImage(const AssetImage(AppAssets.nextBtn), context);
+    for (var frame in AppAssets.case2Screen) {
+      precacheImage(AssetImage(frame), context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -32,59 +44,69 @@ class _TutorialCase2ScreenState extends State<TutorialCase2Screen>
             width: 800,
             height: 360,
             child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Animated Background
-          const SpriteAnimator(
-            frames: AppAssets.case2Screen,
-            frameDuration: Duration(milliseconds: 150),
-            fit: BoxFit.fill,
-            loop: true,
-          ),
-
-          // Next Button
-          Positioned(
-            bottom: 22,
-            right: 120,
-            child: BouncingButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    transitionDuration: Duration.zero,
-                    reverseTransitionDuration: Duration.zero,
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const TutorialCase3Screen(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) =>
-                            child,
-                  ),
-                );
-              },
-              child: ShakeWidget(
-                child: Image.asset(AppAssets.nextBtn, width: 80),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            top: 20,
-            child: Row(
+              fit: StackFit.expand,
               children: [
-                BouncingButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Image.asset(AppAssets.backBtn, width: 50),
+                // Animated Background
+                const SpriteAnimator(
+                  frames: AppAssets.case2Screen,
+                  frameDuration: Duration(milliseconds: 150),
+                  fit: BoxFit.fill,
+                  loop: true,
                 ),
-                const SizedBox(width: 15),
-                BouncingButton(
-                  onPressed: () => TutorialMusicController.goHome(context),
-                  child: Image.asset(AppAssets.homeBtn, width: 50),
+
+                // Next Button
+                Positioned(
+                  bottom: 22,
+                  right: 120,
+                  child: BouncingButton(
+                    onPressed: () async {
+                      // Small delay to allow the button animation to finish and settle
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      if (!context.mounted) return;
+
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          opaque: false,
+                          transitionDuration: const Duration(milliseconds: 300),
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const TutorialCase3Screen(),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                        ),
+                      );
+                    },
+                    child: ShakeWidget(
+                      child: Image.asset(AppAssets.nextBtn, width: 80),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 20,
+                  top: 20,
+                  child: Row(
+                    children: [
+                      BouncingButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Image.asset(AppAssets.backBtn, width: 50),
+                      ),
+                      const SizedBox(width: 15),
+                      BouncingButton(
+                        onPressed: () =>
+                            TutorialMusicController.goHome(context),
+                        child: Image.asset(AppAssets.homeBtn, width: 50),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
           ),
         ),
       ),

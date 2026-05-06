@@ -265,7 +265,7 @@ class SimpleSqlEngine {
           (token.startsWith('"') && token.endsWith('"'))) {
         spans.add(TextSpan(text: token, style: stringStyle));
       } else if (keywords.contains(upper)) {
-        spans.add(TextSpan(text: token, style: keywordStyle));
+        spans.add(TextSpan(text: upper, style: keywordStyle));
       } else if (headers.contains(token.toLowerCase())) {
         spans.add(TextSpan(text: token, style: columnStyle));
       } else {
