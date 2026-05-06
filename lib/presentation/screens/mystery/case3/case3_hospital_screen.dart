@@ -99,6 +99,13 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -116,13 +123,13 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isHospitalCorrectAnswer(String input) {
@@ -130,7 +137,6 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
 
     const acceptedAnswers = {
       'BENEDICT HUANG LOYD SHAW',
-      'BENEDICT HUANG, LOYD SHAW',
       'BENEDICT HUANG AND LOYD SHAW',
       'BENEDICT HUANG LOYD SHAW TOTAL HARVEST',
       'BENEDICT HUANG TOTAL HARVEST LOYD SHAW',

@@ -100,6 +100,13 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -117,13 +124,13 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isWasteCorpCorrectAnswer(String input) {
@@ -132,7 +139,6 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
     const acceptedAnswers = {
       'T-92 SOUTH WARD',
       'T92 SOUTH WARD',
-      'T-92, SOUTH WARD',
       'TRUCK T-92 SOUTH WARD',
       'TRUCK T92 SOUTH WARD',
       'T-92 SOUTH WARD HIGH_DENSITY_ORGANIC',

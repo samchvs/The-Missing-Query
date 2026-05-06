@@ -99,6 +99,13 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -116,13 +123,13 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isBankCorrectAnswer(String input) {
@@ -130,10 +137,9 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     const acceptedAnswers = {
       'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
       'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
       '65000',
+      '65 000',
     };
 
     return acceptedAnswers.contains(normalized);

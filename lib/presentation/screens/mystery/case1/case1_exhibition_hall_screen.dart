@@ -247,6 +247,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
 
     if (_answerController.text.trim().toUpperCase() == "172.16.10.20") {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -314,6 +316,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+            if (!mounted) return;
+
 
             final auth = context.read<AuthController>();
             final userId = auth.currentUser?.id ?? 'guest';

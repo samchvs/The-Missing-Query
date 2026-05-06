@@ -276,6 +276,13 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -293,13 +300,13 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isCordovaCorrectAnswer(String input) {
@@ -308,10 +315,8 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
   const acceptedAnswers = {
     '31500',
     '31500.00',
-    '\$31500',
-    '\$31500.00',
-    '\$31,500.00',
-    '31,500.00',
+    '31 500',
+    '31 500.00',
   };
 
   return acceptedAnswers.contains(normalized);

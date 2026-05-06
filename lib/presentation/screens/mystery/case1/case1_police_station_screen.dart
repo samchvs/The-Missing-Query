@@ -112,6 +112,8 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
 
     if (_isPoliceCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -150,6 +152,8 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+            if (!mounted) return;
+
 
               final auth = context.read<AuthController>();
               final userId = auth.currentUser?.id ?? 'guest';

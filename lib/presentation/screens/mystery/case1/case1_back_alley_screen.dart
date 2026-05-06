@@ -265,6 +265,8 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
     if (_isBackAlleyCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -332,6 +334,8 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+            if (!mounted) return;
+
 
             final auth = context.read<AuthController>();
             final userId = auth.currentUser?.id ?? 'guest';

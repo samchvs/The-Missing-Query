@@ -250,6 +250,13 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -267,13 +274,13 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isCityPoliceCorrectAnswer(String input) {
@@ -281,9 +288,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
 
     const acceptedAnswers = {
       'ARON HUANG MARK LOWE JOSE DE LEON',
-      'ARON HUANG, MARK LOWE, JOSE DE LEON',
       'ARON HUANG MARK LOWE AND JOSE DE LEON',
-      'ARON HUANG, MARK LOWE, AND JOSE DE LEON',
       'MASTERMINDS ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
       'MASTERMIND ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
     };

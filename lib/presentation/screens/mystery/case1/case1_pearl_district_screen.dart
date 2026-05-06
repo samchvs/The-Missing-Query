@@ -165,6 +165,8 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
 
     if (_isPearlCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -235,6 +237,8 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+            if (!mounted) return;
+
 
               final auth = context.read<AuthController>();
               final userId = auth.currentUser?.id ?? 'guest';

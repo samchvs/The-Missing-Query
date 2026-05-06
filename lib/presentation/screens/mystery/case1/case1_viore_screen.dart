@@ -169,6 +169,8 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
 
     if (_isVioreCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -236,6 +238,8 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
+            if (!mounted) return;
+
 
             final auth = context.read<AuthController>();
             final userId = auth.currentUser?.id ?? 'guest';
@@ -493,7 +497,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/viore_logs.png', fit: BoxFit.fill),
+          child: Image.asset('assets/mystery/intelligence.png', fit: BoxFit.fill),
         ),
         Positioned(
           top: 10,
@@ -505,19 +509,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             child: Image.asset('assets/mystery/close_button.png', height: 25),
           ),
         ),
-        Positioned(
-          top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.03,
-          right: constraints.maxWidth * 0.01,
-          child: Row(
-            children: List.generate(_visibleHeaders.length, (index) {
-              return Expanded(
-                flex: _flexForHeader(_visibleHeaders[index]),
-                child: Text(_visibleHeaders[index], style: headerStyle),
-              );
-            }),
-          ),
-        ),
+
         Positioned(
           top: constraints.maxHeight * 0.290,
           left: constraints.maxWidth * 0.02,
@@ -528,9 +520,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             child: Table(
               columnWidths: {
                 for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(
-                    _flexForHeader(_visibleHeaders[i]).toDouble(),
-                  ),
+                  i: FlexColumnWidth(_getFlexValue(_visibleHeaders[i])),
               },
               children: _buildTableRowsList(),
             ),
@@ -540,20 +530,21 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     );
   }
 
-  int _flexForHeader(String header) {
+
+  double _getFlexValue(String header) {
     switch (header) {
       case 'company_name':
-        return 4;
+        return 5.0;
       case 'public_ip_range':
-        return 4;
+        return 4.5;
       case 'unique_software':
-        return 4;
+        return 4.5;
       case 'license_status':
-        return 3;
+        return 4.0;
       case 'asset_value':
-        return 3;
+        return 3.5;
       default:
-        return 3;
+        return 3.0;
     }
   }
 
@@ -580,7 +571,11 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
               vertical: 12.0,
               horizontal: 6.0,
             ),
-            child: Text(row[header] ?? '', style: cellStyle),
+            child: Text(
+              row[header] ?? '',
+              style: cellStyle,
+              textAlign: TextAlign.center,
+            ),
           );
         }).toList(),
       );

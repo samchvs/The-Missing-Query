@@ -97,6 +97,13 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
+      final text = _answerController.text;
+      if (text != text.toUpperCase()) {
+        _answerController.value = _answerController.value.copyWith(
+          text: text.toUpperCase(),
+          selection: _answerController.selection,
+        );
+      }
       if (mounted) setState(() {});
     });
   }
@@ -114,13 +121,13 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
     return value
         .trim()
         .toUpperCase()
+        .replaceAll(RegExp(r'\s*,\s*'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .replaceAll(', AND ', ', ')
         .replaceAll(' AND ', ', ')
         .replaceAll('PHP', '')
-        .replaceAll('â‚±', '')
-        .replaceAll('\$', '')
-        .replaceAll(',', '');
+        .replaceAll('₱', '')
+        .replaceAll(r'$', '');
   }
 
   bool _isHuangCorrectAnswer(String input) {
@@ -129,12 +136,10 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
   const acceptedAnswers = {
     '150000 HARVESTED',
     '150000.00 HARVESTED',
-    '\$150000 HARVESTED',
-    '\$150000.00 HARVESTED',
-    '\$150,000 HARVESTED',
-    '\$150,000.00 HARVESTED',
+    '150 000 HARVESTED',
+    '150 000.00 HARVESTED',
     'LOYD SHAW 150000 HARVESTED',
-    'LOYD SHAW \$150,000 HARVESTED',
+    'LOYD SHAW 150 000 HARVESTED',
   };
 
   return acceptedAnswers.contains(normalized);

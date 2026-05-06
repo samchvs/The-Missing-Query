@@ -162,6 +162,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
 
     if (_isLoupeCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+      if (!mounted) return;
+
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -231,6 +233,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+            if (!mounted) return;
+
 
               final auth = context.read<AuthController>();
               final userId = auth.currentUser?.id ?? 'guest';
