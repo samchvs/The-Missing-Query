@@ -811,7 +811,11 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
               vertical: 12.0,
               horizontal: 6.0,
             ),
-            child: Text(row[header] ?? '', style: cellStyle),
+            child: Text(
+              row[header] ?? '',
+              style: cellStyle,
+              textAlign: TextAlign.center,
+            ),
           );
         }).toList(),
       );
