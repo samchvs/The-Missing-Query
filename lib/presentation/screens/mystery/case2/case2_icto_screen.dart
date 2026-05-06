@@ -108,9 +108,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
     _sqlController.addListener(() {
       if (mounted) setState(() {});
     });
-
     _answerController.addListener(() {
-      if (!mounted) return;
       final text = _answerController.text;
       if (text != text.toUpperCase()) {
         _answerController.value = _answerController.value.copyWith(
@@ -118,8 +116,9 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
           selection: _answerController.selection,
         );
       }
-      setState(() {});
+      if (mounted) setState(() {});
     });
+
 
     _checkIfSolved();
   }
@@ -792,47 +791,43 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Consolas',
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        textCapitalization: TextCapitalization.characters,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          if (value != value.toUpperCase()) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: value.toUpperCase(),
-                              selection: _sqlController.selection,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _sqlController.value = _sqlController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _sqlController.selection,
+                        );
+                      }
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -881,9 +876,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
+  
 
   Widget _buildOverlayIcon(
     String asset,

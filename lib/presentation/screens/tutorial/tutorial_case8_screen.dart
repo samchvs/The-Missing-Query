@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -86,8 +86,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _notebookTarget,
-      text:
-          "CREATE TABLE My_Notes (\nid INT PRIMARY_KEY,\nclue VARCHAR(50),\ndetails VARCHAR(100)\n);", // Debug pre-fill
+      //text: "CREATE TABLE My_Notes (\nid INT PRIMARY_KEY,\nclue VARCHAR(50),\ndetails VARCHAR(100)\n);", // Debug pre-fill
     );
 
     _queryController.addListener(() {
@@ -913,8 +912,8 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                     _showGuidePop5 = false;
                                     _showNotebook = false;
                                     _queryController.clear();
-                                    _queryController.text =
-                                        _notebookTarget2; // Debug pre-fill
+                                    /*_queryController.text =
+                                        _notebookTarget2; // Debug pre-fill */
                                     _queryController.hintText =
                                         _notebookTarget2;
                                     _isNotebookTaskComplete = false;

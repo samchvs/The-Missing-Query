@@ -105,9 +105,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
     _sqlController.addListener(() {
       if (mounted) setState(() {});
     });
-
     _answerController.addListener(() {
-      if (!mounted) return;
       final text = _answerController.text;
       if (text != text.toUpperCase()) {
         _answerController.value = _answerController.value.copyWith(
@@ -115,8 +113,9 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
           selection: _answerController.selection,
         );
       }
-      setState(() {});
+      if (mounted) setState(() {});
     });
+
 
     _checkIfSolved();
   }
@@ -153,7 +152,8 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
   bool _isItCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    return normalized == 'MORRIS_J, 508, 510' || normalized == 'MORRIES_J, 508, 510';
+    return normalized == 'MORRIS_J, 508, 510' ||
+        normalized == 'MORRIES_J, 508, 510';
   }
 
   void _submitAnswer() async {
@@ -298,7 +298,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/Case2/it_loc.png', fit: BoxFit.fill),
+                child: Image.asset(
+                  'assets/mystery/Case2/it_loc.png',
+                  fit: BoxFit.fill,
+                ),
               ),
               SafeArea(
                 child: Padding(
@@ -454,7 +457,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -493,10 +499,11 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                     ),
                     onChanged: (value) {
                       if (value != value.toUpperCase()) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: value.toUpperCase(),
-                          selection: _answerController.selection,
-                        );
+                        _answerController.value = _answerController.value
+                            .copyWith(
+                              text: value.toUpperCase(),
+                              selection: _answerController.selection,
+                            );
                       }
                     },
                     decoration: InputDecoration(
@@ -551,7 +558,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -560,7 +570,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -580,7 +593,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -589,7 +605,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -625,7 +644,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case2/audit.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case2/audit.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -751,7 +773,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case2/it_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case2/it_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -780,47 +805,43 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Consolas',
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        textCapitalization: TextCapitalization.characters,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          if (value != value.toUpperCase()) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: value.toUpperCase(),
-                              selection: _sqlController.selection,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _sqlController.value = _sqlController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _sqlController.selection,
+                        );
+                      }
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -842,7 +863,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -850,7 +874,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -858,7 +885,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -869,9 +899,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
+  
 
   Widget _buildOverlayIcon(
     String asset,
@@ -1065,12 +1093,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),

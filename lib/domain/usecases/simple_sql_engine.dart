@@ -23,7 +23,11 @@ class SimpleSqlEngine {
   });
 
   SqlQueryResult execute(String rawQuery) {
-    final cleanQuery = rawQuery.trim().replaceAll(';', '');
+    // Normalize query: remove semicolon, replace newlines/tabs with spaces
+    final cleanQuery = rawQuery
+        .trim()
+        .replaceAll(';', '')
+        .replaceAll(RegExp(r'[\n\r\t]+'), ' ');
     final upper = cleanQuery.toUpperCase();
 
     if (!upper.startsWith('SELECT ')) {
@@ -66,23 +70,53 @@ class SimpleSqlEngine {
         .trim()
         .toLowerCase();
     if (parsedTableName != tableName.toLowerCase()) {
-      throw Exception('Unknown table.');
+      debugPrint(
+        'SQL Engine: Expected table "${tableName.toLowerCase()}", but got "$parsedTableName"',
+      );
+      throw Exception('Unknown table: $parsedTableName');
     }
 
-    final isCountAll = RegExp(
+    bool isCountAll = RegExp(
       r'^COUNT\s*\(\s*\*\s*\)$',
       caseSensitive: false,
     ).hasMatch(selectPart);
 
+    String? sumColumn;
+    String? sumAlias;
+    final sumMatch = RegExp(
+      r'^SUM\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)(\s+AS\s+([a-zA-Z_][a-zA-Z0-9_]*))?$',
+      caseSensitive: false,
+    ).firstMatch(selectPart);
+
+    if (sumMatch != null) {
+      sumColumn = sumMatch.group(1)!.toLowerCase();
+      sumAlias = sumMatch.group(3) ?? 'sum(${sumMatch.group(1)})';
+      if (!headers.contains(sumColumn)) {
+        throw Exception('Unknown column for SUM: $sumColumn');
+      }
+    }
+
     List<String> selectedColumns;
     if (isCountAll) {
       selectedColumns = const ['count'];
+    } else if (sumColumn != null) {
+      selectedColumns = [sumAlias!];
     } else if (selectPart == '*') {
       selectedColumns = List.from(headers);
     } else {
       selectedColumns = selectPart
           .split(',')
-          .map((e) => e.trim().toLowerCase())
+          .map((e) {
+            final part = e.trim();
+            final asMatch = RegExp(
+              r'\s+AS\s+',
+              caseSensitive: false,
+            ).firstMatch(part);
+            if (asMatch != null) {
+              return part.substring(0, asMatch.start).trim().toLowerCase();
+            }
+            return part.toLowerCase();
+          })
           .where((e) => e.isNotEmpty)
           .toList();
 
@@ -140,14 +174,24 @@ class SimpleSqlEngine {
       limit = int.tryParse(limitText.split(RegExp(r'\s+')).first);
     }
 
+    debugPrint('SQL Engine: selectPart: "$selectPart"');
+    debugPrint('SQL Engine: whereClause: "$whereClause"');
+
     List<Map<String, String>> filteredRows = List.from(rows);
 
     if (whereClause != null && whereClause.isNotEmpty) {
       final clause = whereClause;
-      filteredRows = filteredRows
-          .where((row) => _evaluateWhereClause(row, clause))
-          .toList();
+      filteredRows = filteredRows.where((row) {
+        final result = _evaluateWhereClause(row, clause);
+        if (result) {
+          debugPrint(
+            'SQL Engine: Row PASSED: ${row.values.take(2).join(", ")}...',
+          );
+        }
+        return result;
+      }).toList();
     }
+    debugPrint('SQL Engine: Total filtered rows: ${filteredRows.length}');
 
     if (isCountAll) {
       return SqlQueryResult(
@@ -155,6 +199,22 @@ class SimpleSqlEngine {
           {'count': filteredRows.length.toString()},
         ],
         columns: const ['count'],
+      );
+    }
+
+    if (sumColumn != null) {
+      double total = 0;
+      for (final row in filteredRows) {
+        final val = _numericValueIfPossible(row[sumColumn] ?? '0');
+        if (val != null) {
+          total += val;
+        }
+      }
+      return SqlQueryResult(
+        rows: [
+          {sumAlias!: total.toStringAsFixed(total == total.toInt() ? 0 : 2)},
+        ],
+        columns: [sumAlias!],
       );
     }
 
@@ -189,7 +249,11 @@ class SimpleSqlEngine {
     return SqlQueryResult(rows: filteredRows, columns: selectedColumns);
   }
 
-  TextSpan buildHighlightedSqlText(String text, {bool isHint = false, TextStyle? baseStyle}) {
+  TextSpan buildHighlightedSqlText(
+    String text, {
+    bool isHint = false,
+    TextStyle? baseStyle,
+  }) {
     if (isHint) {
       return TextSpan(
         text: 'ENTER SQL QUERY...',
@@ -254,6 +318,8 @@ class SimpleSqlEngine {
       'IN',
       'BETWEEN',
       'COUNT',
+      'SUM',
+      'AS',
     };
 
     final spans = <TextSpan>[];
@@ -277,34 +343,89 @@ class SimpleSqlEngine {
   }
 
   bool _evaluateWhereClause(Map<String, String> row, String clause) {
-    // 1. Handle OR parts
-    final orParts = clause.split(RegExp(r'\s+OR\s+', caseSensitive: false));
+    debugPrint('SQL Engine: Evaluating WHERE: "$clause"');
+    String processedClause = clause.trim();
+
+    // Basic support for one level of parentheses
+    final parenRegex = RegExp(r'\(([^()]+)\)');
+    while (parenRegex.hasMatch(processedClause)) {
+      final match = parenRegex.firstMatch(processedClause)!;
+      final inner = match.group(1)!;
+
+      // If it starts with SELECT, it's a subquery, don't evaluate it here
+      if (inner.trim().toUpperCase().startsWith('SELECT ')) {
+        break; // Stop processing these parentheses as logical ones
+      }
+
+      processedClause = processedClause.replaceFirstMapped(parenRegex, (match) {
+        final inner = match.group(1)!;
+        return _evaluateWhereClause(row, inner) ? 'TRUE' : 'FALSE';
+      });
+    }
+
+    // Temporary placeholders for IN lists
+    final inLists = <String>[];
+    String protectedClause = processedClause;
+    final inRegex = RegExp(r'\bIN\s*\(([^()]+)\)', caseSensitive: false);
+
+    int listCounter = 0;
+    while (inRegex.hasMatch(protectedClause)) {
+      final match = inRegex.firstMatch(protectedClause)!;
+      final fullIn = match.group(0)!;
+      final placeholder = '___IN_LIST_${listCounter}___';
+      inLists.add(fullIn);
+      protectedClause = protectedClause.replaceFirst(fullIn, placeholder);
+      listCounter++;
+    }
+
+    // Handle OR parts
+    final orParts = protectedClause.split(
+      RegExp(r'\s+OR\s+', caseSensitive: false),
+    );
 
     for (final orPart in orParts) {
-      // 2. We need to split by AND, but NOT the 'AND' inside a BETWEEN clause.
-      // Example: "location_tag = 'X' AND time BETWEEN '1' AND '2'"
-      
-      // Temporary placeholder for 'AND' inside 'BETWEEN'
+      if (orPart.trim().toUpperCase() == 'TRUE') return true;
+      if (orPart.trim().toUpperCase() == 'FALSE') continue;
+
+      // Handle AND
       String processedOrPart = orPart;
       final betweenMatches = RegExp(
         r"""\bBETWEEN\b\s+['"]?([^'"]+)['"]?\s+\bAND\b\s+['"]?([^'"]+)['"]?""",
         caseSensitive: false,
       ).allMatches(orPart);
 
-      // We replace the 'AND' within each BETWEEN match with a placeholder
       for (final match in betweenMatches) {
         final fullMatch = match.group(0)!;
-        final protectedMatch = fullMatch.replaceFirst(RegExp(r'\bAND\b', caseSensitive: false), '___BETWEEN_AND___');
-        processedOrPart = processedOrPart.replaceFirst(fullMatch, protectedMatch);
+        final protectedMatch = fullMatch.replaceFirst(
+          RegExp(r'\bAND\b', caseSensitive: false),
+          '___BETWEEN_AND___',
+        );
+        processedOrPart = processedOrPart.replaceFirst(
+          fullMatch,
+          protectedMatch,
+        );
       }
 
-      final andParts = processedOrPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
+      final andParts = processedOrPart.split(
+        RegExp(r'\s+AND\s+', caseSensitive: false),
+      );
       bool andResult = true;
 
       for (String condition in andParts) {
-        // Restore the protected 'AND'
-        condition = condition.replaceAll('___BETWEEN_AND___', 'AND');
-        if (!_evaluateCondition(row, condition.trim())) {
+        final trimmed = condition.trim();
+        if (trimmed.toUpperCase() == 'TRUE') continue;
+        if (trimmed.toUpperCase() == 'FALSE') {
+          andResult = false;
+          break;
+        }
+
+        // Restore placeholders
+        String restored = trimmed.replaceAll('___BETWEEN_AND___', 'AND');
+        for (int i = 0; i < inLists.length; i++) {
+          restored = restored.replaceFirst('___IN_LIST_${i}___', inLists[i]);
+        }
+
+        if (!_evaluateCondition(row, restored)) {
           andResult = false;
           break;
         }
@@ -317,6 +438,7 @@ class SimpleSqlEngine {
   }
 
   bool _evaluateCondition(Map<String, String> row, String condition) {
+    debugPrint('SQL Engine: Evaluating condition: "$condition"');
     final likeMatch = RegExp(
       r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s+LIKE\s+['"]([^'"]*)['"]$""",
       caseSensitive: false,
@@ -342,9 +464,26 @@ class SimpleSqlEngine {
 
     if (inMatch != null) {
       final column = inMatch.group(1)!.toLowerCase();
-      final rawValues = inMatch.group(2)!;
+      String rawValues = inMatch.group(2)!;
 
       if (!headers.contains(column)) return false;
+
+      // Handle Subquery in IN: IN (SELECT ...)
+      if (rawValues.trim().toUpperCase().startsWith('SELECT ')) {
+        try {
+          final subResult = execute(rawValues);
+          if (subResult.columns.isEmpty) return false;
+          final firstCol = subResult.columns.first;
+          final actual = (row[column] ?? '').toUpperCase();
+          return subResult.rows.any((subRow) {
+            final val = subRow[firstCol] ?? '';
+            return actual == val.toUpperCase();
+          });
+        } catch (e) {
+          debugPrint('SQL Engine: Subquery in IN failed: $e');
+          return false;
+        }
+      }
 
       final parsedValues = _parseInList(rawValues);
       final actual = (row[column] ?? '').toUpperCase();
@@ -374,10 +513,17 @@ class SimpleSqlEngine {
       }
 
       if (timeColumns.contains(column)) {
-        final actual = row[column] ?? '';
+        final actual = _normalizeTimeValue(row[column] ?? '');
         final lower = _normalizeTimeValue(lowerRaw);
         final upper = _normalizeTimeValue(upperRaw);
-        return actual.compareTo(lower) >= 0 && actual.compareTo(upper) <= 0;
+        
+        if (lower.compareTo(upper) > 0) {
+          // Crosses midnight (e.g. 23:00 to 03:00)
+          return actual.compareTo(lower) >= 0 || actual.compareTo(upper) <= 0;
+        } else {
+          // Normal range (e.g. 03:00 to 23:00)
+          return actual.compareTo(lower) >= 0 && actual.compareTo(upper) <= 0;
+        }
       }
 
       final actual = (row[column] ?? '').toUpperCase();
@@ -386,17 +532,48 @@ class SimpleSqlEngine {
     }
 
     final eqMatch = RegExp(
-      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(=|!=|<>)\s+['"]([^'"]*)['"]$""",
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(=|!=|<>)\s*(.+)$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
     if (eqMatch != null) {
       final column = eqMatch.group(1)!.toLowerCase();
       final op = eqMatch.group(2)!;
-      final expected = eqMatch.group(3)!;
-      final actual = row[column] ?? '';
+      String rawExpected = eqMatch.group(3)!.trim();
 
       if (!headers.contains(column)) return false;
+
+      String expected;
+      // Handle Subquery in Equality: = (SELECT ...)
+      if (rawExpected.startsWith('(') &&
+          rawExpected.endsWith(')') &&
+          rawExpected
+              .substring(1, rawExpected.length - 1)
+              .trim()
+              .toUpperCase()
+              .startsWith('SELECT ')) {
+        final subQuery = rawExpected
+            .substring(1, rawExpected.length - 1)
+            .trim();
+        try {
+          final subResult = execute(subQuery);
+          if (subResult.rows.isEmpty || subResult.columns.isEmpty) return false;
+          final firstCol = subResult.columns.first;
+          expected = subResult.rows.first[firstCol] ?? '';
+        } catch (e) {
+          debugPrint('SQL Engine: Subquery in equality failed: $e');
+          return false;
+        }
+      } else {
+        // Strip quotes if present
+        expected = rawExpected;
+        if ((expected.startsWith("'") && expected.endsWith("'")) ||
+            (expected.startsWith('"') && expected.endsWith('"'))) {
+          expected = expected.substring(1, expected.length - 1);
+        }
+      }
+
+      final actual = (row[column] ?? '').trim();
 
       switch (op) {
         case '=':
@@ -408,19 +585,20 @@ class SimpleSqlEngine {
     }
 
     final compareMatch = RegExp(
-      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<)\s+['"]([^'"]*)['"]$""",
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<)\s*['"]?([^'"]*)['"]?$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
     if (compareMatch != null) {
       final column = compareMatch.group(1)!.toLowerCase();
       final op = compareMatch.group(2)!;
-      final expectedRaw = compareMatch.group(3)!;
+      final expectedRaw = compareMatch.group(3)!.trim();
+      final actualRaw = (row[column] ?? '').trim();
 
       if (!headers.contains(column)) return false;
 
       if (numericColumns.contains(column)) {
-        final actual = _numericValueIfPossible(row[column] ?? '');
+        final actual = _numericValueIfPossible(actualRaw);
         final expected = _numericValueIfPossible(expectedRaw);
 
         if (actual == null || expected == null) return false;

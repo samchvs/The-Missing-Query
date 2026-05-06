@@ -35,6 +35,29 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
     precacheImage(const AssetImage(AppAssets.tutorial3Screen), context);
     precacheImage(const AssetImage(AppAssets.tutorial3Box), context);
     precacheImage(const AssetImage(AppAssets.arrowRightBtn), context);
+    
+    // Precache Beanie frames
+    for (String frame in AppAssets.helloBeanieFrames) {
+      precacheImage(AssetImage(frame), context);
+    }
+    for (String frame in AppAssets.talkingBeanieFrames) {
+      precacheImage(AssetImage(frame), context);
+    }
+    // Precache Broccoliandro frames
+    for (String frame in AppAssets.dancingBroccoli) {
+      precacheImage(AssetImage(frame), context);
+    }
+    // Precache Tomathomas frames
+    for (String frame in AppAssets.dancingTomathomas) {
+      precacheImage(AssetImage(frame), context);
+    }
+    // Precache Carrotino frames
+    for (String frame in AppAssets.talkingCarrotinoFrames) {
+      precacheImage(AssetImage(frame), context);
+    }
+    for (String frame in AppAssets.wavingCarrotinoFrames) {
+      precacheImage(AssetImage(frame), context);
+    }
   }
 
   @override
@@ -214,7 +237,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                           right: 35,
                           bottom: 25,
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 150),
                             transitionBuilder: (child, animation) =>
                                 FadeTransition(
                                   opacity: animation,
@@ -263,7 +286,7 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
                           right: 50,
                           bottom: 40,
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 150),
                             transitionBuilder: (child, animation) =>
                                 FadeTransition(
                                   opacity: animation,

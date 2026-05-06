@@ -15,6 +15,11 @@ import 'package:graphics_project/presentation/screens/mystery/case3/case3_city_p
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 
 class FloatingBubble extends StatefulWidget {
   final Widget child;
@@ -142,7 +147,8 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
 }
 
 class CaseMap3 extends StatefulWidget {
-  const CaseMap3({super.key});
+  final bool showSolvedDialog;
+  const CaseMap3({super.key, this.showSolvedDialog = false});
 
   @override
   State<CaseMap3> createState() => _CaseMap3State();
@@ -150,6 +156,7 @@ class CaseMap3 extends StatefulWidget {
 
 class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
   final LivesController _livesController = LivesController.instance;
+  bool _isCityPoliceUnlocked = false;
 
   @override
   void initState() {
@@ -157,6 +164,33 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     initCaseHelper();
     PointsController.instance.setActiveCase('case3');
     _livesController.addListener(_refresh);
+    _checkCityPoliceStatus();
+
+    if (widget.showSolvedDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            showCaseSolvedDialog(
+              title: 'CONGRATULATIONS!',
+              message: 'Lorem Impsum Dolor Sit Amet',
+              onOkPressed: () {
+                final auth = context.read<AuthController>();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(
+                      username: auth.displayUsername,
+                      authController: auth,
+                    ),
+                  ),
+                  (route) => false,
+                );
+              },
+            );
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -168,6 +202,29 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
 
   void _refresh() {
     if (mounted) setState(() {});
+  }
+
+  Future<void> _checkCityPoliceStatus() async {
+    if (!mounted) return;
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser?.id ?? 'guest';
+    final prefs = await SharedPreferences.getInstance();
+
+    final q1 = prefs.getBool('case3_bank_solved_$userId') ?? false;
+    final q2 = prefs.getBool('case3_cell_solved_$userId') ?? false;
+    final q3 = prefs.getBool('case3_cordova_solved_$userId') ?? false;
+    final q4 = prefs.getBool('case3_hospital_solved_$userId') ?? false;
+    final q5 = prefs.getBool('case3_huang_solved_$userId') ?? false;
+    final q6 = prefs.getBool('case3_logistics_solved_$userId') ?? false;
+    final q7 = prefs.getBool('case3_lowe_solved_$userId') ?? false;
+    final q8 = prefs.getBool('case3_skyline_solved_$userId') ?? false;
+    final q9 = prefs.getBool('case3_waste_corp_solved_$userId') ?? false;
+
+    if (mounted) {
+      setState(() {
+        _isCityPoliceUnlocked = q1 && q2 && q3 && q4 && q5 && q6 && q7 && q8 && q9;
+      });
+    }
   }
 
   void _showLivesPopup(BuildContext context) {
@@ -336,6 +393,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                   context,
                   'assets/mystery/Case3/city_police.png',
                   100,
+                  isLocked: !_isCityPoliceUnlocked,
                 ),
               ),
               Positioned(
@@ -477,37 +535,80 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     );
   }
 
-  Widget _buildMapLabel(BuildContext context, String asset, double width) {
-    return FloatingBubble(
-      child: GlowingMapLabel(
-        asset: asset,
-        width: width,
-        onTap: () => onButtonTap(() {
-          if (asset.contains('bank')) {
-            Navigator.push(context, fadeRoute(const BankScreen()));
-          } else if (asset.contains('cell')) {
-            Navigator.push(context, fadeRoute(const CellScreen()));
-          } else if (asset.contains('lowe')) {
-            Navigator.push(context, fadeRoute(const LoweScreen()));
-          } else if (asset.contains('skyline')) {
-            Navigator.push(context, fadeRoute(const SkylineScreen()));
-          } else if (asset.contains('cordova')) {
-            Navigator.push(context, fadeRoute(const CordovaScreen()));
-          } else if (asset.contains('hospital')) {
-            Navigator.push(context, fadeRoute(const HospitalScreen()));
-          } else if (asset.contains('huang')) {
-            Navigator.push(context, fadeRoute(const HuangScreen()));
-          } else if (asset.contains('logistics')) {
-            Navigator.push(context, fadeRoute(const LogisticsScreen()));
-          } else if (asset.contains('waste_corp')) {
-            Navigator.push(context, fadeRoute(const WasteCorpScreen()));
-          } else if (asset.contains('city_police')) {
-            Navigator.push(context, fadeRoute(const CityPoliceScreen()));
-          } else {
-            debugPrint("Location tapped: $asset");
-          }
-        }),
-      ),
+  Widget _buildMapLabel(BuildContext context, String asset, double width, {bool isLocked = false}) {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        if (isLocked)
+          Positioned(
+            bottom: -15,
+            child: ShakeWidget(
+              delay: const Duration(seconds: 1),
+              child: const Icon(
+                Icons.lock,
+                color: Colors.yellow,
+                size: 80,
+                shadows: [
+                  Shadow(
+                    color: Colors.black54,
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        FloatingBubble(
+          child: GlowingMapLabel(
+            asset: asset,
+            width: width,
+            onTap: () => onButtonTap(() {
+              if (isLocked) {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Location locked. Please clear the remaining areas first.',
+                      style: TextStyle(
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    backgroundColor: Colors.redAccent,
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                return;
+              }
+
+              if (asset.contains('bank')) {
+                Navigator.push(context, fadeRoute(const BankScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('cell')) {
+                Navigator.push(context, fadeRoute(const CellScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('lowe')) {
+                Navigator.push(context, fadeRoute(const LoweScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('skyline')) {
+                Navigator.push(context, fadeRoute(const SkylineScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('cordova')) {
+                Navigator.push(context, fadeRoute(const CordovaScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('hospital')) {
+                Navigator.push(context, fadeRoute(const HospitalScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('huang')) {
+                Navigator.push(context, fadeRoute(const HuangScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('logistics')) {
+                Navigator.push(context, fadeRoute(const LogisticsScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('waste_corp')) {
+                Navigator.push(context, fadeRoute(const WasteCorpScreen())).then((_) => _checkCityPoliceStatus());
+              } else if (asset.contains('city_police')) {
+                Navigator.push(context, fadeRoute(const CityPoliceScreen())).then((_) => _checkCityPoliceStatus());
+              } else {
+                debugPrint("Location tapped: $asset");
+              }
+            }),
+          ),
+        ),
+      ],
     );
   }
 

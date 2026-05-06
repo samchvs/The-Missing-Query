@@ -33,9 +33,8 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache assets for this screen and the next
     precacheImage(const AssetImage(AppAssets.tutorialCaseScreen), context);
-    precacheImage(AssetImage(AppAssets.case2Screen[0]), context); // Background for Case 2
+    precacheImage(AssetImage(AppAssets.case2Screen[0]), context); 
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
   }
 

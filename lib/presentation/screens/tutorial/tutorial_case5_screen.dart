@@ -47,8 +47,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache assets for this screen and the next
-    precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context); // Background for Case 5
+    precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context); 
     precacheImage(const AssetImage(AppAssets.tutorialCase6Screen), context);
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
   }
@@ -120,7 +119,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text: "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';",
+     // text: "SELECT balance FROM Student_Accounts WHERE name = 'Carrotino';",
     );
   }
 

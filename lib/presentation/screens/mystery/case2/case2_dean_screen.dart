@@ -819,6 +819,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                   ),
                   child: TextField(
                     controller: _sqlController,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
                     autofocus: true,
                     maxLines: null,
                     minLines: 12,
@@ -831,8 +833,6 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                       fontFamily: 'Consolas',
                       height: 1.5,
                     ),
-                    textCapitalization: TextCapitalization.none,
-                    inputFormatters: const [],
                     decoration: const InputDecoration(
                       hintText: "ENTER SQL QUERY...",
                       hintStyle: TextStyle(
@@ -845,6 +845,15 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                       border: InputBorder.none,
                       isCollapsed: true,
                     ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _sqlController.value = _sqlController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _sqlController.selection,
+                        );
+                      }
+                      setState(() {});
+                    },
                   ),
                 ),
               ),

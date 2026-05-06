@@ -35,17 +35,6 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _answerController.addListener(() {
-      if (!mounted) return;
-      final text = _answerController.text;
-      if (text != text.toUpperCase()) {
-        _answerController.value = _answerController.value.copyWith(
-          text: text.toUpperCase(),
-          selection: _answerController.selection,
-        );
-      }
-      setState(() {});
-    });
 
     _checkIfSolved();
   }
@@ -361,14 +350,7 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Luckiest Guy',
                     ),
-                    onChanged: (value) {
-                      if (value != value.toUpperCase()) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: value.toUpperCase(),
-                          selection: _answerController.selection,
-                        );
-                      }
-                    },
+                    onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
                       hintStyle: const TextStyle(

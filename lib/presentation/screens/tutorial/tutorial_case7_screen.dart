@@ -59,7 +59,6 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache assets for this screen and the next
     precacheImage(const AssetImage(AppAssets.tutorialCase7Screen), context);
     precacheImage(const AssetImage(AppAssets.tutorialCase9Screen), context);
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
@@ -91,8 +90,7 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text:
-          "SELECT student_name FROM Device_Registry WHERE mac_address = '00:1A:2B:3C';", // Debug pre-fill
+      //text: "SELECT student_name FROM Device_Registry WHERE mac_address = '00:1A:2B:3C';", // Debug pre-fill
     );
 
     _queryFadeController = AnimationController(

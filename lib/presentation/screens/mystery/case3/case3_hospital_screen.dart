@@ -4,6 +4,10 @@ import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
 
 class HospitalScreen extends StatefulWidget {
   const HospitalScreen({super.key});
@@ -101,13 +105,6 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
-      final text = _answerController.text;
-      if (text != text.toUpperCase()) {
-        _answerController.value = _answerController.value.copyWith(
-          text: text.toUpperCase(),
-          selection: _answerController.selection,
-        );
-      }
       if (mounted) setState(() {});
     });
   }
@@ -159,6 +156,17 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
 
     if (_isHospitalCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      // Save solving state
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case3_hospital_solved_$userId';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(solveKey, true);
+
+      // Award points
+      await PointsController.instance.addPoints(200);
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -217,6 +225,19 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case3_hospital_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -400,7 +421,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -488,7 +512,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -497,7 +524,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -517,7 +547,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -526,7 +559,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -562,7 +598,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case3/transplant_metadata.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case3/transplant_metadata.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -632,21 +671,21 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'patient_name':
-      return 3;
-    case 'organ_type':
-      return 3;
-    case 'donor_code':
-      return 4;
-    case 'blood_type':
-      return 2;
-    case 'surgery_time':
-      return 4;
-    default:
-      return 3;
+    switch (header) {
+      case 'patient_name':
+        return 3;
+      case 'organ_type':
+        return 3;
+      case 'donor_code':
+        return 4;
+      case 'blood_type':
+        return 2;
+      case 'surgery_time':
+        return 4;
+      default:
+        return 3;
+    }
   }
-}
 
   List<TableRow> _buildTableRowsList() {
     const cellStyle = TextStyle(
@@ -722,37 +761,33 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Consolas',
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
               ),
@@ -774,7 +809,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -782,7 +820,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -790,7 +831,10 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -799,10 +843,6 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
         ),
       ],
     );
-  }
-
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
   }
 
   Widget _buildOverlayIcon(
@@ -997,12 +1037,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -1070,6 +1114,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

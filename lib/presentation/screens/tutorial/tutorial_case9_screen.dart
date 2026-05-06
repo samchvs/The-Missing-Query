@@ -58,8 +58,8 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     );
 
     _queryController = SQLSyntaxController(
-      hintText: _notebookTarget,
-      text: _notebookTarget, // DEBUG PREFILL
+      //hintText: _notebookTarget,
+      //text: _notebookTarget, // DEBUG PREFILL
     );
 
     _queryController.addListener(() {

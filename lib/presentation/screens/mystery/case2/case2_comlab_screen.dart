@@ -804,6 +804,8 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                   ),
                   child: TextField(
                     controller: _sqlController,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [UpperCaseTextFormatter()],
                     autofocus: true,
                     maxLines: null,
                     minLines: 12,
@@ -816,8 +818,6 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                       fontFamily: 'Consolas',
                       height: 1.5,
                     ),
-                    textCapitalization: TextCapitalization.none,
-                    inputFormatters: const [],
                     decoration: const InputDecoration(
                       hintText: "ENTER SQL QUERY...",
                       hintStyle: TextStyle(
@@ -830,6 +830,15 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                       border: InputBorder.none,
                       isCollapsed: true,
                     ),
+                    onChanged: (value) {
+                      if (value != value.toUpperCase()) {
+                        _sqlController.value = _sqlController.value.copyWith(
+                          text: value.toUpperCase(),
+                          selection: _sqlController.selection,
+                        );
+                      }
+                      setState(() {});
+                    },
                   ),
                 ),
               ),

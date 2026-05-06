@@ -82,8 +82,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
 
     _queryController = SQLSyntaxController(
       hintText: _targetQuery,
-      text:
-          "SELECT trans_id FROM Tablet WHERE status = 'Completed';", // Debug pre-fill
+      //text: "SELECT trans_id FROM Tablet WHERE status = 'Completed';", // Debug pre-fill
     );
 
     _moveController = AnimationController(

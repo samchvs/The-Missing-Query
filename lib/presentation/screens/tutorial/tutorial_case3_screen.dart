@@ -68,7 +68,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
     precacheImage(const AssetImage(AppAssets.beanieWalking1), context);
     precacheImage(const AssetImage(AppAssets.beanieWalking2), context);
     precacheImage(const AssetImage(AppAssets.tutorialCase3Screen), context);
-    precacheImage(const AssetImage(AppAssets.tutorialCase4Screen), context); // Precache Case 4
+    precacheImage(const AssetImage(AppAssets.tutorialCase4Screen), context); 
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
     for (var frame in AppAssets.worriedBeanieFrames) {
       precacheImage(AssetImage(frame), context);
@@ -172,7 +172,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
       }
     });
 
-    _queryController = SQLSyntaxController(text: "SELECT * FROM Hallway_Logs;");
+    _queryController = SQLSyntaxController(
+      //text: "SELECT * FROM Hallway_Logs;"
+      );
 
     _runHintController = AnimationController(
       vsync: this,

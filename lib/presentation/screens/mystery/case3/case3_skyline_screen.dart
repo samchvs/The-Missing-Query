@@ -4,6 +4,10 @@ import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/mystery_sql_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/points_controller.dart';
 
 class SkylineScreen extends StatefulWidget {
   const SkylineScreen({super.key});
@@ -101,13 +105,6 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
     });
 
     _answerController.addListener(() {
-      final text = _answerController.text;
-      if (text != text.toUpperCase()) {
-        _answerController.value = _answerController.value.copyWith(
-          text: text.toUpperCase(),
-          selection: _answerController.selection,
-        );
-      }
       if (mounted) setState(() {});
     });
   }
@@ -161,6 +158,17 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
 
     if (_isSkylineCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
+
+      // Save solving state
+      final auth = context.read<AuthController>();
+      final userId = auth.currentUser?.id ?? 'guest';
+      final solveKey = 'case3_skyline_solved_$userId';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(solveKey, true);
+
+      // Award points
+      await PointsController.instance.addPoints(200);
+
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
@@ -219,6 +227,19 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
+
+              if (!mounted) return;
+              final auth = context.read<AuthController>();
+              final userId = auth.currentUser?.id ?? 'guest';
+              final solveKey = 'case3_skyline_solved_$userId';
+
+              final prefs = await SharedPreferences.getInstance();
+              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
+
+              if (alreadySolved) {
+                showAlreadySolvedPopup();
+                return;
+              }
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -721,37 +742,33 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Consolas',
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
               ),
@@ -800,9 +817,6 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
 
   Widget _buildOverlayIcon(
     String asset,

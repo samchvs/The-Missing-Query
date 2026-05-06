@@ -13,7 +13,7 @@ class AboutTab extends StatefulWidget {
 
 class _AboutTabState extends State<AboutTab> {
   int _currentPage = 0;
-  
+
   final List<List<String>> _teamPages = [
     [AppAssets.manalo, AppAssets.agmata, AppAssets.ramos],
     [AppAssets.galang, AppAssets.caranto, AppAssets.chaves],
@@ -29,7 +29,6 @@ class _AboutTabState extends State<AboutTab> {
 
   void _nextPage() {
     if (_currentPage < _teamPages.length - 1) {
-      SFXController().playButton();
       setState(() {
         _currentPage++;
       });
@@ -38,7 +37,6 @@ class _AboutTabState extends State<AboutTab> {
 
   void _prevPage() {
     if (_currentPage > 0) {
-      SFXController().playButton();
       setState(() {
         _currentPage--;
       });
@@ -90,8 +88,8 @@ class _AboutTabState extends State<AboutTab> {
               ],
             ),
           ),
-          const SizedBox(height: 5), 
-          
+          const SizedBox(height: 5),
+
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             transitionBuilder: (Widget child, Animation<double> animation) {
@@ -116,18 +114,21 @@ class _AboutTabState extends State<AboutTab> {
 
   Widget _buildTeamMember(int index, double cardWidth) {
     final String assetPath = _teamPages[_currentPage][index];
-    
+
     return BouncingButton(
       onPressed: () {
-        SFXController().playButton();
         if (assetPath == AppAssets.manalo) {
           _launchURL('https://www.linkedin.com/in/pmmanalo/');
         } else if (assetPath == AppAssets.agmata) {
-          _launchURL('https://www.linkedin.com/in/christal-kaye-agmata-282b24373/');
+          _launchURL(
+            'https://www.linkedin.com/in/christal-kaye-agmata-282b24373/',
+          );
         } else if (assetPath == AppAssets.ramos) {
           _launchURL('https://www.linkedin.com/in/gelo-ramos/');
         } else if (assetPath == AppAssets.galang) {
-          _launchURL('https://www.linkedin.com/in/janelle-carla-galang-b31548346/');
+          _launchURL(
+            'https://www.linkedin.com/in/janelle-carla-galang-b31548346/',
+          );
         } else if (assetPath == AppAssets.caranto) {
           _launchURL('https://www.linkedin.com/in/rgee-caranto-379262364/');
         } else if (assetPath == AppAssets.chaves) {
