@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class BackAlleyScreen extends StatefulWidget {
   const BackAlleyScreen({super.key});
@@ -29,7 +31,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
   bool get _hasLives => hasLives;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final SqlSyntaxController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -49,7 +51,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       'Truck-12',
       'Sam Rivera',
       '00:05:00',
-      'Viore Loading Dock',
+      'Viore_Loading_Dock',
     ],
     [
       'M-891',
@@ -57,7 +59,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       'Sedan-4',
       'Izzy Fox',
       '00:15:00',
-      'Giovanni Front',
+      'Giovanni_Front',
     ],
     [
       'M-892',
@@ -65,88 +67,65 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       'Van-9',
       'Maria Santos',
       '00:30:00',
-      'Service Entrance',
+      'Service_Entrance',
     ],
     [
       'M-893',
-      'Viore Corp',
+      'Viore_Corp',
       'Truck-1',
       'Elena Rossi',
       '00:45:00',
-      'Viore Loading Dock',
+      'Viore_Loading_Dock',
     ],
     [
       'M-899',
-      'District Coffee',
+      'District_Coffee',
       'Bike-1',
       'Unknown',
       '01:00:00',
-      'Side Entrance',
+      'Side_Entrance',
     ],
-    ['M-894', 'Silver_Lining', 'Van-3', 'Leo Moretti', '01:15:00', 'Main Gate'],
+    ['M-894', 'Silver_Lining', 'Van-3', 'Leo Moretti', '01:15:00', 'Main_Gate'],
     [
       'M-895',
       'Zenith_Telecom',
       'Utility-5',
       'Tech_Unit_4',
       '01:30:00',
-      'Viore Roof',
+      'Viore_Roof',
     ],
     [
       'M-896',
-      'Giovanni Ltd',
+      'Giovanni_Ltd',
       'Sedan-1',
-      'Cassian Miller',
+      'Noah Smith',
       '01:45:00',
-      'The Loupe Parking',
+      'Giovanni_Front',
+    ],
+    ['M-897', 'Fast_Lane_Auto', 'Sedan-2', 'Jim Brock', '02:00:00', 'Main_Gate'],
+    [
+      'M-898',
+      'Municipal_Records',
+      'Van-5',
+      'Elena Rossi',
+      '02:15:00',
+      'Service_Entrance',
     ],
     [
       'M-900',
-      'Viore Corp',
-      'Truck-2',
-      'Elena Rossi',
-      '02:00:00',
-      'Viore Loading Dock',
-    ],
-    [
-      'M-897',
-      'Metro_Logistics',
-      'Truck-15',
-      'Silas Vane',
-      '02:10:00',
-      'Viore Loading Dock',
-    ],
-    [
-      'M-898',
-      'District_Library',
-      'Van-22',
-      'Unknown',
-      '02:20:00',
-      'Drop-off Zone',
-    ],
-    [
-      'M-901',
-      'Viore Corp',
-      'Truck-7',
-      'Elena Rossi',
-      '02:30:00',
-      'Viore Garage',
-    ],
-    [
-      'M-902',
-      'Giovanni Ltd',
+      'Thorne_Security',
       'Van-2',
       'Staff_Member',
       '02:45:00',
-      'Storage Unit B',
+      'Storage_Unit_B',
     ],
     [
       'M-901',
-      'Viore Corp',
+      'Viore_Corp',
       'Truck-7',
       'Silas Vane',
       '03:15:00',
-      'Giovanni Alley',
+      'Giovanni_Alley',
     ],
     [
       'M-904',
@@ -154,15 +133,15 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       'Tow-1',
       'Jim Brock',
       '03:35:00',
-      'Side Street',
+      'Side_Street',
     ],
     [
       'M-905',
-      'Viore Corp',
+      'Viore_Corp',
       'Truck-2',
       'Silas Vane',
       '03:45:00',
-      'Viore Loading Dock',
+      'Viore_Loading_Dock',
     ],
   ];
 
@@ -189,30 +168,16 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'security_log_data',
+      tableName: 'security_cam',
       headers: _headers,
       rows: _allSecurityMaps,
       timeColumns: const {'scheduled_time'},
     );
 
+    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+
     _filteredSecurityMaps = List.from(_allSecurityMaps);
     _visibleHeaders = List.from(_headers);
-
-    _sqlController.addListener(() {
-      if (!mounted) return;
-
-      final text = _sqlController.text;
-      final upper = text.toUpperCase();
-
-      if (text != upper) {
-        _sqlController.value = _sqlController.value.copyWith(
-          text: upper,
-          selection: _sqlController.selection,
-          composing: TextRange.empty,
-        );
-      }
-      setState(() {});
-    });
 
     _answerController.addListener(() {
       if (!mounted) return;
@@ -266,7 +231,6 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     if (_isBackAlleyCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       if (!mounted) return;
-
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -335,7 +299,6 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
           onTap: () async {
             await playButtonSound();
             if (!mounted) return;
-
 
             final auth = context.read<AuthController>();
             final userId = auth.currentUser?.id ?? 'guest';
@@ -580,11 +543,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                     onChanged: (value) {
                       final upper = value.toUpperCase();
                       if (value != upper) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: upper,
-                          selection: _answerController.selection,
-                          composing: TextRange.empty,
-                        );
+                        _answerController.value = _answerController.value
+                            .copyWith(
+                              text: upper,
+                              selection: _answerController.selection,
+                              composing: TextRange.empty,
+                            );
                       }
                     },
                     style: const TextStyle(
@@ -748,22 +712,28 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.035,
-          right: constraints.maxWidth * 0.035,
+          left: constraints.maxWidth * 0.03,
+          right: constraints.maxWidth * 0.03,
           child: Row(
             children: List.generate(_visibleHeaders.length, (index) {
               return Expanded(
                 flex: _flexForHeader(_visibleHeaders[index]),
-                child: Text(_visibleHeaders[index], style: headerStyle),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    _visibleHeaders[index],
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               );
             }),
           ),
         ),
         Positioned(
           top: constraints.maxHeight * 0.285,
-          left: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          bottom: constraints.maxHeight * 0.05,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Table(
@@ -867,51 +837,34 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    textCapitalization: TextCapitalization.none,
+                    inputFormatters: const [],
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        textCapitalization: TextCapitalization.characters,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          final upper = value.toUpperCase();
-                          if (value != upper) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: upper,
-                              selection: _sqlController.selection,
-                              composing: TextRange.empty,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
                   ),
                 ),
               ),
@@ -969,9 +922,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
+
 
   Widget _buildOverlayIcon(
     String asset,

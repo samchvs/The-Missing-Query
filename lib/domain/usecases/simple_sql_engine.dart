@@ -23,8 +23,8 @@ class SimpleSqlEngine {
   });
 
   SqlQueryResult execute(String rawQuery) {
-    final query = rawQuery.trim().replaceAll(RegExp(r';\s*$'), '');
-    final upper = query.toUpperCase();
+    final cleanQuery = rawQuery.trim().replaceAll(';', '');
+    final upper = cleanQuery.toUpperCase();
 
     if (!upper.startsWith('SELECT ')) {
       throw Exception('Only SELECT queries are supported.');
@@ -33,13 +33,13 @@ class SimpleSqlEngine {
     final fromMatch = RegExp(
       r'\bFROM\b',
       caseSensitive: false,
-    ).firstMatch(query);
+    ).firstMatch(cleanQuery);
     if (fromMatch == null) {
       throw Exception('Missing FROM clause.');
     }
 
-    final selectPart = query.substring(6, fromMatch.start).trim();
-    final afterFrom = query.substring(fromMatch.end).trim();
+    final selectPart = cleanQuery.substring(6, fromMatch.start).trim();
+    final afterFrom = cleanQuery.substring(fromMatch.end).trim();
 
     final whereMatch = RegExp(
       r'\bWHERE\b',
@@ -189,11 +189,11 @@ class SimpleSqlEngine {
     return SqlQueryResult(rows: filteredRows, columns: selectedColumns);
   }
 
-  TextSpan buildHighlightedSqlText(String text, {bool isHint = false}) {
+  TextSpan buildHighlightedSqlText(String text, {bool isHint = false, TextStyle? baseStyle}) {
     if (isHint) {
-      return const TextSpan(
+      return TextSpan(
         text: 'ENTER SQL QUERY...',
-        style: TextStyle(
+        style: (baseStyle ?? const TextStyle()).copyWith(
           color: Colors.grey,
           fontSize: 14,
           fontFamily: 'Consolas',
@@ -227,7 +227,7 @@ class SimpleSqlEngine {
       height: 1.5,
     );
 
-    const normalStyle = TextStyle(
+    final normalStyle = (baseStyle ?? const TextStyle()).copyWith(
       color: Colors.black,
       fontSize: 14,
       fontFamily: 'Consolas',
@@ -273,17 +273,37 @@ class SimpleSqlEngine {
       }
     }
 
-    return TextSpan(children: spans);
+    return TextSpan(style: baseStyle, children: spans);
   }
 
   bool _evaluateWhereClause(Map<String, String> row, String clause) {
+    // 1. Handle OR parts
     final orParts = clause.split(RegExp(r'\s+OR\s+', caseSensitive: false));
 
     for (final orPart in orParts) {
-      final andParts = orPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
+      // 2. We need to split by AND, but NOT the 'AND' inside a BETWEEN clause.
+      // Example: "location_tag = 'X' AND time BETWEEN '1' AND '2'"
+      
+      // Temporary placeholder for 'AND' inside 'BETWEEN'
+      String processedOrPart = orPart;
+      final betweenMatches = RegExp(
+        r"""\bBETWEEN\b\s+['"]?([^'"]+)['"]?\s+\bAND\b\s+['"]?([^'"]+)['"]?""",
+        caseSensitive: false,
+      ).allMatches(orPart);
+
+      // We replace the 'AND' within each BETWEEN match with a placeholder
+      for (final match in betweenMatches) {
+        final fullMatch = match.group(0)!;
+        final protectedMatch = fullMatch.replaceFirst(RegExp(r'\bAND\b', caseSensitive: false), '___BETWEEN_AND___');
+        processedOrPart = processedOrPart.replaceFirst(fullMatch, protectedMatch);
+      }
+
+      final andParts = processedOrPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
       bool andResult = true;
 
-      for (final condition in andParts) {
+      for (String condition in andParts) {
+        // Restore the protected 'AND'
+        condition = condition.replaceAll('___BETWEEN_AND___', 'AND');
         if (!_evaluateCondition(row, condition.trim())) {
           andResult = false;
           break;
@@ -298,7 +318,7 @@ class SimpleSqlEngine {
 
   bool _evaluateCondition(Map<String, String> row, String condition) {
     final likeMatch = RegExp(
-      '^([a-zA-Z_][a-zA-Z0-9_]*)\\s+LIKE\\s+[\'"]([^\'"]*)[\'"]' r'$',
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s+LIKE\s+['"]([^'"]*)['"]$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
@@ -310,12 +330,13 @@ class SimpleSqlEngine {
       if (!headers.contains(column)) return false;
 
       final regexPattern =
-          '^${RegExp.escape(pattern).replaceAll('%', '.*').replaceAll('_', '.')}' r'$';
+          '^${RegExp.escape(pattern).replaceAll('%', '.*').replaceAll('_', '.')}'
+          r'$';
       return RegExp(regexPattern, caseSensitive: false).hasMatch(value);
     }
 
     final inMatch = RegExp(
-      '^([a-zA-Z_][a-zA-Z0-9_]*)\\s+IN\\s*\\((.+)\\)' r'$',
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s+IN\s*\((.+)\)$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
@@ -332,7 +353,7 @@ class SimpleSqlEngine {
     }
 
     final betweenMatch = RegExp(
-      '^([a-zA-Z_][a-zA-Z0-9_]*)\\s+BETWEEN\\s+[\'"]?([^\'"]+)[\'"]?\\s+AND\\s+[\'"]?([^\'"]+)[\'"]?' r'$',
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s+BETWEEN\s+['"]?([^'"]+)['"]?\s+AND\s+['"]?([^'"]+)['"]?$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
@@ -354,8 +375,9 @@ class SimpleSqlEngine {
 
       if (timeColumns.contains(column)) {
         final actual = row[column] ?? '';
-        return actual.compareTo(lowerRaw) >= 0 &&
-            actual.compareTo(upperRaw) <= 0;
+        final lower = _normalizeTimeValue(lowerRaw);
+        final upper = _normalizeTimeValue(upperRaw);
+        return actual.compareTo(lower) >= 0 && actual.compareTo(upper) <= 0;
       }
 
       final actual = (row[column] ?? '').toUpperCase();
@@ -364,7 +386,7 @@ class SimpleSqlEngine {
     }
 
     final eqMatch = RegExp(
-      '^([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=|!=|<>)\\s+[\'"]([^\'"]*)[\'"]' r'$',
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(=|!=|<>)\s+['"]([^'"]*)['"]$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
@@ -386,7 +408,7 @@ class SimpleSqlEngine {
     }
 
     final compareMatch = RegExp(
-      '^([a-zA-Z_][a-zA-Z0-9_]*)\\s*(>=|<=|>|<)\\s+[\'"]([^\'"]*)[\'"]' r'$',
+      r"""^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<)\s+['"]([^'"]*)['"]$""",
       caseSensitive: false,
     ).firstMatch(condition);
 
@@ -417,7 +439,8 @@ class SimpleSqlEngine {
 
       if (timeColumns.contains(column)) {
         final actual = row[column] ?? '';
-        final compare = actual.compareTo(expectedRaw);
+        final expected = _normalizeTimeValue(expectedRaw);
+        final compare = actual.compareTo(expected);
 
         switch (op) {
           case '>':
@@ -455,5 +478,17 @@ class SimpleSqlEngine {
   double? _numericValueIfPossible(String value) {
     final cleaned = value.replaceAll(',', '').replaceAll('\$', '').trim();
     return double.tryParse(cleaned);
+  }
+
+  String _normalizeTimeValue(String value) {
+    // If it's a simple HH:MM or HH:MM:SS format, ensure it's zero-padded
+    final parts = value.split(':');
+    if (parts.length >= 2) {
+      final h = parts[0].padLeft(2, '0');
+      final m = parts[1].padLeft(2, '0');
+      final s = parts.length > 2 ? parts[2].padLeft(2, '0') : '00';
+      return '$h:$m:$s';
+    }
+    return value;
   }
 }

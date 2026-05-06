@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class VioreHqScreen extends StatefulWidget {
   const VioreHqScreen({super.key});
@@ -28,7 +30,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
 
   bool get _hasLives => hasLives;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final SqlSyntaxController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -97,30 +99,16 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'intelligence_data',
+      tableName: 'intelligence',
       headers: _headers,
       rows: _allCompanyMaps,
       numericColumns: const {'asset_value'},
     );
 
+    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+
     _filteredCompanyMaps = List.from(_allCompanyMaps);
     _visibleHeaders = List.from(_headers);
-
-    _sqlController.addListener(() {
-      if (!mounted) return;
-
-      final text = _sqlController.text;
-      final upper = text.toUpperCase();
-
-      if (text != upper) {
-        _sqlController.value = _sqlController.value.copyWith(
-          text: upper,
-          selection: _sqlController.selection,
-          composing: TextRange.empty,
-        );
-      }
-      setState(() {});
-    });
 
     _answerController.addListener(() {
       if (!mounted) return;
@@ -169,8 +157,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
 
     if (_isVioreCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
-      if (!mounted) return;
-
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -238,8 +224,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
-            if (!mounted) return;
-
 
             final auth = context.read<AuthController>();
             final userId = auth.currentUser?.id ?? 'guest';
@@ -509,18 +493,38 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             child: Image.asset('assets/mystery/close_button.png', height: 25),
           ),
         ),
-
+        Positioned(
+          top: constraints.maxHeight * 0.210,
+          left: constraints.maxWidth * 0.03,
+          right: constraints.maxWidth * 0.03,
+          child: Row(
+            children: List.generate(_visibleHeaders.length, (index) {
+              return Expanded(
+                flex: _flexForHeader(_visibleHeaders[index]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    _visibleHeaders[index],
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
         Positioned(
           top: constraints.maxHeight * 0.290,
-          left: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          bottom: constraints.maxHeight * 0.05,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Table(
               columnWidths: {
                 for (int i = 0; i < _visibleHeaders.length; i++)
-                  i: FlexColumnWidth(_getFlexValue(_visibleHeaders[i])),
+                  i: FlexColumnWidth(
+                    _flexForHeader(_visibleHeaders[i]).toDouble(),
+                  ),
               },
               children: _buildTableRowsList(),
             ),
@@ -530,21 +534,20 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     );
   }
 
-
-  double _getFlexValue(String header) {
+  int _flexForHeader(String header) {
     switch (header) {
       case 'company_name':
-        return 5.0;
+        return 4;
       case 'public_ip_range':
-        return 4.5;
+        return 4;
       case 'unique_software':
-        return 4.5;
+        return 4;
       case 'license_status':
-        return 4.0;
+        return 3;
       case 'asset_value':
-        return 3.5;
+        return 3;
       default:
-        return 3.0;
+        return 3;
     }
   }
 
@@ -571,11 +574,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
               vertical: 12.0,
               horizontal: 6.0,
             ),
-            child: Text(
-              row[header] ?? '',
-              style: cellStyle,
-              textAlign: TextAlign.center,
-            ),
+            child: Text(row[header] ?? '', style: cellStyle),
           );
         }).toList(),
       );
@@ -618,51 +617,34 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    textCapitalization: TextCapitalization.none,
+                    inputFormatters: const [],
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        textCapitalization: TextCapitalization.characters,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          final upper = value.toUpperCase();
-                          if (value != upper) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: upper,
-                              selection: _sqlController.selection,
-                              composing: TextRange.empty,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
                   ),
                 ),
               ),
@@ -720,9 +702,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
+
 
   Widget _buildOverlayIcon(
     String asset,

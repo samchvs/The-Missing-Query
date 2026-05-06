@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class LoupeScreen extends StatefulWidget {
   const LoupeScreen({super.key});
@@ -28,7 +30,7 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
 
   bool get _hasLives => hasLives;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final SqlSyntaxController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -90,30 +92,16 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'trade_secrets_data',
+      tableName: 'trade_secrets',
       headers: _headers,
       rows: _allTradeMaps,
       numericColumns: const {'amount'},
     );
 
+    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
+
     _filteredTradeMaps = List.from(_allTradeMaps);
     _visibleHeaders = List.from(_headers);
-
-    _sqlController.addListener(() {
-      if (!mounted) return;
-
-      final text = _sqlController.text;
-      final upper = text.toUpperCase();
-
-      if (text != upper) {
-        _sqlController.value = _sqlController.value.copyWith(
-          text: upper,
-          selection: _sqlController.selection,
-          composing: TextRange.empty,
-        );
-      }
-      setState(() {});
-    });
 
     _answerController.addListener(() {
       if (!mounted) return;
@@ -163,7 +151,6 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     if (_isLoupeCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       if (!mounted) return;
-
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser?.id ?? 'guest';
@@ -233,8 +220,7 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
-            if (!mounted) return;
-
+              if (!mounted) return;
 
               final auth = context.read<AuthController>();
               final userId = auth.currentUser?.id ?? 'guest';
@@ -627,22 +613,28 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.04,
-          right: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
+          right: constraints.maxWidth * 0.03,
           child: Row(
             children: List.generate(_visibleHeaders.length, (index) {
               return Expanded(
                 flex: _flexForHeader(_visibleHeaders[index]),
-                child: Text(_visibleHeaders[index], style: headerStyle),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    _visibleHeaders[index],
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               );
             }),
           ),
         ),
         Positioned(
           top: constraints.maxHeight * 0.290,
-          left: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          bottom: constraints.maxHeight * 0.05,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Table(
@@ -745,51 +737,34 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? "ENTER SQL QUERY..."
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    textCapitalization: TextCapitalization.none,
+                    inputFormatters: const [],
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        textCapitalization: TextCapitalization.characters,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          final upper = value.toUpperCase();
-                          if (value != upper) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: upper,
-                              selection: _sqlController.selection,
-                              composing: TextRange.empty,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
                   ),
                 ),
               ),
@@ -838,10 +813,6 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
-
   Widget _buildOverlayIcon(
     String asset,
     double width,
@@ -868,82 +839,6 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
   }
 }
 
-class InvestigationTypewriter extends StatefulWidget {
-  final String text;
-  final VoidCallback onFinished;
-  final Duration typingDuration;
-
-  const InvestigationTypewriter({
-    super.key,
-    required this.text,
-    required this.onFinished,
-    required this.typingDuration,
-  });
-
-  @override
-  State<InvestigationTypewriter> createState() =>
-      _InvestigationTypewriterState();
-}
-
-class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
-  String _displayedText = "";
-  int _charIndex = 0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTyping();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _startTyping() {
-    final int delayMs = widget.text.isEmpty
-        ? 40
-        : (widget.typingDuration.inMilliseconds / widget.text.length).round();
-
-    _timer = Timer.periodic(Duration(milliseconds: delayMs), (timer) {
-      if (_charIndex < widget.text.length) {
-        if (mounted) {
-          setState(() {
-            _displayedText += widget.text[_charIndex];
-            _charIndex++;
-          });
-        }
-      } else {
-        _timer?.cancel();
-        widget.onFinished();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blueAccent, width: 2),
-      ),
-      child: Text(
-        _displayedText,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontFamily: 'Consolas',
-        ),
-      ),
-    );
-  }
-}
-
 class FloatingBubble extends StatefulWidget {
   final Widget child;
   final Duration duration;
@@ -963,12 +858,16 @@ class FloatingBubble extends StatefulWidget {
 class _FloatingBubbleState extends State<FloatingBubble>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration)
       ..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0, end: widget.offset).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -980,11 +879,13 @@ class _FloatingBubbleState extends State<FloatingBubble>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => Transform.translate(
-        offset: Offset(0, widget.offset * _controller.value),
-        child: child,
-      ),
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, -_animation.value),
+          child: child,
+        );
+      },
       child: widget.child,
     );
   }
@@ -992,7 +893,6 @@ class _FloatingBubbleState extends State<FloatingBubble>
 
 class GlowingClue extends StatefulWidget {
   final Widget child;
-
   const GlowingClue({super.key, required this.child});
 
   @override
@@ -1002,20 +902,19 @@ class GlowingClue extends StatefulWidget {
 class _GlowingClueState extends State<GlowingClue>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _glow;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
 
-    _glow = Tween<double>(
-      begin: 0.35,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _animation = Tween<double>(begin: 1.0, end: 1.4).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -1027,25 +926,27 @@ class _GlowingClueState extends State<GlowingClue>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _glow,
+      animation: _animation,
       builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
-                blurRadius: 18 + (_glow.value * 10),
-                spreadRadius: 3 + (_glow.value * 3),
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 40 * _animation.value,
+              height: 40 * _animation.value,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.yellowAccent.withValues(alpha: 0.3),
+                    blurRadius: 20 * _animation.value,
+                    spreadRadius: 10 * _animation.value,
+                  ),
+                ],
               ),
-              BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
-                blurRadius: 30 + (_glow.value * 12),
-                spreadRadius: 2 + (_glow.value * 2),
-              ),
-            ],
-          ),
-          child: child,
+            ),
+            child!,
+          ],
         );
       },
       child: widget.child,
@@ -1053,9 +954,85 @@ class _GlowingClueState extends State<GlowingClue>
   }
 }
 
+class InvestigationTypewriter extends StatefulWidget {
+  final String text;
+  final Duration typingDuration;
+  final VoidCallback onFinished;
+
+  const InvestigationTypewriter({
+    super.key,
+    required this.text,
+    required this.typingDuration,
+    required this.onFinished,
+  });
+
+  @override
+  State<InvestigationTypewriter> createState() =>
+      _InvestigationTypewriterState();
+}
+
+class _InvestigationTypewriterState extends State<InvestigationTypewriter>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<int> _characterCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.typingDuration,
+    );
+
+    _characterCount = StepTween(begin: 0, end: widget.text.length).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
+    );
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onFinished();
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _characterCount,
+      builder: (context, child) {
+        final textToShow = widget.text.substring(0, _characterCount.value);
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white24),
+          ),
+          child: Text(
+            textToShow,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontFamily: 'Consolas',
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class AnimatedPopup extends StatefulWidget {
   final Widget child;
-
   const AnimatedPopup({super.key, required this.child});
 
   @override
@@ -1067,27 +1044,19 @@ class _AnimatedPopupState extends State<AnimatedPopup>
   late final AnimationController _controller;
   late final Animation<double> _fade;
   late final Animation<double> _scale;
-  late final Animation<Offset> _slide;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 260),
-    )..forward();
-
+      duration: const Duration(milliseconds: 300),
+    );
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-
-    _scale = Tween<double>(
-      begin: 0.93,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    _slide = Tween<Offset>(
-      begin: const Offset(0, 0.03),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    _controller.forward();
   }
 
   @override
@@ -1100,25 +1069,10 @@ class _AnimatedPopupState extends State<AnimatedPopup>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fade,
-      child: SlideTransition(
-        position: _slide,
-        child: ScaleTransition(scale: _scale, child: widget.child),
+      child: ScaleTransition(
+        scale: _scale,
+        child: widget.child,
       ),
-    );
-  }
-}
-
-
-
-class UpperCaseTextFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    return TextEditingValue(
-      text: newValue.text.toUpperCase(),
-      selection: newValue.selection,
     );
   }
 }

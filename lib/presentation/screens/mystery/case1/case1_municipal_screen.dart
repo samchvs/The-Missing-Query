@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
+import 'package:graphics_project/presentation/controllers/auth_controller.dart';
+import 'package:graphics_project/presentation/controllers/sql_syntax_controller.dart';
+import 'package:graphics_project/core/utils/text_formatters.dart';
 
 class MunicipalScreen extends StatefulWidget {
   const MunicipalScreen({super.key});
@@ -19,7 +22,7 @@ class _MunicipalScreenState extends State<MunicipalScreen>
   String? activeInvestigationText;
   Duration? activeTypingDuration;
 
-  final TextEditingController _sqlController = TextEditingController();
+  late final SqlSyntaxController _sqlController;
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
 
@@ -83,26 +86,12 @@ class _MunicipalScreenState extends State<MunicipalScreen>
       tableName: 'public_records',
       headers: _headers,
       rows: _allRecordMaps,
+      numericColumns: const {'amount'},
     );
 
+    _sqlController = SqlSyntaxController(sqlEngine: _sqlEngine);
     _filteredRecordMaps = List.from(_allRecordMaps);
     _visibleHeaders = List.from(_headers);
-
-    _sqlController.addListener(() {
-      if (!mounted) return;
-
-      final text = _sqlController.text;
-      final upper = text.toUpperCase();
-
-      if (text != upper) {
-        _sqlController.value = _sqlController.value.copyWith(
-          text: upper,
-          selection: _sqlController.selection,
-          composing: TextRange.empty,
-        );
-      }
-      setState(() {});
-    });
 
     _answerController.addListener(() {
       if (!mounted) return;
@@ -335,22 +324,28 @@ class _MunicipalScreenState extends State<MunicipalScreen>
         ),
         Positioned(
           top: constraints.maxHeight * 0.210,
-          left: constraints.maxWidth * 0.04,
-          right: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
+          right: constraints.maxWidth * 0.03,
           child: Row(
             children: List.generate(_visibleHeaders.length, (index) {
               return Expanded(
                 flex: _flexForHeader(_visibleHeaders[index]),
-                child: Text(_visibleHeaders[index], style: headerStyle),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    _visibleHeaders[index],
+                    style: headerStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               );
             }),
           ),
         ),
         Positioned(
           top: constraints.maxHeight * 0.290,
-          left: constraints.maxWidth * 0.02,
+          left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
-          bottom: constraints.maxHeight * 0.05,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Table(
@@ -454,51 +449,34 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight * 0.40,
                   ),
-                  child: Stack(
-                    children: [
-                      RichText(
-                        text: _buildSqlHighlightedText(
-                          _sqlController.text.isEmpty
-                              ? 'ENTER SQL QUERY...'
-                              : _sqlController.text,
-                          isHint: _sqlController.text.isEmpty,
-                        ),
+                  child: TextField(
+                    controller: _sqlController,
+                    autofocus: true,
+                    maxLines: null,
+                    minLines: 12,
+                    scrollController: _sqlScrollController,
+                    cursorColor: Colors.black,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Consolas',
+                      height: 1.5,
+                    ),
+                    textCapitalization: TextCapitalization.none,
+                    inputFormatters: const [],
+                    decoration: const InputDecoration(
+                      hintText: "ENTER SQL QUERY...",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Consolas',
+                        fontWeight: FontWeight.bold,
+                        height: 1.5,
                       ),
-                      TextField(
-                        controller: _sqlController,
-                        autofocus: true,
-                        maxLines: null,
-                        minLines: 12,
-                        scrollController: _sqlScrollController,
-                        cursorColor: Colors.black,
-                        style: const TextStyle(
-                          color: Colors.transparent,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Consolas',
-                          height: 1.5,
-                        ),
-                        textCapitalization: TextCapitalization.characters,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        inputFormatters: [UpperCaseTextFormatter()],
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          final upper = value.toUpperCase();
-                          if (value != upper) {
-                            _sqlController.value = _sqlController.value.copyWith(
-                              text: upper,
-                              selection: _sqlController.selection,
-                              composing: TextRange.empty,
-                            );
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    ],
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                    ),
                   ),
                 ),
               ),
@@ -556,9 +534,7 @@ class _MunicipalScreenState extends State<MunicipalScreen>
     );
   }
 
-  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
-  }
+
 
   Widget _buildOverlayIcon(
     String asset,
@@ -826,19 +802,6 @@ class _AnimatedPopupState extends State<AnimatedPopup>
         position: _slide,
         child: ScaleTransition(scale: _scale, child: widget.child),
       ),
-    );
-  }
-}
-
-class UpperCaseTextFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    return TextEditingValue(
-      text: newValue.text.toUpperCase(),
-      selection: newValue.selection,
     );
   }
 }
