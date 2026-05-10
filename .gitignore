@@ -49,5 +49,6 @@ lib/core/config/supabase_config.dart
 android/.kotlin/
 
 #Config rules 
+setup-email-confirm.md
 .agents/
 .gemini/
