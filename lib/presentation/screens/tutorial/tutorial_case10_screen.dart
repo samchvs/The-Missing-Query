@@ -40,7 +40,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
   @override
   void initState() {
     super.initState();
-    TutorialMusicController().setVolume(0.5); 
+    TutorialMusicController().setVolume(0.4);
     TutorialMusicController().play();
     _shakeController = AnimationController(
       vsync: this,
