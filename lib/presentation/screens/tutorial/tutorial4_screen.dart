@@ -22,7 +22,7 @@ class _Tutorial4ScreenState extends State<Tutorial4Screen> {
     precacheImage(const AssetImage(AppAssets.tutorial3Screen), context);
     precacheImage(const AssetImage(AppAssets.tutorial4Title), context);
     precacheImage(const AssetImage(AppAssets.tutorial4Folder), context);
-    precacheImage(const AssetImage(AppAssets.tutorialCaseScreen), context); // Background for Case 1
+    precacheImage(const AssetImage(AppAssets.tutorialCaseScreen), context); 
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
   }
 

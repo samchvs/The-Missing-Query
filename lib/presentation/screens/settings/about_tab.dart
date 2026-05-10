@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class AboutTab extends StatefulWidget {
   const AboutTab({super.key});
@@ -19,13 +18,12 @@ class _AboutTabState extends State<AboutTab> {
     [AppAssets.galang, AppAssets.caranto, AppAssets.chaves],
   ];
 
-  // Helper method to open links
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
       debugPrint('Could not launch $url');
     }
-  }
+  } 
 
   void _nextPage() {
     if (_currentPage < _teamPages.length - 1) {

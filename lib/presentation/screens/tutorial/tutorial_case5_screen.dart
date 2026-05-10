@@ -24,7 +24,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
   bool _isQueryClicked = false;
   bool _isHintDismissed = false;
   bool _isTableShown = false;
-
+  bool _isResultShown = false;
   bool _isQuerySuccessful = false;
 
   bool _isExiting = false;
@@ -141,6 +141,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
         setState(() {
           _isQueryClicked = false;
           _isTableShown = false;
+          _isResultShown = false;
         });
       }
     });
@@ -159,7 +160,8 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
     if (isMatch) {
       setState(() {
         _isQuerySuccessful = true;
-        _isTableShown = true;
+        _isResultShown = true;
+        _isTableShown = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -336,7 +338,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                     ),
                   ),
 
-                if (_isQueryClicked || _isTableShown)
+                if (_isQueryClicked || _isTableShown || _isResultShown)
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: GestureDetector(
@@ -344,6 +346,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                         if (_isTableShown) {
                           setState(() {
                             _isTableShown = false;
+                            _isResultShown = false;
                           });
                         } else {
                           _hideQuery();
@@ -356,7 +359,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   ),
 
                 // 5. Query Display Panel
-                if (_isQueryClicked && !_isTableShown)
+                if (_isQueryClicked && !_isTableShown && !_isResultShown)
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Center(
@@ -409,21 +412,10 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                                 children: [
                                   BouncingButton(
                                     onPressed: () {
-                                      if (_isQuerySuccessful) {
-                                        setState(() => _isTableShown = true);
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              "Table is locked. Run your query successfully first!",
-                                            ),
-                                            backgroundColor: Colors.red,
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
+                                      setState(() {
+                                        _isTableShown = true;
+                                        _isResultShown = false;
+                                      });
                                     },
                                     child: Image.asset(
                                       AppAssets.tablesBtn,
@@ -483,7 +475,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   ),
 
                 // 6. Hallway
-                if (_isTableShown)
+                if (_isTableShown || _isResultShown)
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Center(
@@ -491,10 +483,12 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                         width: 670,
                         child: Stack(
                           alignment: Alignment.center,
-                          clipBehavior: Clip.none,
+                           clipBehavior: Clip.none,
                           children: [
                             Image.asset(
-                              AppAssets.studentAccountsLogs,
+                              _isResultShown
+                                  ? AppAssets.studentAccountsLogs
+                                  : AppAssets.accountsLogs,
                               width: 550,
                             ),
 
@@ -502,7 +496,12 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                               top: 10,
                               right: 70,
                               child: BouncingButton(
-                                onPressed: _hideQuery,
+                                onPressed: () {
+                                setState(() {
+                                  _isTableShown = false;
+                                  _isResultShown = false;
+                                });
+                              },
                                 child: Image.asset(
                                   AppAssets.closeBtn,
                                   width: 35,
@@ -537,7 +536,7 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                   ),
                 ),
 
-                if (_isQueryClicked && _isHintDismissed && !_isTableShown)
+                if (_isQueryClicked && _isHintDismissed && !_isTableShown && !_isResultShown)
                   KeyboardAccessoryBar(
                     controller: _queryController,
                     hintText: _targetQuery,

@@ -194,8 +194,10 @@ class AppAssets {
   static const String tutorial7SelectHintBox =
       'assets/tutorial7SelectHint-box.png';
   static const String hallwayLogs = 'assets/hallway_logs.png';
+  static const String accountsLogs = 'assets/accounts_logs.png';
   static const String studentAccountsLogs = 'assets/studentAccounts_logs.png';
   static const String tabletLogs = 'assets/tablet_logs.png';
+  static const String specificTabletLogs = 'assets/specificTablet_logs.png';
   static const String nextPageBtn = 'assets/nextPage-btn.png';
   static const String tutorialTable = 'assets/tutorialTable.png';
   static const String quitDisplay = 'assets/quitDisplay.png';
@@ -254,12 +256,12 @@ class AppAssets {
   static const String musicIcon = 'assets/audio-tab/music.png';
   static const String sfxIcon = 'assets/audio-tab/sound.png';
   static const String floatingHint = 'assets/floating-hint.png';
-  static const String tutorialGuideQuestion =
-      'assets/tutorial-guidequestion.png';
+  static const String tutorialGuideQuestion = 'assets/tutorial-guidequestion.png';
   static const String submitBtn = 'assets/submit-btn.png';
   static const String challengeBtn = 'assets/challenge-btn.png';
   static const String tutorialGuidepop = 'assets/tutorialGuidepop.png';
   static const String deviceRegistry = 'assets/device_registry.png';
+  static const String specificDeviceRegistry = 'assets/specificDevice_registry.png';
   static const String tutorial7GuidePop = 'assets/tutorial7-guidepop.png';
   static const String tutorial7GuidePop2 = 'assets/tutorial7-guidepop2.png';
   static const String tutorialCase8GuidePop = 'assets/case8-guidepop.png';
@@ -271,8 +273,7 @@ class AppAssets {
   static const String tutorialCase8GuidePop5 = 'assets/case8-guidepop5.png';
   static const String tutorialCase8GuidePop6 = 'assets/case8-guidepop6.png';
   static const String tutorialCase8GuidePop7 = 'assets/case8-guidepop7.png';
-  static const String tutorialCase8DeviceRegistry =
-      'assets/case8_device-registry.png';
+  static const String tutorialCase8DeviceRegistry = 'assets/case8_device-registry.png';
   static const String tutorialCase8GuidePop8 = 'assets/case8-guidepop8.png';
   static const String case9Mynotes = 'assets/case9-Mynotes.png';
   static const String case9GuidePop1 = 'assets/case9-guidepop1.png';

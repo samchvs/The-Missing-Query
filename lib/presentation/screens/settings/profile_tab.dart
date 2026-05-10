@@ -105,7 +105,6 @@ class _ProfileTabState extends State<ProfileTab> {
                             final newName = modalController.text.trim();
                             setState(() => _localUsername = newName);
                             widget.onUsernameChanged(newName);
-                            // Persist locally + Supabase (if logged in)
                             await widget.authController.updateUsername(newName);
                             if (context.mounted) Navigator.of(context).pop();
                           }

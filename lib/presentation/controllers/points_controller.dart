@@ -12,10 +12,9 @@ class PointsController extends ChangeNotifier {
   String? _currentUserId;
   bool _initialized = false;
 
-  /// Visual points for the currently active case.
   int get currentPoints => _casePoints[_activeCaseId] ?? 0;
   
-  /// Internal total points across all cases (for DB syncing).
+  /// Internal total points across all cases (DB syncing).
   int get totalPoints => _casePoints.values.fold(0, (sum, p) => sum + p);
   
   bool get isInitialized => _initialized;
@@ -36,15 +35,13 @@ class PointsController extends ChangeNotifier {
     _currentUserId = userId;
     final prefs = await SharedPreferences.getInstance();
     
-    // Initialize points for all 3 planned cases
+    // Initialize points for all 3 cases
     const cases = ['case1', 'case2', 'case3'];
     for (final c in cases) {
       _casePoints[c] = prefs.getInt(_getStorageKey(userId, c)) ?? 0;
     }
 
     // --- REMOTE SYNC ---
-    // If a remote score exists and is higher than our total local sum,
-    // we need to bridge the gap. We'll add the difference to Case 1.
     if (remoteScore != null && remoteScore > totalPoints) {
       final difference = remoteScore - totalPoints;
       _casePoints['case1'] = (_casePoints['case1'] ?? 0) + difference;
@@ -73,7 +70,7 @@ class PointsController extends ChangeNotifier {
   Future<void> addPoints(int points) async {
     final current = _casePoints[_activeCaseId] ?? 0;
     _casePoints[_activeCaseId] = current + points;
-    
+  
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
@@ -82,22 +79,6 @@ class PointsController extends ChangeNotifier {
     );
   }
 
-  /// Deducts points from the currently active case.
-  Future<void> deductPoints(int points) async {
-    final current = _casePoints[_activeCaseId] ?? 0;
-    int newValue = current - points;
-    if (newValue < 0) newValue = 0;
-    
-    _casePoints[_activeCaseId] = newValue;
-    notifyListeners();
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-      _getStorageKey(_currentUserId, _activeCaseId), 
-      newValue,
-    );
-  }
-
-  /// Returns points for a specific case (useful for unlock checks).
+  /// Returns points for a specific case.
   int getPointsForCase(String caseId) => _casePoints[caseId] ?? 0;
 }

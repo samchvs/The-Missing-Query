@@ -2,14 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graphics_project/domain/entities/app_user.dart';
 
-/// The ONLY file in this project that imports supabase_flutter.
 /// Handles all direct Supabase API calls.
 class SupabaseAuthDataSource {
   final SupabaseClient _client;
 
   SupabaseAuthDataSource(this._client);
-
-  /// Signs up a new user, then inserts their profile row.
   Future<AppUser> signUp({
     required String email,
     required String password,
@@ -18,27 +15,21 @@ class SupabaseAuthDataSource {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
-      data: {'username': username}, // picked up by the DB trigger
+      data: {'username': username},
     );
 
     final user = response.user;
     if (user == null) {
       throw Exception('Sign-up failed: no user returned.');
     }
-
-    // If email confirmation is OFF, a live session exists and we insert manually.
-    // If email confirmation is ON, the trigger on auth.users handles the insert.
     final session = response.session;
     if (session != null) {
-      // Session is live — insert profile row directly (compatible with RLS)
       await _client.from('profiles').insert({
         'id': user.id,
         'username': username,
         'email': email,
       });
     }
-    // If session is null, the DB trigger will have created the row already.
-
     return AppUser(id: user.id, email: email, username: username);
   }
 
@@ -73,11 +64,9 @@ class SupabaseAuthDataSource {
     await _client.auth.signOut();
   }
 
-  /// Returns the current user from the active session, or null.
   AppUser? getCurrentUser() {
     final user = _client.auth.currentUser;
     if (user == null) return null;
-    // Email will always be present on a valid session
     return AppUser(
       id: user.id,
       email: user.email ?? '',
@@ -123,8 +112,6 @@ class SupabaseAuthDataSource {
     }
   }
 
-  /// Directly updates the high_score in the profiles table.
-  /// Used by submitHighScore after validation.
   Future<void> _updateScoreDirectly({
     required String userId,
     required int score,
@@ -134,7 +121,6 @@ class SupabaseAuthDataSource {
         .update({'high_score': score}).eq('id', userId);
   }
 
-  /// Alias for submitHighScore to maintain backwards compatibility with Repo interface
   Future<void> submitScore({
     required String userId,
     required int score,

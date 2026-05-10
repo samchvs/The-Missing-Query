@@ -40,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
     super.initState();
     _currentUsername = widget.username;
     _currentCharacter = CharacterDisplayConfig.homeConfigs.first.path;
-    // Start home music
     HomeMusicController().play();
   }
 
@@ -70,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   @override
   void didPopNext() {
-    // When returning to this route from another route
     debugPrint("Returning to HomeScreen: Resuming home music.");
     GameplayMusicController().stop();
     HomeMusicController().play();

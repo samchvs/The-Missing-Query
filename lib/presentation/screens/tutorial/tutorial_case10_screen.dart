@@ -40,6 +40,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
   @override
   void initState() {
     super.initState();
+    TutorialMusicController().setVolume(0.5); 
     TutorialMusicController().play();
     _shakeController = AnimationController(
       vsync: this,
@@ -68,6 +69,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
       String? audioPath = _dialogueAudios[_dialogueIndex];
       if (audioPath != null) {
         await _audioPlayer.stop();
+        await _audioPlayer.setVolume(1.0);
         await _audioPlayer.play(AssetSource(audioPath));
       }
     }
@@ -75,6 +77,7 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
 
   @override
   void dispose() {
+    TutorialMusicController().setVolume(1.0); 
     _shakeController.dispose();
     _audioSubscription?.cancel();
     _audioPlayer.dispose();

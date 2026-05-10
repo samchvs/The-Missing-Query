@@ -34,7 +34,6 @@ class GameplayMusicController with WidgetsBindingObserver {
       }
     }
   }
-
   Future<void> setVolume(double volume) async {
     _volume = volume;
     await _audioPlayer.setVolume(volume);

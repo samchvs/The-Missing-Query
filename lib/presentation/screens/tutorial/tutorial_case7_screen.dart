@@ -470,25 +470,11 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                             child: Row(
                               children: [
                                 BouncingButton(
-                                  onPressed: () {
-                                    if (_isQuerySuccessful) {
+                                    onPressed: () {
                                       setState(() {
                                         _isTableShown = true;
                                       });
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Table is locked. Run your query successfully first!",
-                                          ),
-                                          backgroundColor: Colors.red,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                    }
-                                  },
+                                    },
                                   child: Image.asset(
                                     AppAssets.tablesBtn,
                                     width: 100,
@@ -592,7 +578,12 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              Image.asset(AppAssets.deviceRegistry, width: 550),
+                              Image.asset(
+                                _isQuerySuccessful
+                                    ? AppAssets.specificDeviceRegistry
+                                    : AppAssets.deviceRegistry,
+                                width: 550,
+                              ),
                             ],
                           ),
                         ),

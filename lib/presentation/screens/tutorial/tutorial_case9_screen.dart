@@ -23,7 +23,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
   bool _showNotebook = false;
   bool _isNotebookTaskComplete = false;
   bool _isDiaryTableShown = false;
-  bool _isTableUnlocked = false;
   bool _hasShownGuidePop8 = false;
   bool _showGuidePop8 = false;
   bool _showGuidePop9 = false;
@@ -42,7 +41,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache assets for this screen and the next
     precacheImage(const AssetImage(AppAssets.tutorialCase9Screen), context);
     precacheImage(const AssetImage(AppAssets.tutorialCase10Screen), context);
     precacheImage(const AssetImage(AppAssets.nextBtn), context);
@@ -58,7 +56,7 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     );
 
     _queryController = SQLSyntaxController(
-      //hintText: _notebookTarget,
+      hintText: _notebookTarget,
       //text: _notebookTarget, // DEBUG PREFILL
     );
 
@@ -104,7 +102,6 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
     if (userInput == targetNormalized ||
         userInput == targetNormalized.replaceAll(';', '')) {
       setState(() {
-        _isTableUnlocked = true;
         _isDiaryTableShown = true;
         if (!_hasShownGuidePop8) {
           _showGuidePop8 = true;
@@ -314,26 +311,10 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                         children: [
                                           BouncingButton(
                                             onPressed: () {
-                                              if (_isTableUnlocked) {
-                                                setState(
-                                                  () =>
-                                                      _isDiaryTableShown = true,
-                                                );
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      "No tables to show yet. Run your query successfully first!",
-                                                    ),
-                                                    backgroundColor: Colors.red,
-                                                    duration: Duration(
-                                                      seconds: 2,
-                                                    ),
-                                                  ),
-                                                );
-                                              }
+                                              setState(
+                                                () =>
+                                                    _isDiaryTableShown = true,
+                                              );
                                             },
                                             child: Image.asset(
                                               AppAssets.tablesBtn,
@@ -612,7 +593,9 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                     alignment: Alignment.center,
                     children: [
                       Image.asset(
-                        AppAssets.case9Mynotes,
+                        _isNotebookTaskComplete
+                            ? AppAssets.case9Mynotes
+                            : AppAssets.tutorialCase8DeviceRegistry,
                         width: 500,
                         fit: BoxFit.fill,
                       ),

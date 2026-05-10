@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
@@ -56,7 +56,8 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
   bool _hasShownGuidePop8 = false;
   bool _hasShownGuidePop9 = false;
   bool _dismissedGuidePop6 = false;
-  bool _isTableUnlocked = false;
+  bool _isTableCreated = false;
+  bool _isTablePopulated = false;
   int _currentTaskIndex = 0;
   Timer? _typingTimer;
   late SQLSyntaxController _queryController;
@@ -143,7 +144,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         if (_currentTaskIndex == 0) {
           _isDiaryTableShown = true;
           _showGuidePop3 = false;
-          _isTableUnlocked = true;
+          _isTableCreated = true;
 
           if (!_hasShownGuidePop4) {
             _showGuidePop4 = true;
@@ -152,6 +153,7 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
         } else {
           setState(() {
             _isDiaryTableShown = true;
+            _isTablePopulated = true;
             if (!_hasShownGuidePop8) {
               _showGuidePop8 = true;
               _hasShownGuidePop8 = true;
@@ -256,24 +258,24 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                         onPressed: () {
                           Navigator.push(
                             context,
-                              PageRouteBuilder(
-                                transitionDuration: const Duration(
-                                  milliseconds: 300,
-                                ),
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const TutorialCase7Screen(),
-                                transitionsBuilder:
-                                    (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                      child,
-                                    ) => FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    ),
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(
+                                milliseconds: 300,
                               ),
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const TutorialCase7Screen(),
+                              transitionsBuilder:
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) => FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  ),
+                            ),
                           ).then((_) {});
                         },
                         child: Image.asset(AppAssets.nextBtn, width: 100),
@@ -478,27 +480,10 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           children: [
                                             BouncingButton(
                                               onPressed: () {
-                                                if (_isTableUnlocked) {
-                                                  setState(
-                                                    () => _isDiaryTableShown =
-                                                        true,
-                                                  );
-                                                } else {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                        "No tables to show yet. Run your query successfully first!",
-                                                      ),
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                      duration: Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
+                                                setState(
+                                                  () => _isDiaryTableShown =
+                                                      true,
+                                                );
                                               },
                                               child: Image.asset(
                                                 AppAssets.tablesBtn,
@@ -801,12 +786,10 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
                                           padding: EdgeInsets.zero,
                                           children: [
                                             _buildDiaryRow(
-                                              "1",
-                                              "My_Notes",
+                                              _isTableCreated ? "1" : "",
+                                              _isTableCreated ? "My_Notes" : "",
                                               isDark: true,
-                                              onTap:
-                                                  (_currentTaskIndex == 1 &&
-                                                      _hasShownGuidePop8)
+                                              onTap: _isTablePopulated
                                                   ? () => setState(() {
                                                       _showDeviceRegistry =
                                                           true;

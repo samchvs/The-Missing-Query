@@ -39,7 +39,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String username,
   }) => _dataSource.updateUsername(userId: userId, username: username);
 
-  /// Saves [score] to Supabase only if it beats the player's stored high score.
   Future<void> submitHighScore({
     required String userId,
     required int score,

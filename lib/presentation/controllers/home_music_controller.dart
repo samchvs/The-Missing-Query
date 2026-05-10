@@ -9,15 +9,13 @@ class HomeMusicController with WidgetsBindingObserver {
 
   HomeMusicController._internal() {
     WidgetsBinding.instance.addObserver(this);
-    // Audio context is shared via AudioPlayer.global, 
-    // but we can ensure it's set if this is the first controller initialized.
     final audioContext = AudioContext(
       android: const AudioContextAndroid(
         isSpeakerphoneOn: false,
         stayAwake: false,
         contentType: AndroidContentType.music,
         usageType: AndroidUsageType.media,
-        audioFocus: AndroidAudioFocus.none, // Allow SFX to play on top without ducking
+        audioFocus: AndroidAudioFocus.none, 
       ),
       iOS: AudioContextIOS(
         category: AVAudioSessionCategory.playback,
@@ -66,8 +64,6 @@ class HomeMusicController with WidgetsBindingObserver {
   Future<void> play() async {
     try {
       _isExpectedToPlay = true;
-      
-      // If it's already playing, we don't want to restart it from the beginning
       if (_audioPlayer.state == PlayerState.playing) {
         debugPrint("Home music is already playing. Skipping play command.");
         return;
@@ -76,9 +72,6 @@ class HomeMusicController with WidgetsBindingObserver {
       debugPrint("Attempting to play/resume home music: ${AppAssets.homeMusic}");
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.setVolume(_volume); 
-      
-      // We use play() which will start from the beginning if stopped, 
-      // or we can use resume() if it was just paused.
       if (_audioPlayer.state == PlayerState.paused) {
         await _audioPlayer.resume();
       } else {

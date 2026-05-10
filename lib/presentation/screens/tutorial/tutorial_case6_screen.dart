@@ -598,7 +598,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                           right: 15,
                           child: BouncingButton(
                             onPressed: _hideQuery,
-                            child: Image.asset(AppAssets.closeBtn, width: 30),
+                            child: Image.asset(AppAssets.closeBtn, width: 25),
                           ),
                         ),
 
@@ -610,25 +610,11 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                             child: Row(
                               children: [
                                 BouncingButton(
-                                  onPressed: () {
-                                    if (_isQuerySuccessful) {
+                                    onPressed: () {
                                       setState(() {
                                         _isTableShown = true;
                                       });
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Table is locked. Run your query successfully first!",
-                                          ),
-                                          backgroundColor: Colors.red,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                    }
-                                  },
+                                    },
                                   child: Image.asset(
                                     AppAssets.tablesBtn,
                                     width: 100,
@@ -717,7 +703,7 @@ class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          Image.asset(AppAssets.tabletLogs, width: 550),
+                          Image.asset(AppAssets.specificTabletLogs, width: 550),
                           Positioned(
                             top: 10,
                             right: 10,

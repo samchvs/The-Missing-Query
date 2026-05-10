@@ -16,8 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 
-/// Central auth state holder for the presentation layer.
-/// Wires all use cases and exposes observable state.
 class AuthController extends ChangeNotifier {
   late final SignInUseCase _signIn;
   late final SignUpUseCase _signUp;
@@ -40,16 +38,13 @@ class AuthController extends ChangeNotifier {
   AppUser? get currentUser => _currentUser;
   String? get localUsername => _localUsername;
 
-  /// Whether the user has a full Supabase session (not just a guest).
   bool get isAuthenticated => _currentUser != null;
 
-  /// The display name to show — Supabase username if logged in, else local guest name.
   String get displayUsername =>
       _currentUser?.username ?? _localUsername ?? 'Guest';
 
   AuthController._();
 
-  /// Factory: initialises all dependencies from live Supabase/SharedPreferences instances.
   static Future<AuthController> create() async {
     final controller = AuthController._();
     await controller._init();

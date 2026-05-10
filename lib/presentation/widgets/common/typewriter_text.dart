@@ -3,8 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/core/constants/app_assets.dart';
 import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
-/// Typewriter effect text widget. Animates characters one by one over [duration].
-/// Calls [onFinished] when the full text has been revealed.
+
 class TypewriterText extends StatefulWidget {
   final String text;
   final TextStyle? style;
@@ -13,7 +12,6 @@ class TypewriterText extends StatefulWidget {
   final VoidCallback? onFinished;
   final bool playAudio;
 
-  /// Words that should be rendered in bold.
   final List<String>? boldWords;
 
   const TypewriterText({

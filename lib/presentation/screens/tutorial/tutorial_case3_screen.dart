@@ -618,24 +618,10 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                   left: 15,
                                   child: BouncingButton(
                                     onPressed: () {
-                                      if (_isTableUnlocked) {
-                                        setState(() {
-                                          _showQueryDisplay = false;
-                                          _isTableShown = true;
-                                        });
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              "Table is locked. Run your query successfully first!",
-                                            ),
-                                            backgroundColor: Colors.red,
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
+                                      setState(() {
+                                        _showQueryDisplay = false;
+                                        _isTableShown = true;
+                                      });
                                     },
                                     child: Image.asset(
                                       AppAssets.tablesBtn,

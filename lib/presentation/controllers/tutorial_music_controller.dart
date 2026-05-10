@@ -16,10 +16,10 @@ class TutorialMusicController with WidgetsBindingObserver {
         stayAwake: false,
         contentType: AndroidContentType.music,
         usageType: AndroidUsageType.media,
-        audioFocus: AndroidAudioFocus.none, // Background music focus mode
+        audioFocus: AndroidAudioFocus.none, 
       ),
       iOS: AudioContextIOS(
-        category: AVAudioSessionCategory.playback, // Valid with mixWithOthers
+        category: AVAudioSessionCategory.playback, 
         options: const {
           AVAudioSessionOptions.mixWithOthers,
         },
