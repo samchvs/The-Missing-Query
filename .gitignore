@@ -48,3 +48,6 @@ app.*.map.json
 lib/core/config/supabase_config.dart
 android/.kotlin/
 
+#Config rules 
+.agents/
+.gemini/
