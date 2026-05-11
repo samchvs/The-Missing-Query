@@ -31,18 +31,20 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
     final auth = context.read<AuthController>();
     final userId = auth.currentUser!.id;
     final prefs = await SharedPreferences.getInstance();
-    
-    // Case 2 Unlock Condition: Police Station Solved AND Case 1 Points >= 550
-    final bool case1Solved = prefs.getBool('case1_police_station_solved_$userId') ?? false;
-    final int points1 = PointsController.instance.getPointsForCase('case1');
 
-    // Case 3 Unlock Condition: Guidance Solved AND Case 2 Points >= 600 (5 initial + 1 final)
+    // Per-case points synced from Supabase on login
+    final int case1Pts = PointsController.instance.getPointsForCase('case1');
+    final int case2Pts = PointsController.instance.getPointsForCase('case2');
+
+    // Local solve flags as secondary confirmation
+    final bool case1Solved = prefs.getBool('case1_police_station_solved_$userId') ?? false;
     final bool case2Solved = prefs.getBool('case2_guidance_solved_$userId') ?? false;
-    final int points2 = PointsController.instance.getPointsForCase('case2');
 
     setState(() {
-      _isCase2Unlocked = case1Solved && points1 >= 550;
-      _isCase3Unlocked = case2Solved && points2 >= 600;
+      // Case 2 unlocks if police station was solved locally OR case1_points >= 550
+      _isCase2Unlocked = case1Solved || case1Pts >= 550;
+      // Case 3 unlocks if guidance was solved locally OR case2_points >= 600
+      _isCase3Unlocked = case2Solved || case2Pts >= 600;
     });
   }
 

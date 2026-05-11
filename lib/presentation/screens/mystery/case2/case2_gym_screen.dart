@@ -297,7 +297,14 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
     }
 
     if (_isGymCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
 
       if (!mounted) return;
       final auth = context.read<AuthController>();
@@ -317,16 +324,10 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
         }
       }
 
-      if (mounted) {
-        setState(() {
-          isQuestionVisible = false;
-          isCorrectVisible = true;
-          isWrongVisible = false;
-        });
-      }
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -386,10 +387,12 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
+*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

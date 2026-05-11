@@ -39,11 +39,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String username,
   }) => _dataSource.updateUsername(userId: userId, username: username);
 
-  Future<void> submitHighScore({
-    required String userId,
-    required int score,
-  }) => _dataSource.submitHighScore(userId: userId, score: score);
-
   @override
   Future<void> submitScore({
     required String userId,
@@ -54,11 +49,17 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<int> getScore(String userId) => _dataSource.getHighScore(userId);
 
   @override
-  Future<int> getAvatarIndex(String userId) => _dataSource.getAvatarIndex(userId);
+  Future<Map<String, int>> getCasePoints(String userId) =>
+      _dataSource.getCasePoints(userId);
 
   @override
-  Future<void> updateAvatar({
+  Future<void> updateCasePoints({
     required String userId,
-    required int avatarIndex,
-  }) => _dataSource.updateAvatar(userId: userId, avatarIndex: avatarIndex);
+    required String caseId,
+    required int points,
+  }) => _dataSource.updateCasePoints(
+        userId: userId,
+        caseId: caseId,
+        points: points,
+      );
 }

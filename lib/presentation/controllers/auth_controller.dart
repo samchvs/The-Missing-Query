@@ -11,7 +11,6 @@ import 'package:graphics_project/domain/usecases/sign_out_usecase.dart';
 import 'package:graphics_project/domain/usecases/get_current_user_usecase.dart';
 import 'package:graphics_project/domain/usecases/save_local_username_usecase.dart';
 import 'package:graphics_project/domain/usecases/get_local_username_usecase.dart';
-import 'package:graphics_project/domain/usecases/submit_score_usecase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
@@ -25,7 +24,6 @@ class AuthController extends ChangeNotifier {
   late final GetCurrentUserUseCase _getCurrentUser;
   late final SaveLocalUsernameUseCase _saveLocalUsername;
   late final GetLocalUsernameUseCase _getLocalUsername;
-  late final SubmitScoreUseCase _submitScore;
   late final AuthRepositoryImpl _authRepo;
 
   bool _isLoading = false;
@@ -77,52 +75,71 @@ class AuthController extends ChangeNotifier {
     _getCurrentUser = GetCurrentUserUseCase(_authRepo);
     _saveLocalUsername = SaveLocalUsernameUseCase(localRepo);
     _getLocalUsername = GetLocalUsernameUseCase(localRepo);
-    _submitScore = SubmitScoreUseCase(_authRepo);
 
     // Restore session + local username
     _currentUser = _getCurrentUser();
     _localUsername = await _getLocalUsername();
 
-    // If logged in, ensure local username is synced from session
     if (_currentUser != null && _localUsername == null) {
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
     }
 
-    // Load points, lives, and avatar for this user
-    int remoteScore = 0;
+    // Load per-case points from Supabase and initialize controllers
+    Map<String, int>? remoteCasePoints;
+    int remoteTotal = 0;
     if (_currentUser != null) {
-      remoteScore = await _authRepo.getScore(_currentUser!.id);
-      _currentAvatarIndex = await _authRepo.getAvatarIndex(_currentUser!.id);
+      remoteCasePoints = await _authRepo.getCasePoints(_currentUser!.id);
+      remoteTotal = remoteCasePoints.values.fold(0, (s, v) => s + v);
     }
+
+    // Register the Supabase sync callback in PointsController
+    _registerPointsSyncCallback();
+
     await PointsController.instance.initializeForUser(
-      _currentUser?.id, 
-      remoteScore: remoteScore,
+      _currentUser?.id,
+      remoteCasePoints: remoteCasePoints,
     );
     await LivesController.instance.initializeForUser(_currentUser?.id);
 
-    // Push existing score to leaderboard on startup (backfills before listener fires)
-    if (_currentUser != null && remoteScore > 0) {
+    // Push existing total to leaderboard on startup
+    if (_currentUser != null && remoteTotal > 0) {
       leaderboard.maybePushScore(
         userId: _currentUser?.id,
         username: displayUsername,
-        score: remoteScore,
+        score: remoteTotal,
       );
     }
 
-    // Auto-sync total points to Supabase whenever they change
+    // Auto-sync leaderboard whenever points change
     PointsController.instance.addListener(() {
       if (_currentUser != null) {
-        final pts = PointsController.instance.totalPoints;
-        submitScore(pts);
-        // Attempt a leaderboard push using the cached board as a pre-filter
         leaderboard.maybePushScore(
           userId: _currentUser?.id,
           username: displayUsername,
-          score: pts,
+          score: PointsController.instance.totalPoints,
         );
       }
     });
+  }
+
+  /// Registers a callback so PointsController can sync per-case scores to Supabase.
+  void _registerPointsSyncCallback() {
+    PointsController.instance.setRemoteSyncCallback(
+      _currentUser == null
+          ? null
+          : (caseId, points) async {
+              try {
+                await _authRepo.updateCasePoints(
+                  userId: _currentUser!.id,
+                  caseId: caseId,
+                  points: points,
+                );
+              } catch (_) {
+                // Never crash the game over a sync failure
+              }
+            },
+    );
   }
 
   // ──────────────────────────────────────────────
@@ -145,9 +162,9 @@ class AuthController extends ChangeNotifier {
       );
       _localUsername = username;
       await _saveLocalUsername(username);
-      
-      // For sign up, remote score is always 0
-      await PointsController.instance.initializeForUser(_currentUser?.id, remoteScore: 0);
+
+      _registerPointsSyncCallback();
+      await PointsController.instance.initializeForUser(_currentUser?.id);
       await LivesController.instance.initializeForUser(_currentUser?.id);
       notifyListeners();
       return true;
@@ -171,21 +188,22 @@ class AuthController extends ChangeNotifier {
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
 
-      // Fetch remote score and avatar before initializing controllers
-      final remoteScore = await _authRepo.getScore(_currentUser!.id);
-      _currentAvatarIndex = await _authRepo.getAvatarIndex(_currentUser!.id);
+      // Fetch per-case points from Supabase
+      final remoteCasePoints = await _authRepo.getCasePoints(_currentUser!.id);
+      final remoteTotal = remoteCasePoints.values.fold(0, (s, v) => s + v);
+
+      _registerPointsSyncCallback();
       await PointsController.instance.initializeForUser(
-        _currentUser?.id, 
-        remoteScore: remoteScore,
+        _currentUser?.id,
+        remoteCasePoints: remoteCasePoints,
       );
       await LivesController.instance.initializeForUser(_currentUser?.id);
 
-      // Immediately push existing score to leaderboard on sign-in
-      if (remoteScore > 0) {
+      if (remoteTotal > 0) {
         leaderboard.maybePushScore(
           userId: _currentUser?.id,
           username: displayUsername,
-          score: remoteScore,
+          score: remoteTotal,
         );
       }
       notifyListeners();
@@ -207,11 +225,14 @@ class AuthController extends ChangeNotifier {
       _currentUser = null;
       _currentAvatarIndex = 0;
       _localUsername = null;
-      
+
+      // Clear Supabase sync callback
+      PointsController.instance.setRemoteSyncCallback(null);
+
       // Reset points and lives states
       await PointsController.instance.initializeForUser(null);
       await LivesController.instance.initializeForUser(null);
-      
+
       notifyListeners();
     } catch (e) {
       _setError(e);
@@ -244,32 +265,11 @@ class AuthController extends ChangeNotifier {
 
   void clearError() => _clearError();
 
-  /// Updates the character in-memory and, if logged in, persists the avatar
-  /// index to the profiles table in Supabase.
+  /// Updates the character selection in-memory (avatar index only — no longer persisted to DB).
   Future<void> updateCharacter(String characterPath) async {
     final index = CharacterModel.all.indexWhere((c) => c.path == characterPath);
     _currentAvatarIndex = index < 0 ? 0 : index;
     notifyListeners();
-    if (_currentUser != null) {
-      try {
-        await _authRepo.updateAvatar(
-          userId: _currentUser!.id,
-          avatarIndex: _currentAvatarIndex,
-        );
-      } catch (_) {
-        // Silently fail — local state is already updated
-      }
-    }
-  }
-
-  /// Submits [score] to Supabase if the user is logged in and it beats their best.
-  /// Silently does nothing for guest users — the game stays fully offline-safe.
-  Future<void> submitScore(int score) async {
-    try {
-      await _submitScore(userId: _currentUser?.id, score: score);
-    } catch (_) {
-      // Never crash the game over a score submission failure
-    }
   }
 
   // ──────────────────────────────────────────────
@@ -290,7 +290,6 @@ class AuthController extends ChangeNotifier {
   void _clearError() {
     _errorMessage = null;
     _debugErrorMessage = null;
-    // Always notify so the UI rebuilds and the spinner stops
     notifyListeners();
   }
 
@@ -298,8 +297,8 @@ class AuthController extends ChangeNotifier {
   String _parseError(Object e) {
     final msg = e.toString().toLowerCase();
 
-    if (msg.contains('already registered') || 
-        msg.contains('user_already_exists') || 
+    if (msg.contains('already registered') ||
+        msg.contains('user_already_exists') ||
         msg.contains('duplicate key')) {
       return 'That email is already registered.';
     }
@@ -308,21 +307,20 @@ class AuthController extends ChangeNotifier {
       if (e.message.toLowerCase().contains('invalid login credentials')) {
         return 'Incorrect email or password.';
       }
-      
+
       final code = e.statusCode;
       if (code == '400' || code == '422') {
         return 'Invalid email or password format.';
       }
       if (code == '401') return 'Incorrect email or password.';
       if (code == '429') return 'Too many attempts. Please wait a moment.';
-      
+
       return e.message;
     }
 
     if (msg.contains('network') || msg.contains('socketexception')) {
       return 'No internet connection. Please check your network.';
     }
-    
-    return 'Something went wrong. Please try again.';
-  }
+
+    return 'Something went wrong. Please try again.';}
 }

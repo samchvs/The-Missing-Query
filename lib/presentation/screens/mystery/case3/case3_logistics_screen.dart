@@ -188,7 +188,12 @@ class _LogisticsScreenState extends State<LogisticsScreen>
     }
 
     if (_isLogisticsCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
 
       // Save solving state
       final auth = context.read<AuthController>();
@@ -200,14 +205,10 @@ class _LogisticsScreenState extends State<LogisticsScreen>
       // Award points
       await PointsController.instance.addPoints(200);
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -267,10 +268,12 @@ class _LogisticsScreenState extends State<LogisticsScreen>
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
+*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

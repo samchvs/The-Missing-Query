@@ -157,9 +157,9 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
   }
 
   bool _isDeanCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
-    return normalized == 'MAYA CHEN, 12,500' ||
-        normalized == 'MAYA CHEN, 12500';
+    String clean(String s) => s.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    final normalized = clean(input);
+    return normalized == clean('MAYA CHEN, 12500');
   }
 
   void _submitAnswer() async {
@@ -172,7 +172,14 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
     }
 
     if (_isDeanCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
 
       if (!mounted) return;
       final auth = context.read<AuthController>();
@@ -192,16 +199,10 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
         }
       }
 
-      if (mounted) {
-        setState(() {
-          isQuestionVisible = false;
-          isCorrectVisible = true;
-          isWrongVisible = false;
-        });
-      }
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       if (mounted) {
         setState(() {
           isQuestionVisible = false;
@@ -263,10 +264,12 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
+*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

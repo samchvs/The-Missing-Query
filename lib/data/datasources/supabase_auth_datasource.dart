@@ -7,6 +7,7 @@ class SupabaseAuthDataSource {
   final SupabaseClient _client;
 
   SupabaseAuthDataSource(this._client);
+
   Future<AppUser> signUp({
     required String email,
     required String password,
@@ -28,12 +29,15 @@ class SupabaseAuthDataSource {
         'id': user.id,
         'username': username,
         'email': email,
+        'case1_points': 0,
+        'case2_points': 0,
+        'case3_points': 0,
       });
     }
     return AppUser(id: user.id, email: email, username: username);
   }
 
-  /// Signs in an existing user and fetches their profile username + avatar.
+  /// Signs in an existing user and fetches their profile username.
   Future<AppUser> signIn({
     required String email,
     required String password,
@@ -84,7 +88,7 @@ class SupabaseAuthDataSource {
         .update({'username': username}).eq('id', userId);
   }
 
-  /// Returns the current high_score from the profiles table.
+  /// Returns the current high_score (total) from the profiles table.
   Future<int> getHighScore(String userId) async {
     try {
       final response = await _client
@@ -92,7 +96,7 @@ class SupabaseAuthDataSource {
           .select('high_score')
           .eq('id', userId)
           .maybeSingle();
-      
+
       if (response == null) return 0;
       return (response['high_score'] as int?) ?? 0;
     } catch (e) {
@@ -101,54 +105,72 @@ class SupabaseAuthDataSource {
     }
   }
 
-  /// Updates high_score only if [score] is greater than the current stored value.
-  Future<void> submitHighScore({
-    required String userId,
-    required int score,
-  }) async {
-    final currentBest = await getHighScore(userId);
-    if (score > currentBest) {
-      await _updateScoreDirectly(userId: userId, score: score);
+  /// Returns per-case points as a map: {'case1': x, 'case2': y, 'case3': z}
+  Future<Map<String, int>> getCasePoints(String userId) async {
+    try {
+      final response = await _client
+          .from('profiles')
+          .select('case1_points, case2_points, case3_points')
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (response == null) return {'case1': 0, 'case2': 0, 'case3': 0};
+      return {
+        'case1': (response['case1_points'] as int?) ?? 0,
+        'case2': (response['case2_points'] as int?) ?? 0,
+        'case3': (response['case3_points'] as int?) ?? 0,
+      };
+    } catch (e) {
+      debugPrint('Error fetching case points: $e');
+      return {'case1': 0, 'case2': 0, 'case3': 0};
     }
   }
 
-  Future<void> _updateScoreDirectly({
+  /// Updates a specific case's points only if the new value is higher.
+  /// Also updates high_score (sum of all cases).
+  Future<void> updateCasePoints({
     required String userId,
-    required int score,
+    required String caseId, // 'case1', 'case2', or 'case3'
+    required int points,
   }) async {
-    await _client
-        .from('profiles')
-        .update({'high_score': score}).eq('id', userId);
+    try {
+      final column = '${caseId}_points';
+
+      // Fetch current values
+      final response = await _client
+          .from('profiles')
+          .select('case1_points, case2_points, case3_points')
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (response == null) return;
+
+      final current = (response[column] as int?) ?? 0;
+      if (points <= current) return; // Only update if higher
+
+      final case1 = caseId == 'case1' ? points : ((response['case1_points'] as int?) ?? 0);
+      final case2 = caseId == 'case2' ? points : ((response['case2_points'] as int?) ?? 0);
+      final case3 = caseId == 'case3' ? points : ((response['case3_points'] as int?) ?? 0);
+      final total = case1 + case2 + case3;
+
+      await _client.from('profiles').update({
+        column: points,
+        'high_score': total,
+      }).eq('id', userId);
+    } catch (e) {
+      debugPrint('Error updating case points: $e');
+    }
   }
 
   Future<void> submitScore({
     required String userId,
     required int score,
-  }) => submitHighScore(userId: userId, score: score);
-
-  /// Returns the avatar index (0–3) stored in the profiles table.
-  Future<int> getAvatarIndex(String userId) async {
-    try {
-      final response = await _client
-          .from('profiles')
-          .select('avatar')
-          .eq('id', userId)
-          .maybeSingle();
-      if (response == null) return 0;
-      return (response['avatar'] as int?) ?? 0;
-    } catch (e) {
-      debugPrint('Error fetching avatar: $e');
-      return 0;
-    }
-  }
-
-  /// Updates the avatar column in the profiles table.
-  Future<void> updateAvatar({
-    required String userId,
-    required int avatarIndex,
   }) async {
-    await _client
-        .from('profiles')
-        .update({'avatar': avatarIndex}).eq('id', userId);
+    final currentBest = await getHighScore(userId);
+    if (score > currentBest) {
+      await _client
+          .from('profiles')
+          .update({'high_score': score}).eq('id', userId);
+    }
   }
 }

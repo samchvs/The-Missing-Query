@@ -17,6 +17,13 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
     _configureAudioPlayers();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage('assets/mystery/correct.png'), context);
+    precacheImage(const AssetImage('assets/mystery/wrong.png'), context);
+  }
+
   Future<void> _configureAudioPlayers() async {
     await voicePlayer.setReleaseMode(ReleaseMode.stop);
     await feedbackPlayer.setReleaseMode(ReleaseMode.stop);

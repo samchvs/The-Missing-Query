@@ -152,7 +152,12 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
     }
 
     if (_isPearlCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
@@ -166,14 +171,10 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
         await prefs.setBool(solveKey, true);
       }
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -232,12 +233,12 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
 
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-
+*/
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;

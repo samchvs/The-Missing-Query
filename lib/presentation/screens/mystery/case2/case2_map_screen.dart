@@ -13,6 +13,7 @@ import 'package:graphics_project/presentation/controllers/lives_controller.dart'
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
+import 'package:graphics_project/presentation/widgets/mystery/diary_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
@@ -346,6 +347,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
@@ -456,9 +458,20 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
                             right: 10,
                             child: Row(
                               children: [
-                                Image.asset(
-                                  'assets/mystery/notebook.png',
-                                  height: 50,
+                                GestureDetector(
+                                  onTap: () {
+                                    final auth = context.read<AuthController>();
+                                    final userId = auth.currentUser!.id;
+                                    showDiaryPopup(
+                                      context,
+                                      caseKey: 'case2',
+                                      userId: userId,
+                                    );
+                                  },
+                                  child: Image.asset(
+                                    'assets/mystery/notebook.png',
+                                    height: 50,
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                                 _buildLivesHUDItem(context),

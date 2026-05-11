@@ -111,7 +111,12 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
     }
 
     if (_isPoliceCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
       if (!mounted) return;
 
 
@@ -127,14 +132,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
         await prefs.setBool(solveKey, true);
       }
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -162,11 +163,12 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-
+*/
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;

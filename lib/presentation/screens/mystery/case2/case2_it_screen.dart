@@ -152,8 +152,8 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
   bool _isItCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    return normalized == 'MORRIS_J, 508, 510' ||
-        normalized == 'MORRIES_J, 508, 510';
+    return normalized == 'MORRIS_J 508 510' ||
+        normalized == 'MORRIES_J 508 510';
   }
 
   void _submitAnswer() async {
@@ -166,7 +166,14 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
     }
 
     if (_isItCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      if (mounted) {
+        setState(() {
+          isQuestionVisible = false;
+          isCorrectVisible = true;
+          isWrongVisible = false;
+        });
+      }
 
       if (!mounted) return;
       final auth = context.read<AuthController>();
@@ -186,16 +193,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
         }
       }
 
-      if (mounted) {
-        setState(() {
-          isQuestionVisible = false;
-          isCorrectVisible = true;
-          isWrongVisible = false;
-        });
-      }
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       if (mounted) {
         setState(() {
           isQuestionVisible = false;
@@ -257,10 +258,12 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
+*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

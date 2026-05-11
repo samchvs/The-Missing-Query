@@ -229,7 +229,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
     }
 
     if (_isBackAlleyCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
@@ -243,14 +248,10 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
         await prefs.setBool(solveKey, true);
       }
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -306,11 +307,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
             final prefs = await SharedPreferences.getInstance();
             final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-
+/*
             if (alreadySolved) {
               showAlreadySolvedPopup();
               return;
             }
+*/
 
             if (!_hasLives) {
               showNoLivesPopup();

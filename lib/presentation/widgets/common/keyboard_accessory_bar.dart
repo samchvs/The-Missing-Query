@@ -268,32 +268,30 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _ghostController,
-                      focusNode: _internalFocus,
-                      obscureText: widget.obscureText,
-                      maxLines: 1,
-                      cursorColor: AppColors.primaryLight,
-                      showCursor: true,
-                      style: _baseStyle,
-                      // No custom ScrollController — Flutter's default
-                      // cursor-following scroll keeps the cursor visible and
-                      // naturally shifts the content left as the user types.
-                      onChanged: (val) {
-                        final formatted = SqlUtils.formatSql(val, TextRange.empty);
-                        if (formatted != val) {
-                          _ghostController.value = _ghostController.value.copyWith(
-                            text: formatted,
-                            selection: _ghostController.selection,
-                          );
-                        }
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
+                      child: TextField(
+                        controller: _ghostController,
+                        focusNode: _internalFocus,
+                        obscureText: widget.obscureText,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        cursorColor: AppColors.primaryLight,
+                        showCursor: true,
+                        style: _baseStyle,
+                        onChanged: (val) {
+                          final formatted = SqlUtils.formatSql(val, TextRange.empty);
+                          if (formatted != val) {
+                            _ghostController.value = _ghostController.value.copyWith(
+                              text: formatted,
+                              selection: _ghostController.selection,
+                            );
+                          }
+                        },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        ),
                       ),
-                    ),
                   ),
                   TextButton(
                     onPressed: () {

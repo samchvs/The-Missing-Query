@@ -8,28 +8,23 @@ class SupabaseLeaderboardDataSource {
 
   SupabaseLeaderboardDataSource(this._client);
 
-  /// Fetches the top-10 rows, JOINing profiles to get the avatar index.
-  ///
-  /// Supabase resolves `profiles!id_fk(avatar)` automatically because the FK
-  /// constraint on id_fk → profiles.id is declared in the migration.
+  /// Fetches the top-10 rows from the leaderboards table.
   Future<(List<LeaderboardModel>, int)> fetchTopLeaderboard() async {
     try {
-      // In supabase_flutter 2.x, we often chain .select().count()
       final response = await _client
           .from('leaderboards')
-          .select('id, id_fk, username, highscore, profiles!id_fk(avatar)')
+          .select('id, id_fk, username, highscore')
           .order('highscore', ascending: false)
           .limit(10)
           .count(CountOption.exact);
 
-      // Cast data to List and handle the potential PostgrestResponse structure
       final List data = response.data as List;
       final int count = response.count ?? 0;
 
       final entries = data
           .map((row) => LeaderboardModel.fromJson(row as Map<String, dynamic>))
           .toList();
-      
+
       return (entries, count);
     } catch (e) {
       debugPrint('LeaderboardDS.fetch error: $e');

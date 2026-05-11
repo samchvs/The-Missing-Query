@@ -156,7 +156,12 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     }
 
     if (_isVioreCorrectAnswer(_answerController.text)) {
-      await playCorrectSound();
+      unawaited(playCorrectSound());
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
 
       final auth = context.read<AuthController>();
       final userId = auth.currentUser!.id;
@@ -169,14 +174,10 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
         await prefs.setBool(solveKey, true);
       }
 
-      setState(() {
-        isQuestionVisible = false;
-        isCorrectVisible = true;
-        isWrongVisible = false;
-      });
+
     } else {
       livesManager.deductLife();
-      await playWrongSound();
+      unawaited(playWrongSound());
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -232,11 +233,12 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             final prefs = await SharedPreferences.getInstance();
             final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
+/*
             if (alreadySolved) {
               showAlreadySolvedPopup();
               return;
             }
-
+*/
             if (!_hasLives) {
               showNoLivesPopup();
               return;
