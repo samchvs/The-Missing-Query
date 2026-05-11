@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void initState() {
     super.initState();
     _currentUsername = widget.username;
-    _currentCharacter = CharacterDisplayConfig.homeConfigs.first.path;
+    _currentCharacter = widget.authController.currentCharacterPath;
     HomeMusicController().play();
   }
 

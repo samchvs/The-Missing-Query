@@ -159,7 +159,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
       await playCorrectSound();
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_viore_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -226,7 +226,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             await playButtonSound();
 
             final auth = context.read<AuthController>();
-            final userId = auth.currentUser?.id ?? 'guest';
+            final userId = auth.currentUser!.id;
             final solveKey = 'case1_viore_solved_$userId';
 
             final prefs = await SharedPreferences.getInstance();

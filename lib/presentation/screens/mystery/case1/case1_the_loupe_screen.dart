@@ -157,7 +157,7 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_loupe_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
@@ -227,7 +227,7 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
               if (!mounted) return;
 
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case1_loupe_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

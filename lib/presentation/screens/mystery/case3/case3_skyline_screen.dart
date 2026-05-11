@@ -161,7 +161,7 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_skyline_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -230,7 +230,7 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_skyline_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

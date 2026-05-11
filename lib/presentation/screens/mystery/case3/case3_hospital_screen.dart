@@ -159,7 +159,7 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_hospital_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -228,7 +228,7 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_hospital_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

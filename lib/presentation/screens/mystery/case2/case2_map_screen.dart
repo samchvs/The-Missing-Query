@@ -200,7 +200,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
   Future<void> _checkGuidanceStatus() async {
     if (!mounted) return;
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final prefs = await SharedPreferences.getInstance();
 
     final q1 = prefs.getBool('case2_comlab_solved_$userId') ?? false;

@@ -52,4 +52,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<int> getScore(String userId) => _dataSource.getHighScore(userId);
+
+  @override
+  Future<int> getAvatarIndex(String userId) => _dataSource.getAvatarIndex(userId);
+
+  @override
+  Future<void> updateAvatar({
+    required String userId,
+    required int avatarIndex,
+  }) => _dataSource.updateAvatar(userId: userId, avatarIndex: avatarIndex);
 }

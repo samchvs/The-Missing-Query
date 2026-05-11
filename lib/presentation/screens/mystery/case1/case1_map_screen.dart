@@ -190,7 +190,7 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
   Future<void> _checkPoliceStationStatus() async {
     if (!mounted) return;
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final prefs = await SharedPreferences.getInstance();
 
     final q1 = prefs.getBool('case1_exhibition_hall_solved_$userId') ?? false;

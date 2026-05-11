@@ -253,7 +253,7 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
 
   Future<void> _checkIfSolved() async {
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final solveKey = 'case2_gym_solved_$userId';
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -301,7 +301,7 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
 
       if (!mounted) return;
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case2_gym_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -380,7 +380,7 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case2_gym_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

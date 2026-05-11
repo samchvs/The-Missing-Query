@@ -192,7 +192,7 @@ class _LogisticsScreenState extends State<LogisticsScreen>
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_logistics_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -261,7 +261,7 @@ class _LogisticsScreenState extends State<LogisticsScreen>
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_logistics_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

@@ -14,8 +14,8 @@ class _AboutTabState extends State<AboutTab> {
   int _currentPage = 0;
 
   final List<List<String>> _teamPages = [
+    [AppAssets.chaves, AppAssets.caranto, AppAssets.galang],
     [AppAssets.manalo, AppAssets.agmata, AppAssets.ramos],
-    [AppAssets.galang, AppAssets.caranto, AppAssets.chaves],
   ];
 
   Future<void> _launchURL(String url) async {

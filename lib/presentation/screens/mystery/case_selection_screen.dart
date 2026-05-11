@@ -29,7 +29,7 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
 
   Future<void> _checkUnlockStatus() async {
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final prefs = await SharedPreferences.getInstance();
     
     // Case 2 Unlock Condition: Police Station Solved AND Case 1 Points >= 550

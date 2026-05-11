@@ -160,7 +160,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_bank_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -229,7 +229,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_bank_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

@@ -116,7 +116,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
 
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_police_station_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -156,7 +156,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
 
 
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case1_police_station_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

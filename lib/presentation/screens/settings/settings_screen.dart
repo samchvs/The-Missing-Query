@@ -5,6 +5,7 @@ import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/screens/settings/profile_tab.dart';
 import 'package:graphics_project/presentation/screens/settings/about_tab.dart';
 import 'package:graphics_project/presentation/screens/settings/audio_tab.dart';
+import 'package:graphics_project/presentation/screens/settings/leaderboard_tab.dart';
 import 'package:graphics_project/presentation/widgets/common/bouncing_button.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -162,6 +163,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onCharacterChanged: (newChar) {
                                 setState(() => _localCharacterPath = newChar);
                                 widget.onCharacterChanged(newChar);
+                                // Persist avatar index to Supabase
+                                widget.authController.updateCharacter(newChar);
                               },
                             );
                           }
@@ -171,12 +174,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           if (_activeTab == 'audio') {
                             return const AudioTab();
                           }
-                          return const Center(
-                            child: Text(
-                              'More tabs coming soon!',
-                              style: TextStyle(color: Colors.grey, fontSize: 18),
-                            ),
-                          );
+                          if (_activeTab == 'leaderboard') {
+                            return LeaderboardTab(
+                              authController: widget.authController,
+                            );
+                          }
+                          return const SizedBox.shrink();
                         },
                       ),
                     ),

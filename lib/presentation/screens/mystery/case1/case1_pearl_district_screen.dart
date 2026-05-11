@@ -156,7 +156,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_pearl_district_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -227,7 +227,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
               if (!mounted) return;
 
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case1_pearl_district_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

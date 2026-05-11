@@ -238,7 +238,7 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_exhibition_hall_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -307,7 +307,7 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
             if (!mounted) return;
 
             final auth = context.read<AuthController>();
-            final userId = auth.currentUser?.id ?? 'guest';
+            final userId = auth.currentUser!.id;
             final solveKey = 'case1_exhibition_hall_solved_$userId';
 
             final prefs = await SharedPreferences.getInstance();

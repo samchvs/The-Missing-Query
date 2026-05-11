@@ -35,6 +35,8 @@ class _ProfileTabState extends State<ProfileTab> {
     super.initState();
     _localUsername = widget.username;
     _localCharacter = widget.characterPath;
+    // Ensure leaderboard data is loaded to show the rank
+    widget.authController.leaderboard.fetchLeaderboard();
   }
 
   @override
@@ -262,6 +264,39 @@ class _ProfileTabState extends State<ProfileTab> {
             top: 80,
             left: -100,
             child: Image.asset(AppAssets.rankDisplay, width: 550, fit: BoxFit.contain),
+          ),
+          ListenableBuilder(
+            listenable: widget.authController.leaderboard,
+            builder: (context, _) {
+              final leaderboard = widget.authController.leaderboard;
+              final currentUser = widget.authController.currentUser;
+              final entries = leaderboard.entries;
+              final userIndex = entries.indexWhere((e) => e.idFk == currentUser?.id);
+              
+              // If not in top 10, show '?' or leave empty
+              final total = leaderboard.totalPlayers;
+              final String rankText = userIndex == -1 
+                ? 'RANK ? OUT OF $total' 
+                : 'RANK ${userIndex + 1} OUT OF $total';
+
+              return Positioned(
+                left: 150, // Shifted left to center longer text
+                top: 108,
+                child: SizedBox(
+                  width: 250, // Wider container for longer text
+                  child: Text(
+                    rankText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 22, // Slightly smaller to fit
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Londrina Solid',
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
           Positioned(
             left: 100,

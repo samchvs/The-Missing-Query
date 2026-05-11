@@ -27,14 +27,24 @@ class LivesController extends ChangeNotifier {
   // ================= INIT =================
   Future<void> initializeForUser(String? userId) async {
     _currentUserId = userId;
+    
+    // If no user is logged in, we reset the lives state
+    if (userId == null) {
+      _currentLives = maxLives;
+      _pendingRefills.clear();
+      _initialized = true;
+      notifyListeners();
+      return;
+    }
+
     await _loadData();
     _initialized = true;
     notifyListeners();
   }
 
   // ================= STORAGE =================
-  String _getLivesKey() => 'lives_${_currentUserId ?? "guest"}';
-  String _getRefillsKey() => 'refills_${_currentUserId ?? "guest"}';
+  String _getLivesKey() => 'lives_${_currentUserId ?? "default"}';
+  String _getRefillsKey() => 'refills_${_currentUserId ?? "default"}';
 
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();

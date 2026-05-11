@@ -122,7 +122,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
   Future<void> _checkIfSolved() async {
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final solveKey = 'case2_it_solved_$userId';
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -170,7 +170,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
       if (!mounted) return;
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case2_it_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -251,7 +251,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case2_it_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

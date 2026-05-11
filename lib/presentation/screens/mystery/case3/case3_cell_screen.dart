@@ -160,7 +160,7 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_cell_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -229,7 +229,7 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_cell_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

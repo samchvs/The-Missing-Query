@@ -207,7 +207,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
   Future<void> _checkCityPoliceStatus() async {
     if (!mounted) return;
     final auth = context.read<AuthController>();
-    final userId = auth.currentUser?.id ?? 'guest';
+    final userId = auth.currentUser!.id;
     final prefs = await SharedPreferences.getInstance();
 
     final q1 = prefs.getBool('case3_bank_solved_$userId') ?? false;

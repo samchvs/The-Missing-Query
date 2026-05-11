@@ -233,7 +233,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       if (!mounted) return;
 
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case1_back_alley_solved_$userId';
 
       final prefs = await SharedPreferences.getInstance();
@@ -301,7 +301,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
             if (!mounted) return;
 
             final auth = context.read<AuthController>();
-            final userId = auth.currentUser?.id ?? 'guest';
+            final userId = auth.currentUser!.id;
             final solveKey = 'case1_back_alley_solved_$userId';
 
             final prefs = await SharedPreferences.getInstance();

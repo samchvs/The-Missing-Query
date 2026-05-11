@@ -33,7 +33,7 @@ class SupabaseAuthDataSource {
     return AppUser(id: user.id, email: email, username: username);
   }
 
-  /// Signs in an existing user and fetches their profile username.
+  /// Signs in an existing user and fetches their profile username + avatar.
   Future<AppUser> signIn({
     required String email,
     required String password,
@@ -125,4 +125,30 @@ class SupabaseAuthDataSource {
     required String userId,
     required int score,
   }) => submitHighScore(userId: userId, score: score);
+
+  /// Returns the avatar index (0–3) stored in the profiles table.
+  Future<int> getAvatarIndex(String userId) async {
+    try {
+      final response = await _client
+          .from('profiles')
+          .select('avatar')
+          .eq('id', userId)
+          .maybeSingle();
+      if (response == null) return 0;
+      return (response['avatar'] as int?) ?? 0;
+    } catch (e) {
+      debugPrint('Error fetching avatar: $e');
+      return 0;
+    }
+  }
+
+  /// Updates the avatar column in the profiles table.
+  Future<void> updateAvatar({
+    required String userId,
+    required int avatarIndex,
+  }) async {
+    await _client
+        .from('profiles')
+        .update({'avatar': avatarIndex}).eq('id', userId);
+  }
 }

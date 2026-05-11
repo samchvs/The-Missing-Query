@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 class SqlUtils {
   static const Set<String> keywords = {
     'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'ORDER', 'BY', 'LIMIT',
-    'LIKE', 'IN', 'BETWEEN', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG',
+    'LIKE', 'BETWEEN', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG',
     'MIN', 'MAX', 'GROUP', 'HAVING', 'JOIN', 'LEFT', 'RIGHT', 'INNER',
-    'ON', 'DESC', 'ASC', 'UNION', 'ALL', 'INSERT', 'INTO', 'VALUES',
+    'ON', 'DESC', 'ASC', 'UNION', 'INSERT', 'INTO', 'VALUES',
     'UPDATE', 'SET', 'DELETE', 'CREATE', 'DROP',
   };
 

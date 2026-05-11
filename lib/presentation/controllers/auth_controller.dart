@@ -3,6 +3,7 @@ import 'package:graphics_project/data/datasources/supabase_auth_datasource.dart'
 import 'package:graphics_project/data/repositories/auth_repository_impl.dart';
 import 'package:graphics_project/data/datasources/shared_prefs_datasource.dart';
 import 'package:graphics_project/data/repositories/local_storage_repository_impl.dart';
+import 'package:graphics_project/data/models/character_model.dart';
 import 'package:graphics_project/domain/entities/app_user.dart';
 import 'package:graphics_project/domain/usecases/sign_in_usecase.dart';
 import 'package:graphics_project/domain/usecases/sign_up_usecase.dart';
@@ -15,6 +16,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
+import 'package:graphics_project/presentation/controllers/leaderboard_controller.dart';
 
 class AuthController extends ChangeNotifier {
   late final SignInUseCase _signIn;
@@ -31,6 +33,9 @@ class AuthController extends ChangeNotifier {
   String? _debugErrorMessage;
   AppUser? _currentUser;
   String? _localUsername;
+  int _currentAvatarIndex = 0;
+
+  final LeaderboardController leaderboard = LeaderboardController();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -41,7 +46,14 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _currentUser != null;
 
   String get displayUsername =>
-      _currentUser?.username ?? _localUsername ?? 'Guest';
+      _currentUser?.username ?? _localUsername ?? '';
+
+  /// The avatar index (0–3) for the current user's character.
+  int get currentAvatarIndex => _currentAvatarIndex;
+
+  /// The asset path corresponding to the current avatar index.
+  String get currentCharacterPath =>
+      CharacterModel.all[_currentAvatarIndex.clamp(0, CharacterModel.all.length - 1)].path;
 
   AuthController._();
 
@@ -77,10 +89,11 @@ class AuthController extends ChangeNotifier {
       await _saveLocalUsername(_localUsername!);
     }
 
-    // Load points and lives for this user
+    // Load points, lives, and avatar for this user
     int remoteScore = 0;
     if (_currentUser != null) {
       remoteScore = await _authRepo.getScore(_currentUser!.id);
+      _currentAvatarIndex = await _authRepo.getAvatarIndex(_currentUser!.id);
     }
     await PointsController.instance.initializeForUser(
       _currentUser?.id, 
@@ -88,10 +101,26 @@ class AuthController extends ChangeNotifier {
     );
     await LivesController.instance.initializeForUser(_currentUser?.id);
 
+    // Push existing score to leaderboard on startup (backfills before listener fires)
+    if (_currentUser != null && remoteScore > 0) {
+      leaderboard.maybePushScore(
+        userId: _currentUser?.id,
+        username: displayUsername,
+        score: remoteScore,
+      );
+    }
+
     // Auto-sync total points to Supabase whenever they change
     PointsController.instance.addListener(() {
       if (_currentUser != null) {
-        submitScore(PointsController.instance.totalPoints);
+        final pts = PointsController.instance.totalPoints;
+        submitScore(pts);
+        // Attempt a leaderboard push using the cached board as a pre-filter
+        leaderboard.maybePushScore(
+          userId: _currentUser?.id,
+          username: displayUsername,
+          score: pts,
+        );
       }
     });
   }
@@ -142,13 +171,23 @@ class AuthController extends ChangeNotifier {
       _localUsername = _currentUser!.username;
       await _saveLocalUsername(_localUsername!);
 
-      // Fetch remote score before initializing PointsController to prevent overwriting with 0
+      // Fetch remote score and avatar before initializing controllers
       final remoteScore = await _authRepo.getScore(_currentUser!.id);
+      _currentAvatarIndex = await _authRepo.getAvatarIndex(_currentUser!.id);
       await PointsController.instance.initializeForUser(
         _currentUser?.id, 
         remoteScore: remoteScore,
       );
       await LivesController.instance.initializeForUser(_currentUser?.id);
+
+      // Immediately push existing score to leaderboard on sign-in
+      if (remoteScore > 0) {
+        leaderboard.maybePushScore(
+          userId: _currentUser?.id,
+          username: displayUsername,
+          score: remoteScore,
+        );
+      }
       notifyListeners();
       return true;
     } catch (e) {
@@ -159,30 +198,26 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  /// Signs out of Supabase, but keeps the local username so the game stays playable.
+  /// Signs out of Supabase and clears local state.
   Future<void> signOut() async {
     _setLoading(true);
     _clearError();
     try {
       await _signOut();
       _currentUser = null;
-      // Refresh points and lives for guest mode
+      _currentAvatarIndex = 0;
+      _localUsername = null;
+      
+      // Reset points and lives states
       await PointsController.instance.initializeForUser(null);
       await LivesController.instance.initializeForUser(null);
-      // Do NOT clear _localUsername — guest mode keeps working
+      
       notifyListeners();
     } catch (e) {
       _setError(e);
     } finally {
       _setLoading(false);
     }
-  }
-
-  /// Saves a guest (or new) username locally. Call this on the UsernameEntryScreen.
-  Future<void> saveGuestUsername(String username) async {
-    _localUsername = username;
-    await _saveLocalUsername(username);
-    notifyListeners();
   }
 
   /// Updates the username locally and, if logged in, also in Supabase profiles.
@@ -208,6 +243,24 @@ class AuthController extends ChangeNotifier {
   }
 
   void clearError() => _clearError();
+
+  /// Updates the character in-memory and, if logged in, persists the avatar
+  /// index to the profiles table in Supabase.
+  Future<void> updateCharacter(String characterPath) async {
+    final index = CharacterModel.all.indexWhere((c) => c.path == characterPath);
+    _currentAvatarIndex = index < 0 ? 0 : index;
+    notifyListeners();
+    if (_currentUser != null) {
+      try {
+        await _authRepo.updateAvatar(
+          userId: _currentUser!.id,
+          avatarIndex: _currentAvatarIndex,
+        );
+      } catch (_) {
+        // Silently fail — local state is already updated
+      }
+    }
+  }
 
   /// Submits [score] to Supabase if the user is logged in and it beats their best.
   /// Silently does nothing for guest users — the game stays fully offline-safe.
@@ -243,26 +296,33 @@ class AuthController extends ChangeNotifier {
 
   /// Converts a thrown exception into a displayable error string.
   String _parseError(Object e) {
-    // User-friendly mode
+    final msg = e.toString().toLowerCase();
+
+    if (msg.contains('already registered') || 
+        msg.contains('user_already_exists') || 
+        msg.contains('duplicate key')) {
+      return 'That email is already registered.';
+    }
+
     if (e is AuthException) {
+      if (e.message.toLowerCase().contains('invalid login credentials')) {
+        return 'Incorrect email or password.';
+      }
+      
       final code = e.statusCode;
       if (code == '400' || code == '422') {
         return 'Invalid email or password format.';
       }
       if (code == '401') return 'Incorrect email or password.';
       if (code == '429') return 'Too many attempts. Please wait a moment.';
+      
       return e.message;
     }
-    final msg = e.toString();
-    if (msg.contains('duplicate key') || msg.contains('already registered')) {
-      return 'That email is already registered.';
-    }
-    if (msg.contains('Invalid login credentials')) {
-      return 'Incorrect email or password.';
-    }
-    if (msg.contains('network') || msg.contains('SocketException')) {
+
+    if (msg.contains('network') || msg.contains('socketexception')) {
       return 'No internet connection. Please check your network.';
     }
+    
     return 'Something went wrong. Please try again.';
   }
 }

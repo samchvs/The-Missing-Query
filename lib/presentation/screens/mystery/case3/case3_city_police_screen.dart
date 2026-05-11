@@ -311,7 +311,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
 
       // Save solving state
       final auth = context.read<AuthController>();
-      final userId = auth.currentUser?.id ?? 'guest';
+      final userId = auth.currentUser!.id;
       final solveKey = 'case3_city_police_solved_$userId';
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(solveKey, true);
@@ -380,7 +380,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
 
               if (!mounted) return;
               final auth = context.read<AuthController>();
-              final userId = auth.currentUser?.id ?? 'guest';
+              final userId = auth.currentUser!.id;
               final solveKey = 'case3_city_police_solved_$userId';
 
               final prefs = await SharedPreferences.getInstance();

@@ -21,7 +21,7 @@ class PointsController extends ChangeNotifier {
   String get activeCaseId => _activeCaseId;
 
   String _getStorageKey(String? userId, String caseId) => 
-      'points_${userId ?? "guest"}_$caseId';
+      'points_${userId ?? "default"}_$caseId';
 
   /// Sets the context for which case is currently being played.
   void setActiveCase(String caseId) {
@@ -33,6 +33,15 @@ class PointsController extends ChangeNotifier {
   /// If [remoteScore] is provided (e.g. from Supabase), it ensures local points match or exceed it.
   Future<void> initializeForUser(String? userId, {int? remoteScore}) async {
     _currentUserId = userId;
+    
+    // If no user is logged in, we clear the active points state
+    if (userId == null) {
+      _casePoints.clear();
+      _initialized = true;
+      notifyListeners();
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     
     // Initialize points for all 3 cases
@@ -53,7 +62,7 @@ class PointsController extends ChangeNotifier {
     // --- MIGRATION ---
     // If Case 1 points are 0, check if points exist in the old legacy global key
     if (_casePoints['case1'] == 0) {
-      final legacyKey = 'points_${userId ?? "guest"}';
+      final legacyKey = 'points_$userId';
       final legacyPoints = prefs.getInt(legacyKey) ?? 0;
       if (legacyPoints > 0) {
         _casePoints['case1'] = legacyPoints;

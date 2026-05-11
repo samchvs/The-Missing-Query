@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:graphics_project/core/config/supabase_config.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';

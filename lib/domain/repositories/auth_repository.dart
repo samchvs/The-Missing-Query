@@ -24,4 +24,10 @@ abstract class AuthRepository {
   /// Submits the total accumulated points to the user's profile.
   Future<void> submitScore({required String userId, required int score});
   Future<int> getScore(String userId);
+
+  /// Returns the avatar index (0–3) for a user.
+  Future<int> getAvatarIndex(String userId);
+
+  /// Updates the avatar index stored in profiles.
+  Future<void> updateAvatar({required String userId, required int avatarIndex});
 }
