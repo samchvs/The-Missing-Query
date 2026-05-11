@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/mystery/diary_popup.dart';
+import 'package:graphics_project/presentation/controllers/diary_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 
 class FloatingBubble extends StatefulWidget {
@@ -158,6 +159,7 @@ class CaseMap3 extends StatefulWidget {
 class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
   final LivesController _livesController = LivesController.instance;
   bool _isCityPoliceUnlocked = false;
+  late final DiaryController _diaryController;
 
   @override
   void initState() {
@@ -165,6 +167,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     initCaseHelper();
     PointsController.instance.setActiveCase('case3');
     _livesController.addListener(_refresh);
+    _diaryController = DiaryController(caseKey: 'case3', userId: context.read<AuthController>().currentUser!.id);
     _checkCityPoliceStatus();
 
     if (widget.showSolvedDialog) {
@@ -198,6 +201,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
   void dispose() {
     disposeCaseHelper();
     _livesController.removeListener(_refresh);
+    _diaryController.dispose();
     super.dispose();
   }
 
@@ -507,12 +511,9 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    final auth = context.read<AuthController>();
-                                    final userId = auth.currentUser!.id;
                                     showDiaryPopup(
                                       context,
-                                      caseKey: 'case3',
-                                      userId: userId,
+                                      controller: _diaryController,
                                     );
                                   },
                                   child: Image.asset(

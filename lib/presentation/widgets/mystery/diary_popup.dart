@@ -9,13 +9,11 @@ import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_
 /// Full-screen overlay notebook popup for the CRUD diary.
 /// Drop this on top of any stack with showDiaryPopup().
 class DiaryPopup extends StatefulWidget {
-  final String caseKey;
-  final String userId;
+  final DiaryController controller;
 
   const DiaryPopup({
     super.key,
-    required this.caseKey,
-    required this.userId,
+    required this.controller,
   });
 
   @override
@@ -37,11 +35,11 @@ class _DiaryPopupState extends State<DiaryPopup>
   @override
   void initState() {
     super.initState();
-    _controller = DiaryController(
-      caseKey: widget.caseKey,
-      userId: widget.userId,
-    );
-    _sqlController = TextEditingController();
+    _controller = widget.controller;
+    _sqlController = TextEditingController(text: _controller.draftSql);
+    _sqlController.addListener(() {
+      _controller.draftSql = _sqlController.text;
+    });
     _anim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 260),
@@ -87,7 +85,6 @@ class _DiaryPopupState extends State<DiaryPopup>
 
   @override
   void dispose() {
-    _controller.dispose();
     _sqlController.dispose();
     _anim.dispose();
     super.dispose();
@@ -457,49 +454,69 @@ class _DiaryPopupState extends State<DiaryPopup>
                             ),
                           )
                         : ConstrainedBox(
-                            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                            child: DataTable(
-                              horizontalMargin: 12,
-                              headingRowHeight: 30,
-                              dataRowMinHeight: 26,
-                              dataRowMaxHeight: 32,
-                              columnSpacing: 24,
-                              headingRowColor: WidgetStateProperty.all(
-                                const Color(0xFFFFF1C1),
-                              ),
-                              columns: columns
-                                  .map((col) => DataColumn(
-                                        label: Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            col,
-                                            style: GoogleFonts.londrinaSolid(
-                                              fontSize: 16,
-                                              color: Colors.black87,
-                                            ),
+                            constraints: BoxConstraints(
+                              minWidth: constraints.maxWidth > (columns.length * 100)
+                                  ? constraints.maxWidth
+                                  : (columns.length * 100).toDouble(),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header Row
+                                Container(
+                                  color: const Color(0xFFFFF1C1),
+                                  child: Row(
+                                    children: columns.map((col) {
+                                      final isNotes = col.toLowerCase() == 'notes';
+                                      return Container(
+                                        width: isNotes ? 300 : 120,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                        child: Text(
+                                          col,
+                                          style: GoogleFonts.londrinaSolid(
+                                            fontSize: 16,
+                                            color: Colors.black87,
                                           ),
                                         ),
-                                      ))
-                                  .toList(),
-                              rows: rows
-                                  .map((row) => DataRow(
-                                        cells: columns
-                                            .map((col) => DataCell(
-                                                  Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text(
-                                                      row[col] ?? '',
-                                                      style: GoogleFonts.inconsolata(
-                                                        fontSize: 13,
-                                                        color: Colors.black87,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ))
-                                            .toList(),
-                                      ))
-                                  .toList(),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                // Data Rows
+                                ...rows.map((row) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.black.withValues(alpha: 0.05),
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: columns.map((col) {
+                                          final isNotes = col.toLowerCase() == 'notes';
+                                          return Container(
+                                            width: isNotes ? 300 : 120,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                            child: Text(
+                                              row[col] ?? '',
+                                              softWrap: true,
+                                              style: GoogleFonts.inconsolata(
+                                                fontSize: 13,
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
                             ),
                           ),
                   ),
@@ -534,8 +551,7 @@ class _DiaryPopupState extends State<DiaryPopup>
 /// Convenience function to open the diary popup from any map screen.
 Future<void> showDiaryPopup(
   BuildContext context, {
-  required String caseKey,
-  required String userId,
+  required DiaryController controller,
 }) {
   return showGeneralDialog(
     context: context,
@@ -544,8 +560,7 @@ Future<void> showDiaryPopup(
     barrierColor: Colors.transparent,
     transitionDuration: Duration.zero,
     pageBuilder: (_, __, ___) => DiaryPopup(
-      caseKey: caseKey,
-      userId: userId,
+      controller: controller,
     ),
   );
 }

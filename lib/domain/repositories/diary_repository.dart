@@ -9,4 +9,7 @@ abstract class DiaryRepository {
 
   /// Returns true if a table already exists for [caseKey] + [userId].
   Future<bool> tableExists(String caseKey, String userId);
+
+  /// Deletes the table for [caseKey] + [userId].
+  Future<void> deleteTable(String caseKey, String userId);
 }

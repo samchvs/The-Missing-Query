@@ -28,4 +28,10 @@ class DiaryRepositoryImpl implements DiaryRepository {
     final encoded = DiaryTableModel.encode(DiaryTableModel.fromEntity(table));
     await prefs.setString(_key(caseKey, userId), encoded);
   }
+
+  @override
+  Future<void> deleteTable(String caseKey, String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key(caseKey, userId));
+  }
 }

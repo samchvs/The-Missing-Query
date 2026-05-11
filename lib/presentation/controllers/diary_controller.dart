@@ -28,6 +28,15 @@ class DiaryController extends ChangeNotifier {
   DiaryTable? get table => _table;
   bool get hasTable => _table != null;
 
+  String _draftSql = '';
+  String get draftSql => _draftSql;
+  set draftSql(String value) {
+    if (_draftSql != value) {
+      _draftSql = value;
+      notifyListeners();
+    }
+  }
+
   DiaryController({
     required this.caseKey,
     required this.userId,
@@ -43,10 +52,13 @@ class DiaryController extends ChangeNotifier {
   // Main entry point: parse and execute any SQL
   // ─────────────────────────────────────────────
   Future<DiaryResult> execute(String rawSql) async {
-    final clean = rawSql
-        .trim()
-        .replaceAll(RegExp(r'[\n\r\t]+'), ' ')
-        .replaceAll(RegExp(r' +'), ' ');
+    // Strip trailing semicolon if present
+    String sql = rawSql.trim();
+    if (sql.endsWith(';')) {
+      sql = sql.substring(0, sql.length - 1).trim();
+    }
+
+    final clean = sql;
     final upperClean = clean.toUpperCase();
 
     if (upperClean.startsWith('CREATE TABLE')) {
@@ -61,6 +73,8 @@ class DiaryController extends ChangeNotifier {
       return _handleUpdate(clean);
     } else if (upperClean.startsWith('DELETE FROM')) {
       return _handleDelete(clean);
+    } else if (upperClean.startsWith('DROP TABLE')) {
+      return _handleDrop(clean);
     }
 
     return const DiaryResult(
@@ -85,6 +99,7 @@ class DiaryController extends ChangeNotifier {
     final match = RegExp(
       r'CREATE\s+TABLE\s+(\w+)\s*\((.+)\)',
       caseSensitive: false,
+      dotAll: true,
     ).firstMatch(sql);
 
     if (match == null) {
@@ -129,49 +144,99 @@ class DiaryController extends ChangeNotifier {
       );
     }
 
-    final match = RegExp(
-      r'ALTER\s+TABLE\s+(\w+)\s+ADD\s+(\w+)\s+\w+',
+    // Support: ALTER TABLE name ADD [COLUMN] col type
+    // OR: ALTER TABLE name DROP [COLUMN] col
+    final addMatch = RegExp(
+      r'ALTER\s+TABLE\s+(\w+)\s+ADD\s+(?:COLUMN\s+)?(\w+)\s+\w+',
       caseSensitive: false,
+      dotAll: true,
     ).firstMatch(sql);
 
-    if (match == null) {
-      return const DiaryResult(
-        success: false,
-        message:
-            'Invalid ALTER TABLE syntax.\nExpected:\nALTER TABLE name\nADD column_name datatype;',
-      );
-    }
+    final dropMatch = RegExp(
+      r'ALTER\s+TABLE\s+(\w+)\s+DROP\s+(?:COLUMN\s+)?(\w+)',
+      caseSensitive: false,
+      dotAll: true,
+    ).firstMatch(sql);
 
-    final targetTable = match.group(1)!.trim().toLowerCase();
-    if (targetTable != _table!.name.toLowerCase()) {
+    if (addMatch != null) {
+      final targetTable = addMatch.group(1)!.trim().toLowerCase();
+      if (targetTable != _table!.name.toLowerCase()) {
+        return DiaryResult(
+          success: false,
+          message: 'Table "$targetTable" does not exist. Your table is "${_table!.name}".',
+        );
+      }
+
+      final newCol = addMatch.group(2)!.trim().toLowerCase();
+      if (_table!.columns.contains(newCol)) {
+        return DiaryResult(
+          success: false,
+          message: 'Column "$newCol" already exists in table "${_table!.name}".',
+        );
+      }
+
+      final updatedCols = [..._table!.columns, newCol];
+      final updatedRows = _table!.rows
+          .map((r) => {...r, newCol: ''})
+          .toList();
+
+      _table = _table!.copyWith(columns: updatedCols, rows: updatedRows);
+      await _repo.saveTable(_table!, caseKey, userId);
+      notifyListeners();
+
       return DiaryResult(
-        success: false,
-        message: 'Table "$targetTable" does not exist. Your table is "${_table!.name}".',
+        success: true,
+        message: 'Column "$newCol" added to "${_table!.name}".',
+        rows: _table!.rows,
+        columns: _table!.columns,
       );
-    }
+    } else if (dropMatch != null) {
+      final targetTable = dropMatch.group(1)!.trim().toLowerCase();
+      if (targetTable != _table!.name.toLowerCase()) {
+        return DiaryResult(
+          success: false,
+          message: 'Table "$targetTable" does not exist. Your table is "${_table!.name}".',
+        );
+      }
 
-    final newCol = match.group(2)!.trim().toLowerCase();
-    if (_table!.columns.contains(newCol)) {
+      final colToDrop = dropMatch.group(2)!.trim().toLowerCase();
+      if (!_table!.columns.contains(colToDrop)) {
+        return DiaryResult(
+          success: false,
+          message: 'Column "$colToDrop" not found in table "${_table!.name}".',
+        );
+      }
+
+      if (_table!.columns.length <= 1) {
+        return const DiaryResult(
+          success: false,
+          message: 'Cannot drop the last column of a table.',
+        );
+      }
+
+      final updatedCols = _table!.columns.where((c) => c != colToDrop).toList();
+      final updatedRows = _table!.rows.map((r) {
+        final newR = {...r};
+        newR.remove(colToDrop);
+        return newR;
+      }).toList();
+
+      _table = _table!.copyWith(columns: updatedCols, rows: updatedRows);
+      await _repo.saveTable(_table!, caseKey, userId);
+      notifyListeners();
+
       return DiaryResult(
-        success: false,
-        message: 'Column "$newCol" already exists in table "${_table!.name}".',
+        success: true,
+        message: 'Column "$colToDrop" dropped from "${_table!.name}".',
+        rows: _table!.rows,
+        columns: _table!.columns,
       );
     }
 
-    final updatedCols = [..._table!.columns, newCol];
-    final updatedRows = _table!.rows
-        .map((r) => {...r, newCol: ''})
-        .toList();
-
-    _table = _table!.copyWith(columns: updatedCols, rows: updatedRows);
-    await _repo.saveTable(_table!, caseKey, userId);
-    notifyListeners();
-
-    return DiaryResult(
-      success: true,
-      message: 'Column "$newCol" added to "${_table!.name}".',
-      rows: _table!.rows,
-      columns: _table!.columns,
+    return const DiaryResult(
+      success: false,
+      message:
+          'Invalid ALTER TABLE syntax.\nUse:\nALTER TABLE name ADD col type;\nALTER TABLE name DROP COLUMN col;',
     );
   }
 
@@ -186,9 +251,11 @@ class DiaryController extends ChangeNotifier {
       );
     }
 
+    // Support multi-row INSERT: VALUES (v1, v2), (v3, v4)...
     final match = RegExp(
-      r'INSERT\s+INTO\s+(\w+)\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)',
+      r'INSERT\s+INTO\s+(\w+)\s*\(([^)]+)\)\s*VALUES\s*(.+)',
       caseSensitive: false,
+      dotAll: true,
     ).firstMatch(sql);
 
     if (match == null) {
@@ -208,40 +275,76 @@ class DiaryController extends ChangeNotifier {
     }
 
     final colNames = _splitCsv(match.group(2)!);
-    final values = _splitCsv(match.group(3)!);
+    final valuesPart = match.group(3)!.trim();
 
-    if (colNames.length != values.length) {
+    // Regex to find all (v1, v2) sets
+    final rowRegex = RegExp(r'\(([^)]+)\)');
+    final valueSets = rowRegex.allMatches(valuesPart).map((m) => m.group(1)!).toList();
+
+    if (valueSets.isEmpty) {
       return const DiaryResult(
         success: false,
-        message: 'Number of columns and values do not match.',
+        message: 'No values found in INSERT statement.',
       );
     }
 
-    for (final col in colNames) {
-      if (!_table!.columns.contains(col.toLowerCase())) {
+    final List<Map<String, String>> newRows = [];
+
+    for (final valueSet in valueSets) {
+      final values = _splitCsv(valueSet);
+      if (colNames.length != values.length) {
         return DiaryResult(
           success: false,
-          message: 'Unknown column "$col". Available: ${_table!.columns.join(', ')}.',
+          message: 'Number of columns (${colNames.length}) and values (${values.length}) do not match in set: ($valueSet).',
         );
+      }
+
+      final newRow = <String, String>{
+        for (final col in _table!.columns) col: '',
+      };
+      
+      for (int i = 0; i < colNames.length; i++) {
+        final colName = colNames[i].trim().toLowerCase();
+        if (!_table!.columns.contains(colName)) {
+          return DiaryResult(
+            success: false,
+            message: 'Unknown column "$colName". Available: ${_table!.columns.join(', ')}.',
+          );
+        }
+        newRow[colName] = values[i];
+      }
+      newRows.add(newRow);
+    }
+
+    // Auto-increment ID handling
+    final updatedRows = [..._table!.rows];
+    int nextId = 0;
+    if (_table!.columns.contains('id')) {
+      for (final r in updatedRows) {
+        final idVal = int.tryParse(r['id'] ?? '0') ?? 0;
+        if (idVal > nextId) nextId = idVal;
       }
     }
 
-    // Build new row: fill all columns, use '' for unspecified ones
-    final newRow = <String, String>{
-      for (final col in _table!.columns) col: '',
-    };
-    for (int i = 0; i < colNames.length; i++) {
-      newRow[colNames[i].toLowerCase()] = values[i];
+    for (final row in newRows) {
+      // If 'id' is present but empty, or not present in the insert list, auto-fill it
+      if (_table!.columns.contains('id')) {
+        final currentId = row['id'] ?? '';
+        if (currentId.isEmpty) {
+          nextId++;
+          row['id'] = nextId.toString();
+        }
+      }
+      updatedRows.add(row);
     }
 
-    final updatedRows = [..._table!.rows, newRow];
     _table = _table!.copyWith(rows: updatedRows);
     await _repo.saveTable(_table!, caseKey, userId);
     notifyListeners();
 
     return DiaryResult(
       success: true,
-      message: '1 row inserted into "${_table!.name}".',
+      message: '${newRows.length} row(s) inserted into "${_table!.name}".',
       rows: _table!.rows,
       columns: _table!.columns,
     );
@@ -337,11 +440,12 @@ class DiaryController extends ChangeNotifier {
     final match = RegExp(
       r'UPDATE\s+(\w+)\s+SET\s+(.+?)\s+WHERE\s+(.+)',
       caseSensitive: false,
+      dotAll: true,
     ).firstMatch(sql);
 
     // Also support UPDATE without WHERE
     final matchNoWhere = match == null
-        ? RegExp(r'UPDATE\s+(\w+)\s+SET\s+(.+)', caseSensitive: false)
+        ? RegExp(r'UPDATE\s+(\w+)\s+SET\s+(.+)', caseSensitive: false, dotAll: true)
             .firstMatch(sql)
         : null;
 
@@ -456,6 +560,43 @@ class DiaryController extends ChangeNotifier {
       message: '$deleted row(s) deleted from "${_table!.name}".',
       rows: _table!.rows,
       columns: _table!.columns,
+    );
+  }
+
+  /// DROP TABLE <name>
+  Future<DiaryResult> _handleDrop(String sql) async {
+    final match = RegExp(r'^DROP\s+TABLE\s+(\w+)$', caseSensitive: false).firstMatch(sql);
+    if (match == null) {
+      return const DiaryResult(
+        success: false,
+        message: 'Syntax Error: Use DROP TABLE <name>',
+      );
+    }
+
+    final tableName = match.group(1)!.toLowerCase();
+
+    if (_table == null) {
+      return const DiaryResult(
+        success: false,
+        message: 'Error: No table exists to drop.',
+      );
+    }
+
+    if (_table!.name.toLowerCase() != tableName) {
+      return DiaryResult(
+        success: false,
+        message:
+            'Error: Table "$tableName" not found (did you mean "${_table!.name}"?).',
+      );
+    }
+
+    await _repo.deleteTable(caseKey, userId);
+    _table = null;
+    notifyListeners();
+
+    return DiaryResult(
+      success: true,
+      message: 'Table "$tableName" has been dropped.',
     );
   }
 
