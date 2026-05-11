@@ -113,8 +113,12 @@ class _LeaderboardTabState extends State<LeaderboardTab> {
                           child: Text('RANK', style: labelStyle),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text('USER', style: labelStyle),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text('USERNAME', style: labelStyle),
+                        ),
                       ),
                       SizedBox(
                         width: scoreW,
