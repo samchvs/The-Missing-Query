@@ -127,4 +127,39 @@ class AppAnimations {
       loop: loop,
     );
   }
+  /// 19-frame dancing animation for Tomathomas
+  static Widget dancingTomathomas({
+    Key? key,
+    double? width,
+    double? height,
+    Duration? frameDuration,
+    bool loop = true,
+  }) {
+    return SpriteAnimator(
+      key: key,
+      frames: AppAssets.dancingTomathomas,
+      width: width,
+      height: height,
+      frameDuration: frameDuration ?? const Duration(milliseconds: 120),
+      loop: loop,
+    );
+  }
+
+  /// 6-frame dancing animation for Broccoliandro
+  static Widget dancingBroccoliandro({
+    Key? key,
+    double? width,
+    double? height,
+    Duration? frameDuration,
+    bool loop = true,
+  }) {
+    return SpriteAnimator(
+      key: key,
+      frames: AppAssets.dancingBroccoli,
+      width: width,
+      height: height,
+      frameDuration: frameDuration ?? const Duration(milliseconds: 120),
+      loop: loop,
+    );
+  }
 }

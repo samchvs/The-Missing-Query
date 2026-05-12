@@ -323,6 +323,7 @@ class _DiaryPopupState extends State<DiaryPopup>
                   KeyboardAccessoryBar(
                     controller: _sqlController,
                     hintText: 'e.g. CREATE TABLE...',
+                    isMultiline: true,
                   ),
                 ],
               );

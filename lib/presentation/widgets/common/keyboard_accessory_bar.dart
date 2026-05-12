@@ -135,6 +135,7 @@ class KeyboardAccessoryBar extends StatefulWidget {
   final TextStyle? textStyle;
   final bool obscureText;
   final String? hintText;
+  final bool isMultiline;
 
   const KeyboardAccessoryBar({
     super.key,
@@ -143,6 +144,7 @@ class KeyboardAccessoryBar extends StatefulWidget {
     this.textStyle,
     this.obscureText = false,
     this.hintText,
+    this.isMultiline = false,
   });
 
   @override
@@ -272,8 +274,8 @@ class _KeyboardAccessoryBarState extends State<KeyboardAccessoryBar> {
                         controller: _ghostController,
                         focusNode: _internalFocus,
                         obscureText: widget.obscureText,
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
+                        maxLines: widget.isMultiline ? null : 1,
+                        keyboardType: widget.isMultiline ? TextInputType.multiline : TextInputType.text,
                         cursorColor: AppColors.primaryLight,
                         showCursor: true,
                         style: _baseStyle,

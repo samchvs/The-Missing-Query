@@ -53,6 +53,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,6 +68,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/loading-screen/
     - assets/Hellobeanie/
     - assets/walkingBeanie/
     - assets/Worriedbeanie/
@@ -151,3 +153,12 @@ flutter:
     - family: Consolas
       fonts:
         - asset: assets/mystery/fonts/consolas.ttf
+
+flutter_native_splash:
+  color: "#000000"
+  image: assets/loading-screen/1.png
+  fullscreen: true
+  android_12:
+    image: assets/loading-screen/1.png
+    color: "#000000"
+    fullscreen: true

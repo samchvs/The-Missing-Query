@@ -247,6 +247,9 @@ class AppAssets {
   static const String profileTab = 'assets/profile-tab.png';
   static const String chatIcon = 'assets/chat-icon.png';
   static const String meetTeam = 'assets/about_tab/meetTeam.png';
+  static const String aboutGame = 'assets/about_tab/aboutGame.png';
+  static const String titleGame = 'assets/about_tab/titleGame.png';
+  static const String heyTitle = 'assets/about_tab/heyTitle.png';
   static const String manalo = 'assets/about_tab/Manalo.png';
   static const String agmata = 'assets/about_tab/Agmata.png';
   static const String ramos = 'assets/about_tab/Ramos.png';

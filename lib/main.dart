@@ -9,6 +9,7 @@ import 'package:graphics_project/presentation/controllers/points_controller.dart
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 import 'package:graphics_project/presentation/screens/splash/splash_screen.dart';
+import 'package:graphics_project/presentation/screens/splash/loading_screen.dart';
 import 'package:graphics_project/presentation/widgets/common/developer_error_box.dart';
 import 'package:graphics_project/core/constants/app_routes.dart';
 
@@ -42,12 +43,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Decide the initial route based on persisted state
-    final Widget home = authController.localUsername != null
+    final Widget nextScreen = authController.localUsername != null
         ? HomeScreen(
             username: authController.displayUsername,
             authController: authController,
           )
         : SplashScreen(authController: authController);
+
+    final Widget home = LoadingScreen(nextScreen: nextScreen);
 
     return MultiProvider(
       providers: [
