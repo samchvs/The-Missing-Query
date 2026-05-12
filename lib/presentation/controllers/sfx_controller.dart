@@ -40,6 +40,7 @@ class SFXController {
 
   Future<void> playButton() async {
     await _buttonPlayer.stop();
+    await _buttonPlayer.setVolume(_volume);
     await _buttonPlayer.play(AssetSource('mystery/audio/button.mp3'));
   }
 

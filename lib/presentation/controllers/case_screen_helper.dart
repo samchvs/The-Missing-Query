@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/presentation/controllers/lives_controller.dart';
 import 'package:video_player/video_player.dart';
 import 'package:graphics_project/presentation/controllers/gameplay_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   final AudioPlayer voicePlayer = AudioPlayer();
@@ -33,9 +34,10 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
     await feedbackPlayer.setPlayerMode(PlayerMode.lowLatency);
     await buttonPlayer.setPlayerMode(PlayerMode.lowLatency);
 
-    await voicePlayer.setVolume(1.0);
-    await feedbackPlayer.setVolume(1.0);
-    await buttonPlayer.setVolume(1.0);
+    final sfxVolume = SFXController().volume;
+    await voicePlayer.setVolume(sfxVolume);
+    await feedbackPlayer.setVolume(sfxVolume);
+    await buttonPlayer.setVolume(sfxVolume);
   }
 
   void disposeCaseHelper() {
@@ -52,6 +54,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   Future<void> playClueSound(String audioPath) async {
     try {
       await voicePlayer.stop();
+      await voicePlayer.setVolume(SFXController().volume);
       // Ensure the path starts with mystery/ as per pubspec.yaml assets
       final fullPath = audioPath.startsWith('mystery/') ? audioPath : 'mystery/$audioPath';
       await voicePlayer.play(AssetSource(fullPath));
@@ -66,17 +69,20 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
 
   Future<void> playCorrectSound() async {
     await feedbackPlayer.stop();
+    await feedbackPlayer.setVolume(SFXController().volume);
     await feedbackPlayer.play(AssetSource('mystery/audio/correct.mp3'));
   }
 
   Future<void> playWrongSound() async {
     await feedbackPlayer.stop();
+    await feedbackPlayer.setVolume(SFXController().volume);
     await feedbackPlayer.play(AssetSource('mystery/audio/wrong.wav'));
   }
 
   Future<void> playButtonSound() async {
     try {
       await buttonPlayer.stop();
+      await buttonPlayer.setVolume(SFXController().volume);
       await buttonPlayer.play(AssetSource('mystery/audio/button.mp3'));
     } catch (e) {
       debugPrint('Button sound error: $e');
@@ -378,6 +384,7 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
   bool _isFadingOut = false;
+  bool _showSkip = false;
 
   @override
   void initState() {
@@ -389,7 +396,14 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
               setState(() {
                 _isInitialized = true;
               });
+              _controller.setVolume(SFXController().volume);
               _controller.play();
+              // Show skip button after 20 seconds in cutscenes
+              Future.delayed(const Duration(seconds: 20), () {
+                if (mounted && !_isFadingOut) {
+                  setState(() => _showSkip = true);
+                }
+              });
             }
           })
           .catchError((error) {
@@ -448,9 +462,7 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
                   : const SizedBox.shrink(),
             ),
           ),
-          /*
-          // Temporary Skip Button
-          if (_isInitialized && !_isFadingOut)
+          if (_isInitialized && _showSkip && !_isFadingOut)
             Positioned(
               bottom: 40,
               right: 40,
@@ -462,7 +474,7 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.white54),
                   ),
@@ -484,7 +496,6 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
                 ),
               ),
             ),
-          */
         ],
       ),
     );

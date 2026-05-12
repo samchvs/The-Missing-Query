@@ -78,11 +78,29 @@ class AuthController extends ChangeNotifier {
 
     // Restore session + local username
     _currentUser = _getCurrentUser();
+    
+    // If we have a session, fetch the latest remote profile to ensure we have the correct username
+    if (_currentUser != null) {
+      try {
+        final latestUsername = await _authRepo.fetchUsername(_currentUser!.id);
+        if (latestUsername != null && latestUsername.isNotEmpty) {
+          _currentUser = AppUser(
+            id: _currentUser!.id,
+            email: _currentUser!.email,
+            username: latestUsername,
+          );
+        }
+      } catch (_) {}
+    }
+    
     _localUsername = await _getLocalUsername();
 
-    if (_currentUser != null && _localUsername == null) {
-      _localUsername = _currentUser!.username;
-      await _saveLocalUsername(_localUsername!);
+    if (_currentUser != null) {
+      // If local storage is empty OR stale (different from remote), update it
+      if (_localUsername == null || _localUsername != _currentUser!.username) {
+        _localUsername = _currentUser!.username;
+        await _saveLocalUsername(_localUsername!);
+      }
     }
 
     // Load per-case points from Supabase and initialize controllers
@@ -256,6 +274,9 @@ class AuthController extends ChangeNotifier {
           email: _currentUser!.email,
           username: username,
         );
+        
+        // Force refresh the leaderboard so the new username shows up locally
+        await leaderboard.forceRefresh();
       } catch (_) {
         // Silently fail the remote update — local is already saved
       }

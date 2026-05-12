@@ -35,4 +35,7 @@ abstract class AuthRepository {
     required String caseId,
     required int points,
   });
+
+  /// Fetches the current display username from the profiles table.
+  Future<String?> fetchUsername(String userId);
 }

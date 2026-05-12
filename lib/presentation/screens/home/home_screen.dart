@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     context,
                     PageRouteBuilder(
                       transitionDuration: const Duration(milliseconds: 500),
-                      reverseTransitionDuration: Duration.zero,
+                      reverseTransitionDuration: const Duration(milliseconds: 500),
                       pageBuilder: (_, _, _) => const CaseSelectionScreen(),
                       transitionsBuilder: (_, animation, _, child) =>
                           FadeTransition(opacity: animation, child: child),

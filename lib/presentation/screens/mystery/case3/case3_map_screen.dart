@@ -240,12 +240,15 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
       barrierColor: Colors.black.withValues(alpha: 0.55),
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (_, __, ___) {
+        late VoidCallback dialogRefresh;
+        bool listenerAdded = false;
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            void dialogRefresh() => setDialogState(() {});
-
-            _livesController.addListener(dialogRefresh);
-
+            dialogRefresh = () => setDialogState(() {});
+            if (!listenerAdded) {
+              _livesController.addListener(dialogRefresh);
+              listenerAdded = true;
+            }
             return PopScope(
               canPop: true,
               onPopInvokedWithResult: (didPop, result) {
@@ -287,14 +290,14 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                             child: Stack(
                               children: [
                                 Positioned(
-                                  top: 80,
+                                  top: 70,
                                   left: 0,
                                   right: 10,
                                   child: Center(
                                     child: Text(
                                       '${_livesController.currentLives}',
                                       style: const TextStyle(
-                                        fontFamily: 'Luckiest Guy',
+                                        fontFamily: 'Londrina Solid',
                                         fontSize: 23,
                                         color: Color(0xFFF8F3D4),
                                         shadows: [
@@ -318,16 +321,9 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
                                           ? 'FULL'
                                           : _livesController.formattedCountdown,
                                       style: const TextStyle(
-                                        fontFamily: 'Luckiest Guy',
+                                        fontFamily: 'Londrina Solid',
                                         fontSize: 18,
-                                        color: Color(0xFFF8F3D4),
-                                        shadows: [
-                                          Shadow(
-                                            offset: Offset(2, 2),
-                                            blurRadius: 0,
-                                            color: Color(0xFF5A2E2E),
-                                          ),
-                                        ],
+                                        color: Color(0xFF5A2E2E),
                                       ),
                                     ),
                                   ),

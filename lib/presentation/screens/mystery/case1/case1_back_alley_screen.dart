@@ -307,12 +307,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
 
             final prefs = await SharedPreferences.getInstance();
             final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-/*
+
             if (alreadySolved) {
               showAlreadySolvedPopup();
               return;
             }
-*/
+
 
             if (!_hasLives) {
               showNoLivesPopup();

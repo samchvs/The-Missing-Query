@@ -86,6 +86,16 @@ class SupabaseAuthDataSource {
     await _client
         .from('profiles')
         .update({'username': username}).eq('id', userId);
+        
+    // Also update the username in the leaderboards table if it exists
+    await _client
+        .from('leaderboards')
+        .update({'username': username}).eq('id_fk', userId);
+
+    // Update the auth metadata so getCurrentUser() returns the new name on restart
+    await _client.auth.updateUser(
+      UserAttributes(data: {'username': username}),
+    );
   }
 
   /// Returns the current high_score (total) from the profiles table.
@@ -171,6 +181,21 @@ class SupabaseAuthDataSource {
       await _client
           .from('profiles')
           .update({'high_score': score}).eq('id', userId);
+    }
+  }
+
+  /// Fetches the latest username from the profiles table.
+  Future<String?> fetchUsername(String userId) async {
+    try {
+      final response = await _client
+          .from('profiles')
+          .select('username')
+          .eq('id', userId)
+          .maybeSingle();
+      return response?['username'] as String?;
+    } catch (e) {
+      debugPrint('Error fetching username: $e');
+      return null;
     }
   }
 }

@@ -62,4 +62,8 @@ class AuthRepositoryImpl implements AuthRepository {
         caseId: caseId,
         points: points,
       );
+
+  @override
+  Future<String?> fetchUsername(String userId) =>
+      _dataSource.fetchUsername(userId);
 }
