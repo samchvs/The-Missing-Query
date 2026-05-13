@@ -64,8 +64,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
   @override
-  Future<String?> fetchUsername(String userId) =>
-      _dataSource.fetchUsername(userId);
+  Future<Map<String, dynamic>?> fetchProfile(String userId) =>
+      _dataSource.fetchProfile(userId);
 
   @override
   Future<void> saveLocationScore({
@@ -83,4 +83,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<List<String>> getSolvedLocations(String userId) =>
       _dataSource.getSolvedLocations(userId);
+
+  @override
+  Future<void> updateAvatarIndex({required String userId, required int index}) =>
+      _dataSource.updateAvatarIndex(userId: userId, index: index);
 }

@@ -36,8 +36,8 @@ abstract class AuthRepository {
     required int points,
   });
 
-  /// Fetches the current display username from the profiles table.
-  Future<String?> fetchUsername(String userId);
+  /// Fetches the current display profile from the profiles table.
+  Future<Map<String, dynamic>?> fetchProfile(String userId);
 
   /// Saves the score for an individual location
   Future<void> saveLocationScore({
@@ -49,4 +49,7 @@ abstract class AuthRepository {
 
   /// Fetches a list of all location IDs solved by the user
   Future<List<String>> getSolvedLocations(String userId);
+
+  /// Updates the user's selected character index in their profile.
+  Future<void> updateAvatarIndex({required String userId, required int index});
 }

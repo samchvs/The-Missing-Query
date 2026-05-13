@@ -41,6 +41,7 @@ class SupabaseAuthDataSource {
           'id': user.id,
           'username': username,
           'email': email,
+          'avatar_index': 0,
           'case1_points': 0,
           'case2_points': 0,
           'case3_points': 0,
@@ -53,7 +54,7 @@ class SupabaseAuthDataSource {
         rethrow;
       }
     }
-    return AppUser(id: user.id, email: email, username: username);
+    return AppUser(id: user.id, email: email, username: username, avatarIndex: 0);
   }
 
   /// Signs in an existing user and fetches their profile username.
@@ -74,12 +75,18 @@ class SupabaseAuthDataSource {
     // Fetch profile to get the display username
     final profile = await _client
         .from('profiles')
-        .select('username')
+        .select('username, avatar_index')
         .eq('id', user.id)
         .single();
 
     final username = profile['username'] as String? ?? email;
-    return AppUser(id: user.id, email: email, username: username);
+    final avatarIndex = profile['avatar_index'] as int? ?? 0;
+    return AppUser(
+      id: user.id,
+      email: email,
+      username: username,
+      avatarIndex: avatarIndex,
+    );
   }
 
   /// Signs out the current user.
@@ -94,6 +101,7 @@ class SupabaseAuthDataSource {
       id: user.id,
       email: user.email ?? '',
       username: user.userMetadata?['username'] as String? ?? '',
+      avatarIndex: user.userMetadata?['avatar_index'] as int? ?? 0,
     );
   }
 
@@ -249,18 +257,36 @@ class SupabaseAuthDataSource {
     }
   }
 
-  /// Fetches the latest username from the profiles table.
-  Future<String?> fetchUsername(String userId) async {
+  /// Fetches the latest username and avatar index from the profiles table.
+  Future<Map<String, dynamic>?> fetchProfile(String userId) async {
     try {
       final response = await _client
           .from('profiles')
-          .select('username')
+          .select('username, avatar_index')
           .eq('id', userId)
           .maybeSingle();
-      return response?['username'] as String?;
+      return response;
     } catch (e) {
-      debugPrint('Error fetching username: $e');
+      debugPrint('Error fetching profile: $e');
       return null;
+    }
+  }
+
+  Future<void> updateAvatarIndex({
+    required String userId,
+    required int index,
+  }) async {
+    try {
+      await _client
+          .from('profiles')
+          .update({'avatar_index': index}).eq('id', userId);
+          
+      // Update metadata so getCurrentUser returns the latest on refresh
+      await _client.auth.updateUser(
+        UserAttributes(data: {'avatar_index': index}),
+      );
+    } catch (e) {
+      debugPrint('Error updating avatar index: $e');
     }
   }
 }

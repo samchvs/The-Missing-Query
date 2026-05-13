@@ -79,18 +79,28 @@ class AuthController extends ChangeNotifier {
     // Restore session + local username
     _currentUser = _getCurrentUser();
     
-    // If we have a session, fetch the latest remote profile to ensure we have the correct username
+    // fetch the latest remote profile to ensure correct username and avatar
     if (_currentUser != null) {
       try {
-        final latestUsername = await _authRepo.fetchUsername(_currentUser!.id);
-        if (latestUsername != null && latestUsername.isNotEmpty) {
-          _currentUser = AppUser(
-            id: _currentUser!.id,
-            email: _currentUser!.email,
-            username: latestUsername,
-          );
+        final profile = await _authRepo.fetchProfile(_currentUser!.id);
+        if (profile != null) {
+          final latestUsername = profile['username'] as String?;
+          final latestAvatarIndex = profile['avatar_index'] as int? ?? 0;
+          
+          if (latestUsername != null && latestUsername.isNotEmpty) {
+            _currentUser = AppUser(
+              id: _currentUser!.id,
+              email: _currentUser!.email,
+              username: latestUsername,
+              avatarIndex: latestAvatarIndex,
+            );
+            _currentAvatarIndex = latestAvatarIndex;
+          }
         }
       } catch (_) {}
+    } else {
+      // Offline/Local only: fallback to SharedPreferences for avatar
+      _currentAvatarIndex = prefs.getInt('local_avatar_index') ?? 0;
     }
     
     _localUsername = await _getLocalUsername();
@@ -234,6 +244,11 @@ class AuthController extends ChangeNotifier {
       );
       await LivesController.instance.initializeForUser(_currentUser?.id);
 
+      // Restore avatar from profile
+      _currentAvatarIndex = _currentUser?.avatarIndex ?? 0;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('local_avatar_index', _currentAvatarIndex);
+
       if (remoteTotal > 0) {
         leaderboard.maybePushScore(
           userId: _currentUser?.id,
@@ -307,10 +322,35 @@ class AuthController extends ChangeNotifier {
 
   void clearError() => _clearError();
 
-  /// Updates the character selection in-memory (avatar index only — no longer persisted to DB).
+  /// Updates the character selection and persists it to Supabase (if logged in) and local storage.
   Future<void> updateCharacter(String characterPath) async {
     final index = CharacterModel.all.indexWhere((c) => c.path == characterPath);
     _currentAvatarIndex = index < 0 ? 0 : index;
+    
+    // 1. Save to Local Storage (Always)
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('local_avatar_index', _currentAvatarIndex);
+    } catch (_) {}
+
+    // 2. Save to Supabase (If authenticated)
+    if (_currentUser != null) {
+      try {
+        await _authRepo.updateAvatarIndex(
+          userId: _currentUser!.id,
+          index: _currentAvatarIndex,
+        );
+        
+        // Update local user object
+        _currentUser = AppUser(
+          id: _currentUser!.id,
+          email: _currentUser!.email,
+          username: _currentUser!.username,
+          avatarIndex: _currentAvatarIndex,
+        );
+      } catch (_) {}
+    }
+    
     notifyListeners();
   }
 
