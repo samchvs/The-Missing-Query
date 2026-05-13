@@ -513,7 +513,8 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                                           _showMyNotesDetails = true;
                                           _isDiaryTableShown = false;
                                           _showNotebook = false;
-                                          if (!_hasShownGuidePop1) {
+                                          // Only show the guide pop if the task is actually finished
+                                          if (_isNotebookTaskComplete && !_hasShownGuidePop1) {
                                             _showGuidePop1 = true;
                                             _hasShownGuidePop1 = true;
                                           }
@@ -630,15 +631,15 @@ class _TutorialCase9ScreenState extends State<TutorialCase9Screen>
                         ),
                       ),
                       Positioned(
-                        bottom: 15,
-                        right: 25,
+                        bottom: 20,
+                        right: 35,
                         child: BouncingButton(
                           onPressed: () => setState(() {
                             _showGuidePop1 = false;
                             _showMyNotesDetails = false;
                             _showNextButton = true;
                           }),
-                          child: Image.asset(AppAssets.okayBtn, width: 70),
+                          child: Image.asset(AppAssets.okayBtn, width: 60),
                         ),
                       ),
                     ],
