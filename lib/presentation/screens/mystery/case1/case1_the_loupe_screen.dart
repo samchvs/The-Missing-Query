@@ -170,8 +170,6 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
         await PointsController.instance.addLocationScore('case1_the_loupe', 80);
         await prefs.setBool(solveKey, true);
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -268,7 +266,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/loupe_loc.png', fit: BoxFit.fill),
+                child: Image.asset(
+                  'assets/mystery/loupe_loc.png',
+                  fit: BoxFit.fill,
+                ),
               ),
               SafeArea(
                 child: Padding(
@@ -424,7 +425,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -460,11 +464,12 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                     onChanged: (value) {
                       final upper = value.toUpperCase();
                       if (value != upper) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: upper,
-                          selection: _answerController.selection,
-                          composing: TextRange.empty,
-                        );
+                        _answerController.value = _answerController.value
+                            .copyWith(
+                              text: upper,
+                              selection: _answerController.selection,
+                              composing: TextRange.empty,
+                            );
                       }
                     },
                     style: const TextStyle(
@@ -525,7 +530,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -534,7 +542,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -554,7 +565,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -563,7 +577,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -599,7 +616,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/trade_secrets.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/trade_secrets.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -727,7 +747,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/loupe_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/loupe_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -805,7 +828,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -813,7 +839,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -821,7 +850,10 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -927,9 +959,10 @@ class _GlowingClueState extends State<GlowingClue>
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
 
-    _glow = Tween<double>(begin: 0.3, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _glow = Tween<double>(
+      begin: 0.3,
+      end: 0.9,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -948,12 +981,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: Colors.yellowAccent.withValues(alpha: _glow.value * 0.55),
+                color: Colors.yellowAccent.withValues(
+                  alpha: _glow.value * 0.55,
+                ),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.30),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.30),
                 blurRadius: 28 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -997,9 +1034,10 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter>
       duration: widget.typingDuration,
     );
 
-    _characterCount = StepTween(begin: 0, end: widget.text.length).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.linear),
-    );
+    _characterCount = StepTween(
+      begin: 0,
+      end: widget.text.length,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -1066,9 +1104,10 @@ class _AnimatedPopupState extends State<AnimatedPopup>
       duration: const Duration(milliseconds: 300),
     );
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scale = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
   }
 
@@ -1082,10 +1121,7 @@ class _AnimatedPopupState extends State<AnimatedPopup>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fade,
-      child: ScaleTransition(
-        scale: _scale,
-        child: widget.child,
-      ),
+      child: ScaleTransition(scale: _scale, child: widget.child),
     );
   }
 }

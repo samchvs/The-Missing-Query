@@ -6,6 +6,7 @@ import 'package:graphics_project/presentation/widgets/common/bouncing_button.dar
 import 'package:graphics_project/presentation/widgets/common/shake_widget.dart';
 import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class TutorialCase4Screen extends StatefulWidget {
@@ -74,7 +75,10 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
           _showBubble2 = true;
           _isBeanieTalking = false;
         });
-        _audioPlayer.play(AssetSource(AppAssets.carrotinoAnswerAudio));
+        final vol = SFXController().volume;
+        debugPrint("Playing Carrotino answer audio in Tutorial Case 4 with volume: $vol");
+        _audioPlayer.setVolume(vol);
+        _audioPlayer.play(AssetSource(AppAssets.carrotinoAnswerAudio), volume: vol);
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (mounted) {
             setState(() {
@@ -92,7 +96,10 @@ class _TutorialCase4ScreenState extends State<TutorialCase4Screen>
           setState(() {
             _showBubble = true;
           });
-          _audioPlayer.play(AssetSource(AppAssets.beanieQuestionAudio));
+          final vol = SFXController().volume;
+          debugPrint("Playing Beanie question audio in Tutorial Case 4 with volume: $vol");
+          _audioPlayer.setVolume(vol);
+          _audioPlayer.play(AssetSource(AppAssets.beanieQuestionAudio), volume: vol);
           Future.delayed(const Duration(seconds: 1), () {
             if (mounted) {
               setState(() {

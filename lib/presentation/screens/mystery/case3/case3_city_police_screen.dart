@@ -276,14 +276,14 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
         .toUpperCase()
         .replaceAll(';', '')
         .replaceAll(r'$', '')
-        .replaceAll(',', '') 
-        .replaceAll(RegExp(r'\bAND\b'), ' ') 
+        .replaceAll(',', '')
+        .replaceAll(RegExp(r'\bAND\b'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isCityPoliceCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input).replaceAll(' ', '');
-    
+
     final options = [
       'ARON MARK JOSE',
       'ARON HUANG MARK LOWE JOSE DE LEON',
@@ -324,9 +324,10 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addLocationScore('case3_city_police', 300);
-
-
+      await PointsController.instance.addLocationScore(
+        'case3_city_police',
+        300,
+      );
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -388,13 +389,11 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
 
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-              
-/*
+
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -717,16 +716,25 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
                             Navigator.pushAndRemoveUntil(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    const CaseMap3(showSolvedDialog: false),
-                                transitionDuration: const Duration(milliseconds: 1000),
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const CaseMap3(showSolvedDialog: false),
+                                transitionDuration: const Duration(
+                                  milliseconds: 1000,
+                                ),
                                 reverseTransitionDuration: Duration.zero,
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
                               ),
                               (route) => route.isFirst,
                             );

@@ -72,8 +72,10 @@ class _TutorialCaseScreenState extends State<TutorialCaseScreen>
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) {
         _audioPlayer.setReleaseMode(ReleaseMode.loop);
-        _audioPlayer.setVolume(SFXController().volume);
-        _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
+        final vol = SFXController().volume;
+        debugPrint("Playing typewriter audio in Tutorial Case Screen with volume: $vol");
+        _audioPlayer.setVolume(vol);
+        _audioPlayer.play(AssetSource(AppAssets.typewriterAudio), volume: vol);
         _controller.forward();
       }
     });

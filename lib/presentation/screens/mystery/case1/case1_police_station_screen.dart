@@ -119,7 +119,6 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
       });
       if (!mounted) return;
 
-
       final auth = context.read<AuthController>();
       final userId = auth.currentUser!.id;
       final solveKey = 'case1_police_station_solved_$userId';
@@ -128,11 +127,12 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
       if (!alreadySolved) {
-        await PointsController.instance.addLocationScore('case1_police_station', 150);
+        await PointsController.instance.addLocationScore(
+          'case1_police_station',
+          150,
+        );
         await prefs.setBool(solveKey, true);
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -153,8 +153,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
-            if (!mounted) return;
-
+              if (!mounted) return;
 
               final auth = context.read<AuthController>();
               final userId = auth.currentUser!.id;
@@ -163,12 +162,10 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;
@@ -465,16 +462,25 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                           Navigator.pushAndRemoveUntil(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) =>
-                                  const CaseMap1(showSolvedDialog: true),
-                              transitionDuration: const Duration(milliseconds: 1000),
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const CaseMap1(showSolvedDialog: true),
+                              transitionDuration: const Duration(
+                                milliseconds: 1000,
+                              ),
                               reverseTransitionDuration: Duration.zero,
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
-                              },
+                              transitionsBuilder:
+                                  (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
                             ),
                             (route) => route.isFirst,
                           );

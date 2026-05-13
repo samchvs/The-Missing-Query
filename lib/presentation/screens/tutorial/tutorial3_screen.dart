@@ -8,6 +8,7 @@ import 'package:graphics_project/presentation/widgets/common/sprite_animator.dar
 import 'package:graphics_project/presentation/widgets/common/typewriter_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class Tutorial3Screen extends StatefulWidget {
   const Tutorial3Screen({super.key});
@@ -80,7 +81,10 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
           _isTalking = true;
           _showText = true;
         });
-        await _audioPlayer.play(AssetSource(AppAssets.tutorial3BeanieAudio));
+        final vol = SFXController().volume;
+        debugPrint("Playing Beanie audio in Tutorial 3 with volume: $vol");
+        _audioPlayer.setVolume(vol);
+        await _audioPlayer.play(AssetSource(AppAssets.tutorial3BeanieAudio), volume: vol);
       }
     });
   }
@@ -106,7 +110,10 @@ class _Tutorial3ScreenState extends State<Tutorial3Screen> {
         default:
           audioPath = AppAssets.tutorial3BeanieAudio;
       }
-      await _audioPlayer.play(AssetSource(audioPath));
+      final vol = SFXController().volume;
+      debugPrint("Playing next step audio in Tutorial 3 with volume: $vol");
+      _audioPlayer.setVolume(vol);
+      await _audioPlayer.play(AssetSource(audioPath), volume: vol);
     } else {
       Navigator.pushReplacement(
         context,

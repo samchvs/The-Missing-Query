@@ -189,8 +189,10 @@ class _TutorialCase7ScreenState extends State<TutorialCase7Screen>
   void _startTyping() {
     int charIndex = 0;
     _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    _audioPlayer.setVolume(SFXController().volume);
-    _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
+    final vol = SFXController().volume;
+    debugPrint("Playing typewriter audio in Tutorial Case 7 with volume: $vol");
+    _audioPlayer.setVolume(vol);
+    _audioPlayer.play(AssetSource(AppAssets.typewriterAudio), volume: vol);
     _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       if (charIndex < _fullText.length) {
         if (mounted) {

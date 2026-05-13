@@ -9,7 +9,6 @@ import 'package:graphics_project/presentation/controllers/points_controller.dart
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
-
 // --- SCREEN: CASE SELECTION ---
 class CaseSelectionScreen extends StatefulWidget {
   const CaseSelectionScreen({super.key});
@@ -38,8 +37,10 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
     final int case2Pts = PointsController.instance.getPointsForCase('case2');
 
     // Local solve flags as secondary confirmation
-    final bool case1Solved = prefs.getBool('case1_police_station_solved_$userId') ?? false;
-    final bool case2Solved = prefs.getBool('case2_guidance_solved_$userId') ?? false;
+    final bool case1Solved =
+        prefs.getBool('case1_police_station_solved_$userId') ?? false;
+    final bool case2Solved =
+        prefs.getBool('case2_guidance_solved_$userId') ?? false;
 
     setState(() {
       // Case 2 unlocks if police station was solved locally OR case1_points >= 550
@@ -116,7 +117,7 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
                 builder: (context, pointsController, child) {
                   // Trigger a re-check when points change
                   _checkUnlockStatus();
-                  
+
                   return SizedBox(
                     height: MediaQuery.of(context).size.height * 0.65,
                     child: Padding(

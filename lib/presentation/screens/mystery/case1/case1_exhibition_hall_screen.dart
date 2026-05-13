@@ -250,11 +250,12 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
       if (!alreadySolved) {
-        await PointsController.instance.addLocationScore('case1_exhibition_hall', 80);
+        await PointsController.instance.addLocationScore(
+          'case1_exhibition_hall',
+          80,
+        );
         await prefs.setBool(solveKey, true);
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -314,12 +315,10 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
             final prefs = await SharedPreferences.getInstance();
             final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*     
             if (alreadySolved) {
               showAlreadySolvedPopup();
               return;
             }
-*/      
             if (!_hasLives) {
               showNoLivesPopup();
               return;
@@ -963,8 +962,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
       ],
     );
   }
-
-
 
   Widget _buildOverlayIcon(
     String asset,

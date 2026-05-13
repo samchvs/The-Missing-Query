@@ -189,7 +189,10 @@ class _TutorialCase8ScreenState extends State<TutorialCase8Screen>
       _showDialogue = true;
     });
 
-    _audioPlayer.play(AssetSource(AppAssets.case8BeanieAudio));
+    final vol = SFXController().volume;
+    debugPrint("Playing Beanie dialogue in Tutorial Case 8 with volume: $vol");
+    _audioPlayer.setVolume(vol);
+    _audioPlayer.play(AssetSource(AppAssets.case8BeanieAudio), volume: vol);
 
     _typingTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (charIndex < _fullText.length) {

@@ -172,8 +172,6 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
 
       // Award points
       await PointsController.instance.addLocationScore('case3_cell', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -235,12 +233,10 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
 
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;

@@ -188,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Tab buttons
                 Positioned.fill(
                   child: Align(
-                    alignment: const Alignment(-0.8, -0.8),
+                    alignment: const Alignment(-0.78, -0.8),
                     child: BouncingButton(
                       onPressed: () => setState(() => _activeTab = 'profile'),
                       child: const Text(

@@ -35,7 +35,6 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-
     _checkIfSolved();
   }
 
@@ -63,8 +62,8 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
         .trim()
         .toUpperCase()
         .replaceAll(';', '')
-        .replaceAll(r'$', '') 
-        .replaceAll(',', '') 
+        .replaceAll(r'$', '')
+        .replaceAll(',', '')
         .replaceAll(RegExp(r'(\d)\s+(\d)'), r'$1$2')
         .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
@@ -113,8 +112,6 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
           });
         }
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -146,12 +143,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -187,8 +182,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/Case2/guidance_loc.png',
-                    fit: BoxFit.fill),
+                child: Image.asset(
+                  'assets/mystery/Case2/guidance_loc.png',
+                  fit: BoxFit.fill,
+                ),
               ),
               SafeArea(
                 child: Padding(
@@ -318,7 +315,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -408,7 +408,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -416,7 +419,7 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                 child: InkWell(
                   onTap: () async {
                     await playButtonSound();
-                    
+
                     // Small delay to allow button click animation/sound to finish
                     await Future.delayed(const Duration(milliseconds: 300));
                     if (!mounted) return;
@@ -430,23 +433,35 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                         Navigator.pushAndRemoveUntil(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                const CaseMap2(showSolvedDialog: true),
-                            transitionDuration: const Duration(milliseconds: 1000),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const CaseMap2(showSolvedDialog: true),
+                            transitionDuration: const Duration(
+                              milliseconds: 1000,
+                            ),
                             reverseTransitionDuration: Duration.zero,
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
                           ),
                           (route) => route.isFirst,
                         );
                       },
                     );
                   },
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -466,7 +481,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -475,7 +493,10 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -677,12 +698,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),

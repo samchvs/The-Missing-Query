@@ -205,7 +205,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
 
   Future<void> _checkGuidanceStatus() async {
     if (!mounted) return;
-    
+
     // We can rely on points which are synchronized from the database.
     // 5 locations * 100 points = 500 points required to unlock Guidance.
     final case2Points = PointsController.instance.getPointsForCase('case2');
@@ -547,23 +547,35 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
               }
 
               if (asset.contains('comlab')) {
-                Navigator.push(context, fadeRoute(const ComlabScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const ComlabScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else if (asset.contains('gym')) {
-                Navigator.push(context, fadeRoute(const GymScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const GymScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else if (asset.contains('it')) {
-                Navigator.push(context, fadeRoute(const ITScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const ITScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else if (asset.contains('guidance')) {
-                Navigator.push(context, fadeRoute(const GuidanceScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const GuidanceScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else if (asset.contains('icto')) {
-                Navigator.push(context, fadeRoute(const IctoScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const IctoScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else if (asset.contains('dean')) {
-                Navigator.push(context, fadeRoute(const DeanScreen()))
-                    .then((_) => _checkGuidanceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const DeanScreen()),
+                ).then((_) => _checkGuidanceStatus());
               } else {
                 debugPrint("Location tapped: $asset");
               }

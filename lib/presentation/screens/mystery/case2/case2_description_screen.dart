@@ -56,8 +56,10 @@ class _TypewriterTextState extends State<TypewriterText> {
 
     _typePlayer.stop();
     _typePlayer.setReleaseMode(ReleaseMode.loop);
-    _typePlayer.play(AssetSource('mystery/audio/typing.mp3'),
-        volume: SFXController().volume * 0.25);
+    _typePlayer.play(
+      AssetSource('mystery/audio/typing.mp3'),
+      volume: SFXController().volume * 0.25,
+    );
 
     _timer = Timer.periodic(widget.speed, (timer) {
       if (!mounted) {

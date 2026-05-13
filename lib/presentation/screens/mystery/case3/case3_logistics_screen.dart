@@ -156,7 +156,10 @@ class _LogisticsScreenState extends State<LogisticsScreen>
         .replaceAll(';', '')
         .replaceAll(r'$', '')
         .replaceAll(',', '') // Remove all commas
-        .replaceAll('_', ' ') // Treat underscores as spaces for maximum flexibility
+        .replaceAll(
+          '_',
+          ' ',
+        ) // Treat underscores as spaces for maximum flexibility
         .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
@@ -196,8 +199,6 @@ class _LogisticsScreenState extends State<LogisticsScreen>
 
       // Award points
       await PointsController.instance.addLocationScore('case3_logistics', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -260,12 +261,10 @@ class _LogisticsScreenState extends State<LogisticsScreen>
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

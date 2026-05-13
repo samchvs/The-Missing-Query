@@ -301,7 +301,7 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
         .toUpperCase()
         .replaceAll(';', '')
         .replaceAll(r'$', '')
-        .replaceAll(',', '') 
+        .replaceAll(',', '')
         .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
@@ -338,8 +338,6 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
 
       // Award points
       await PointsController.instance.addLocationScore('case3_cordova', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -402,12 +400,10 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

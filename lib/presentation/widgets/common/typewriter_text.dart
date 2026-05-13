@@ -56,8 +56,10 @@ class _TypewriterTextState extends State<TypewriterText>
       if (mounted) {
         if (widget.playAudio) {
           _audioPlayer.setReleaseMode(ReleaseMode.loop);
-          _audioPlayer.setVolume(SFXController().volume);
-          _audioPlayer.play(AssetSource(AppAssets.typewriterAudio));
+          final vol = SFXController().volume;
+          debugPrint("Playing typewriter audio in common TypewriterText with volume: $vol");
+          _audioPlayer.setVolume(vol);
+          _audioPlayer.play(AssetSource(AppAssets.typewriterAudio), volume: vol);
         }
         _controller.forward();
       }

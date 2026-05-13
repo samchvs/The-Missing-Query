@@ -195,7 +195,7 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
 
   Future<void> _checkPoliceStationStatus() async {
     if (!mounted) return;
-    
+
     // We can rely on points which are synchronized from the database.
     // 5 locations * 80 points = 400 points required to unlock the Police Station.
     final case1Points = PointsController.instance.getPointsForCase('case1');

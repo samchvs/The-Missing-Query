@@ -553,8 +553,6 @@ class _MunicipalScreenState extends State<MunicipalScreen>
     );
   }
 
-
-
   Widget _buildOverlayIcon(
     String asset,
     double width,

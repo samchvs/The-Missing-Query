@@ -320,6 +320,40 @@ class SimpleSqlEngine {
       'COUNT',
       'SUM',
       'AS',
+      'INSERT',
+      'INTO',
+      'VALUES',
+      'CREATE',
+      'TABLE',
+      'INT',
+      'VARCHAR',
+      'PRIMARY',
+      'KEY',
+      'TEXT',
+      'NULL',
+      'NOT',
+      'DEFAULT',
+      'ALL',
+      'PRIMARY_KEY',
+      'FOREIGN_KEY',
+      'AUTO_INCREMENT',
+      'DISTINCT',
+      'AVG',
+      'MIN',
+      'MAX',
+      'GROUP',
+      'HAVING',
+      'JOIN',
+      'LEFT',
+      'RIGHT',
+      'INNER',
+      'UNION',
+      'COLUMN',
+      'UPDATE',
+      'SET',
+      'DELETE',
+      'DROP',
+      'ALTER',
     };
 
     final spans = <TextSpan>[];
@@ -331,7 +365,7 @@ class SimpleSqlEngine {
           (token.startsWith('"') && token.endsWith('"'))) {
         spans.add(TextSpan(text: token, style: stringStyle));
       } else if (keywords.contains(upper)) {
-        spans.add(TextSpan(text: upper, style: keywordStyle));
+        spans.add(TextSpan(text: token, style: keywordStyle));
       } else if (headers.contains(token.toLowerCase())) {
         spans.add(TextSpan(text: token, style: columnStyle));
       } else {

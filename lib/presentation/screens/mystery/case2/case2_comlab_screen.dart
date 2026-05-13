@@ -199,8 +199,6 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
           });
         }
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -263,14 +261,11 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-              
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
-            
+
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;
@@ -892,8 +887,6 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
       ],
     );
   }
-
-
 
   Widget _buildOverlayIcon(
     String asset,

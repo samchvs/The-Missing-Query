@@ -123,15 +123,17 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
         .toUpperCase()
         .replaceAll(';', '')
         .replaceAll(r'$', '')
-        .replaceAll(',', '') 
-        .replaceAll(RegExp(r'\bAND\b'), ' ') 
+        .replaceAll(',', '')
+        .replaceAll(RegExp(r'\bAND\b'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isHuangCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input).replaceAll(' ', '');
     final opt1 = _normalizeAnswer('150000 HARVESTED').replaceAll(' ', '');
-    final opt2 = _normalizeAnswer('LOYD SHAW 150000 HARVESTED').replaceAll(' ', '');
+    final opt2 = _normalizeAnswer(
+      'LOYD SHAW 150000 HARVESTED',
+    ).replaceAll(' ', '');
 
     return normalized == opt1 || normalized == opt2;
   }
@@ -162,8 +164,6 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
 
       // Award points
       await PointsController.instance.addLocationScore('case3_huang', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -226,12 +226,10 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();

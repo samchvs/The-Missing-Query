@@ -497,11 +497,15 @@ class _TutorialCase5ScreenState extends State<TutorialCase5Screen>
                               right: 70,
                               child: BouncingButton(
                                 onPressed: () {
-                                setState(() {
-                                  _isTableShown = false;
-                                  _isResultShown = false;
-                                });
-                              },
+                                  if (_isResultShown) {
+                                    _hideQuery();
+                                  } else {
+                                    setState(() {
+                                      _isTableShown = false;
+                                      _isResultShown = false;
+                                    });
+                                  }
+                                },
                                 child: Image.asset(
                                   AppAssets.closeBtn,
                                   width: 35,

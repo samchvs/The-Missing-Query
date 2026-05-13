@@ -167,10 +167,11 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     initCaseHelper();
     PointsController.instance.setActiveCase('case3');
     _livesController.addListener(_refresh);
-    _diaryController = DiaryController(caseKey: 'case3', userId: context.read<AuthController>().currentUser!.id);
+    _diaryController = DiaryController(
+      caseKey: 'case3',
+      userId: context.read<AuthController>().currentUser!.id,
+    );
     _checkCityPoliceStatus();
-
-
   }
 
   @override
@@ -203,7 +204,8 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
 
     if (mounted) {
       setState(() {
-        _isCityPoliceUnlocked = q1 && q2 && q3 && q4 && q5 && q6 && q7 && q8 && q9;
+        _isCityPoliceUnlocked =
+            q1 && q2 && q3 && q4 && q5 && q6 && q7 && q8 && q9;
       });
     }
   }
@@ -521,7 +523,12 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     );
   }
 
-  Widget _buildMapLabel(BuildContext context, String asset, double width, {bool isLocked = false}) {
+  Widget _buildMapLabel(
+    BuildContext context,
+    String asset,
+    double width, {
+    bool isLocked = false,
+  }) {
     return Stack(
       alignment: Alignment.center,
       clipBehavior: Clip.none,
@@ -569,25 +576,55 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
               }
 
               if (asset.contains('bank')) {
-                Navigator.push(context, fadeRoute(const BankScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const BankScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('cell')) {
-                Navigator.push(context, fadeRoute(const CellScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const CellScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('lowe')) {
-                Navigator.push(context, fadeRoute(const LoweScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const LoweScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('skyline')) {
-                Navigator.push(context, fadeRoute(const SkylineScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const SkylineScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('cordova')) {
-                Navigator.push(context, fadeRoute(const CordovaScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const CordovaScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('hospital')) {
-                Navigator.push(context, fadeRoute(const HospitalScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const HospitalScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('huang')) {
-                Navigator.push(context, fadeRoute(const HuangScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const HuangScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('logistics')) {
-                Navigator.push(context, fadeRoute(const LogisticsScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const LogisticsScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('waste_corp')) {
-                Navigator.push(context, fadeRoute(const WasteCorpScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const WasteCorpScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else if (asset.contains('city_police')) {
-                Navigator.push(context, fadeRoute(const CityPoliceScreen())).then((_) => _checkCityPoliceStatus());
+                Navigator.push(
+                  context,
+                  fadeRoute(const CityPoliceScreen()),
+                ).then((_) => _checkCityPoliceStatus());
               } else {
                 debugPrint("Location tapped: $asset");
               }

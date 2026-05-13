@@ -173,8 +173,6 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
 
       // Award points
       await PointsController.instance.addLocationScore('case3_skyline', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -237,12 +235,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -426,7 +422,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isQuestionVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 25),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 25,
+                  ),
                 ),
               ),
               Positioned(
@@ -514,7 +513,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/correct.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/correct.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -523,7 +525,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isCorrectVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -543,7 +548,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/mystery/wrong.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/mystery/wrong.png',
+                  fit: BoxFit.contain,
+                ),
               ),
               Positioned(
                 top: 10,
@@ -552,7 +560,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                   onTap: () => onButtonTap(() {
                     setState(() => isWrongVisible = false);
                   }),
-                  child: Image.asset('assets/mystery/close_button.png', height: 20),
+                  child: Image.asset(
+                    'assets/mystery/close_button.png',
+                    height: 20,
+                  ),
                 ),
               ),
             ],
@@ -588,7 +599,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case3/flight_manifests.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case3/flight_manifests.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -716,7 +730,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/Case3/skyline_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/Case3/skyline_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -793,7 +810,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                     isTableVisible = true;
                   });
                 }),
-                child: Image.asset('assets/mystery/tables_button.png', height: 35),
+                child: Image.asset(
+                  'assets/mystery/tables_button.png',
+                  height: 35,
+                ),
               ),
               Row(
                 children: [
@@ -801,7 +821,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                     onTap: () => onButtonTap(() {
                       _sqlController.clear();
                     }),
-                    child: Image.asset('assets/mystery/clear_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/clear_button.png',
+                      height: 35,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
@@ -809,7 +832,10 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                       await playButtonSound();
                       _runSqlQuery();
                     },
-                    child: Image.asset('assets/mystery/run_button.png', height: 35),
+                    child: Image.asset(
+                      'assets/mystery/run_button.png',
+                      height: 35,
+                    ),
                   ),
                 ],
               ),
@@ -819,7 +845,6 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
       ],
     );
   }
-
 
   Widget _buildOverlayIcon(
     String asset,
@@ -1013,12 +1038,16 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFA8).withValues(alpha: _glow.value * 0.55),
+                color: const Color(
+                  0xFFFFFFA8,
+                ).withValues(alpha: _glow.value * 0.55),
                 blurRadius: 18 + (_glow.value * 10),
                 spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.35),
+                color: const Color(
+                  0xFFB388FF,
+                ).withValues(alpha: _glow.value * 0.35),
                 blurRadius: 30 + (_glow.value * 12),
                 spreadRadius: 2 + (_glow.value * 2),
               ),
@@ -1086,6 +1115,3 @@ class _AnimatedPopupState extends State<AnimatedPopup>
     );
   }
 }
-
-
-

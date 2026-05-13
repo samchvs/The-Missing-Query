@@ -173,8 +173,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
         await PointsController.instance.addLocationScore('case1_viore', 80);
         await prefs.setBool(solveKey, true);
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -233,12 +231,10 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
             final prefs = await SharedPreferences.getInstance();
             final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
             if (alreadySolved) {
               showAlreadySolvedPopup();
               return;
             }
-*/
             if (!_hasLives) {
               showNoLivesPopup();
               return;
@@ -483,7 +479,10 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/mystery/intelligence.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/mystery/intelligence.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,
@@ -728,8 +727,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
     );
   }
 
-
-
   Widget _buildOverlayIcon(
     String asset,
     double width,
@@ -816,11 +813,12 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
                     onChanged: (value) {
                       final upper = value.toUpperCase();
                       if (value != upper) {
-                        _answerController.value = _answerController.value.copyWith(
-                          text: upper,
-                          selection: _answerController.selection,
-                          composing: TextRange.empty,
-                        );
+                        _answerController.value = _answerController.value
+                            .copyWith(
+                              text: upper,
+                              selection: _answerController.selection,
+                              composing: TextRange.empty,
+                            );
                       }
                     },
                     style: const TextStyle(
@@ -1116,6 +1114,7 @@ class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
     );
   }
 }
+
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

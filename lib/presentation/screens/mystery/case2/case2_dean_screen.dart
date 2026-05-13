@@ -152,8 +152,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
         .toUpperCase()
         .replaceAll(';', '')
         .replaceAll(r'$', '')
-        .replaceAll(',', '') 
-        .replaceAll(RegExp(r'(\d)\s+(\d)'), r'$1$2') 
+        .replaceAll(',', '')
+        .replaceAll(RegExp(r'(\d)\s+(\d)'), r'$1$2')
         .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
@@ -200,8 +200,6 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
           });
         }
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -266,12 +264,10 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -907,8 +903,6 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
       ],
     );
   }
-
-
 
   Widget _buildOverlayIcon(
     String asset,

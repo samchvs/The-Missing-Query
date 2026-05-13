@@ -116,7 +116,6 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
       if (mounted) setState(() {});
     });
 
-
     _checkIfSolved();
   }
 
@@ -153,8 +152,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
 
   bool _isItCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    return normalized == 'MORRIS_J 508 510' ||
-        normalized == 'MORRIS_J 508 510';
+    return normalized == 'MORRIS_J 508 510' || normalized == 'MORRIS_J 508 510';
   }
 
   void _submitAnswer() async {
@@ -193,8 +191,6 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
           });
         }
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -259,12 +255,10 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -476,7 +470,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -894,8 +888,6 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
       ],
     );
   }
-
-  
 
   Widget _buildOverlayIcon(
     String asset,

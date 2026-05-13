@@ -102,7 +102,14 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       '01:45:00',
       'Giovanni_Front',
     ],
-    ['M-897', 'Fast_Lane_Auto', 'Sedan-2', 'Jim Brock', '02:00:00', 'Main_Gate'],
+    [
+      'M-897',
+      'Fast_Lane_Auto',
+      'Sedan-2',
+      'Jim Brock',
+      '02:00:00',
+      'Main_Gate',
+    ],
     [
       'M-898',
       'Municipal_Records',
@@ -244,11 +251,12 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
       if (!alreadySolved) {
-        await PointsController.instance.addLocationScore('case1_back_alley', 80);
+        await PointsController.instance.addLocationScore(
+          'case1_back_alley',
+          80,
+        );
         await prefs.setBool(solveKey, true);
       }
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -312,7 +320,6 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
               showAlreadySolvedPopup();
               return;
             }
-
 
             if (!_hasLives) {
               showNoLivesPopup();
@@ -943,8 +950,6 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       ],
     );
   }
-
-
 
   Widget _buildOverlayIcon(
     String asset,

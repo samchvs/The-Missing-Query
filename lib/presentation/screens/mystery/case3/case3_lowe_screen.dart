@@ -163,7 +163,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
         isCorrectVisible = true;
         isWrongVisible = false;
       });
-      
+
       // Save solving state
       final auth = context.read<AuthController>();
       final userId = auth.currentUser!.id;
@@ -173,8 +173,6 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
 
       // Award points
       await PointsController.instance.addLocationScore('case3_lowe', 200);
-
-
     } else {
       livesManager.deductLife();
       unawaited(playWrongSound());
@@ -237,12 +235,10 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
-/*
               if (alreadySolved) {
                 showAlreadySolvedPopup();
                 return;
               }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -849,7 +845,6 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
       ],
     );
   }
-
 
   Widget _buildOverlayIcon(
     String asset,

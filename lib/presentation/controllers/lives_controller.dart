@@ -115,7 +115,7 @@ class LivesController extends ChangeNotifier {
 
   // ================= GAME LOGIC =================
   bool deductLife() {
-    /*
+  
     _processRefills();
 
     if (_currentLives <= 0) return false;
@@ -126,7 +126,7 @@ class LivesController extends ChangeNotifier {
 
     _saveData();
     notifyListeners();
-    */
+
 
     return true;
   }

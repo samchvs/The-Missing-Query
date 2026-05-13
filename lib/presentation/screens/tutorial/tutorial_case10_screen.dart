@@ -11,6 +11,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 import 'package:graphics_project/presentation/controllers/tutorial_music_controller.dart';
 import 'package:graphics_project/presentation/controllers/home_music_controller.dart';
+import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 
 class TutorialCase10Screen extends StatefulWidget {
   const TutorialCase10Screen({super.key});
@@ -69,8 +70,10 @@ class _TutorialCase10ScreenState extends State<TutorialCase10Screen>
       String? audioPath = _dialogueAudios[_dialogueIndex];
       if (audioPath != null) {
         await _audioPlayer.stop();
-        await _audioPlayer.setVolume(1.0);
-        await _audioPlayer.play(AssetSource(audioPath));
+        final vol = SFXController().volume;
+        debugPrint("Playing finale dialogue in Tutorial Case 10 with volume: $vol");
+        await _audioPlayer.setVolume(vol);
+        await _audioPlayer.play(AssetSource(audioPath), volume: vol);
       }
     }
   }
