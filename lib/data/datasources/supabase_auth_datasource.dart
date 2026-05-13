@@ -13,6 +13,17 @@ class SupabaseAuthDataSource {
     required String password,
     required String username,
   }) async {
+    // 1. Check if the username is already taken (case-insensitive)
+    final existingUser = await _client
+        .from('profiles')
+        .select('id')
+        .ilike('username', username.trim())
+        .maybeSingle();
+
+    if (existingUser != null) {
+      throw Exception('Username is already taken. Please choose another one.');
+    }
+
     final response = await _client.auth.signUp(
       email: email,
       password: password,
@@ -25,14 +36,22 @@ class SupabaseAuthDataSource {
     }
     final session = response.session;
     if (session != null) {
-      await _client.from('profiles').insert({
-        'id': user.id,
-        'username': username,
-        'email': email,
-        'case1_points': 0,
-        'case2_points': 0,
-        'case3_points': 0,
-      });
+      try {
+        await _client.from('profiles').insert({
+          'id': user.id,
+          'username': username,
+          'email': email,
+          'case1_points': 0,
+          'case2_points': 0,
+          'case3_points': 0,
+        });
+      } on PostgrestException catch (e) {
+        if (e.code == '23505' || e.message.toLowerCase().contains('duplicate key')) {
+          await _client.auth.signOut();
+          throw Exception('Username is already taken. Please choose another one.');
+        }
+        rethrow;
+      }
     }
     return AppUser(id: user.id, email: email, username: username);
   }
@@ -83,6 +102,18 @@ class SupabaseAuthDataSource {
     required String userId,
     required String username,
   }) async {
+    // Check if the username is already taken by someone else (case-insensitive)
+    final existingUser = await _client
+        .from('profiles')
+        .select('id')
+        .ilike('username', username.trim())
+        .neq('id', userId)
+        .maybeSingle();
+
+    if (existingUser != null) {
+      throw Exception('Username is already taken. Please choose another one.');
+    }
+
     await _client
         .from('profiles')
         .update({'username': username}).eq('id', userId);

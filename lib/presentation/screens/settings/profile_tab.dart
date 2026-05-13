@@ -105,10 +105,24 @@ class _ProfileTabState extends State<ProfileTab> {
                         onPressed: () async {
                           if (modalController.text.trim().isNotEmpty) {
                             final newName = modalController.text.trim();
-                            setState(() => _localUsername = newName);
-                            widget.onUsernameChanged(newName);
-                            await widget.authController.updateUsername(newName);
-                            if (context.mounted) Navigator.of(context).pop();
+                            final success = await widget.authController.updateUsername(newName);
+                            if (success) {
+                              setState(() => _localUsername = newName);
+                              widget.onUsernameChanged(newName);
+                              if (context.mounted) Navigator.of(context).pop();
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      widget.authController.errorMessage ?? 'Failed to update username',
+                                      style: const TextStyle(fontFamily: 'Consolas', fontWeight: FontWeight.bold),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
                           }
                         },
                         child: Image.asset(AppAssets.confirmBtn, width: 140, fit: BoxFit.contain),

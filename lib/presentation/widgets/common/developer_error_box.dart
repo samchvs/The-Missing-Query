@@ -11,6 +11,11 @@ class DeveloperErrorBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthController>(
       builder: (context, auth, _) {
+        // Only show this box in debug mode
+        if (!SupabaseConfig.debugMode) {
+          return const SizedBox.shrink();
+        }
+
         final friendlyError = auth.errorMessage;
         final debugError = auth.debugErrorMessage;
 
@@ -20,7 +25,7 @@ class DeveloperErrorBox extends StatelessWidget {
         }
 
         // Determine what to show based on debug mode
-        final bool showDebug = SupabaseConfig.debugMode && debugError != null;
+        final bool showDebug = debugError != null;
         final String displayMessage = (showDebug) ? debugError : friendlyError!;
 
         return Positioned(

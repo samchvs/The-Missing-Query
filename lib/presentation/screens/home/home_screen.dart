@@ -261,12 +261,19 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                           ],
                         ),
                         const SizedBox(width: 15),
-                        Text(
-                          _currentUsername,
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 105),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              _currentUsername,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],

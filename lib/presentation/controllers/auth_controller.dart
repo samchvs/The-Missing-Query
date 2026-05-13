@@ -277,9 +277,8 @@ class AuthController extends ChangeNotifier {
   }
 
   /// Updates the username locally and, if logged in, also in Supabase profiles.
-  Future<void> updateUsername(String username) async {
-    _localUsername = username;
-    await _saveLocalUsername(username);
+  Future<bool> updateUsername(String username) async {
+    _clearError();
     if (_currentUser != null) {
       try {
         await _authRepo.updateUsername(
@@ -294,11 +293,16 @@ class AuthController extends ChangeNotifier {
         
         // Force refresh the leaderboard so the new username shows up locally
         await leaderboard.forceRefresh();
-      } catch (_) {
-        // Silently fail the remote update — local is already saved
+      } catch (e) {
+        _setError(e);
+        return false;
       }
     }
+    
+    _localUsername = username;
+    await _saveLocalUsername(username);
     notifyListeners();
+    return true;
   }
 
   void clearError() => _clearError();
@@ -334,6 +338,12 @@ class AuthController extends ChangeNotifier {
   /// Converts a thrown exception into a displayable error string.
   String _parseError(Object e) {
     final msg = e.toString().toLowerCase();
+
+    if (msg.contains('username is already taken') ||
+        msg.contains('profiles_username_key') ||
+        msg.contains('username)=')) {
+      return 'Username is already taken. Please choose another one.';
+    }
 
     if (msg.contains('already registered') ||
         msg.contains('user_already_exists') ||
