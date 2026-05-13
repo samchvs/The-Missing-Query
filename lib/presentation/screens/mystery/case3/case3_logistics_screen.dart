@@ -203,7 +203,7 @@ class _LogisticsScreenState extends State<LogisticsScreen>
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_logistics', 200);
 
 
     } else {

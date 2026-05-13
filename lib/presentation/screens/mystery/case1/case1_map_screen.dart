@@ -180,7 +180,7 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
                   MaterialPageRoute(
                     builder: (context) => const CaseSelectionScreen(),
                   ),
-                  (route) => false,
+                  (route) => route.isFirst,
                 );
               },
             );
@@ -194,19 +194,14 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
 
   Future<void> _checkPoliceStationStatus() async {
     if (!mounted) return;
-    final auth = context.read<AuthController>();
-    final userId = auth.currentUser!.id;
-    final prefs = await SharedPreferences.getInstance();
-
-    final q1 = prefs.getBool('case1_exhibition_hall_solved_$userId') ?? false;
-    final q2 = prefs.getBool('case1_loupe_solved_$userId') ?? false;
-    final q3 = prefs.getBool('case1_viore_solved_$userId') ?? false;
-    final q4 = prefs.getBool('case1_back_alley_solved_$userId') ?? false;
-    final q5 = prefs.getBool('case1_pearl_district_solved_$userId') ?? false;
+    
+    // We can rely on points which are synchronized from the database.
+    // 5 locations * 80 points = 400 points required to unlock the Police Station.
+    final case1Points = PointsController.instance.getPointsForCase('case1');
 
     if (mounted) {
       setState(() {
-        _isPoliceStationUnlocked = q1 && q2 && q3 && q4 && q5;
+        _isPoliceStationUnlocked = case1Points >= 400;
       });
     }
   }

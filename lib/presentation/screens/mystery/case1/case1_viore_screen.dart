@@ -170,7 +170,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(80);
+        await PointsController.instance.addLocationScore('case1_viore', 80);
         await prefs.setBool(solveKey, true);
       }
 
@@ -788,7 +788,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> with CaseScreenHelper {
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Which company owns the software 'NullByte-v7' and has an asset value of 1,500,000?",
+                  "Who is the owner of the NullByte-v7 software?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',

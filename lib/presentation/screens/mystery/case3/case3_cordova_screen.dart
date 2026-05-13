@@ -342,7 +342,7 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_cordova', 200);
 
 
     } else {

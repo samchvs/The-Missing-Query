@@ -128,7 +128,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(150);
+        await PointsController.instance.addLocationScore('case1_police_station', 150);
         await prefs.setBool(solveKey, true);
       }
 
@@ -341,7 +341,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.20,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
@@ -356,7 +356,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.44,
+                top: constraints.maxHeight * 0.43,
                 left: constraints.maxWidth * 0.15,
                 right: constraints.maxWidth * 0.10,
                 child: Opacity(
@@ -457,13 +457,11 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                       });
                     }
 
-                    // Check if they reached the point threshold for the ending
                     if (PointsController.instance.currentPoints >= 550) {
                       await showCutscene(
                         videoAsset: 'assets/mystery/Endings/Case1_Ending.mp4',
                         onFinished: () {
                           if (!mounted) return;
-                          // Navigate back to CaseMap1 without sliding
                           Navigator.pushAndRemoveUntil(
                             context,
                             PageRouteBuilder(
@@ -478,7 +476,7 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                                 );
                               },
                             ),
-                            (route) => false,
+                            (route) => route.isFirst,
                           );
                         },
                       );

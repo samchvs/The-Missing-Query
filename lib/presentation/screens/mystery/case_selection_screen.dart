@@ -8,6 +8,7 @@ import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:graphics_project/presentation/screens/home/home_screen.dart';
 
 // --- SCREEN: CASE SELECTION ---
 class CaseSelectionScreen extends StatefulWidget {
@@ -88,7 +89,9 @@ class _CaseSelectionScreenState extends State<CaseSelectionScreen> {
                 child: Row(
                   children: [
                     BouncingButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        Navigator.popUntil(context, (route) => route.isFirst);
+                      },
                       child: Image.asset(
                         'assets/mystery/back_button.png',
                         height: 40,

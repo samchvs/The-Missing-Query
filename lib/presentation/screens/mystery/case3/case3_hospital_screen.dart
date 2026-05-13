@@ -170,7 +170,7 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_hospital', 200);
 
 
     } else {

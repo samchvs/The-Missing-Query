@@ -172,7 +172,7 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_skyline', 200);
 
 
     } else {
@@ -358,7 +358,7 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
                 child: _buildOverlayIcon(
                   'assets/mystery/investigate.png',
                   40,
-                  "A large blue and grey wall featuring the â€œBALDWIN CITY SKYLINE TRANSIT HUBâ€ sign alongside three smaller flight information panels.",
+                  "A large blue and grey wall featuring the \"BALDWIN CITY SKYLINE TRANSIT HUB\" sign alongside three smaller flight information panels.",
                   'audio/case3/skyline/2.mp3',
                   const Duration(seconds: 9),
                 ),

@@ -244,7 +244,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(80);
+        await PointsController.instance.addLocationScore('case1_back_alley', 80);
         await prefs.setBool(solveKey, true);
       }
 

@@ -171,7 +171,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_bank', 200);
 
 
     } else {

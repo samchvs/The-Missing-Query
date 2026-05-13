@@ -179,7 +179,7 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
                   MaterialPageRoute(
                     builder: (context) => const CaseSelectionScreen(),
                   ),
-                  (route) => false,
+                  (route) => route.isFirst,
                 );
               },
             );
@@ -205,19 +205,14 @@ class _CaseMap2State extends State<CaseMap2> with CaseScreenHelper {
 
   Future<void> _checkGuidanceStatus() async {
     if (!mounted) return;
-    final auth = context.read<AuthController>();
-    final userId = auth.currentUser!.id;
-    final prefs = await SharedPreferences.getInstance();
-
-    final q1 = prefs.getBool('case2_comlab_solved_$userId') ?? false;
-    final q2 = prefs.getBool('case2_icto_solved_$userId') ?? false;
-    final q3 = prefs.getBool('case2_it_solved_$userId') ?? false;
-    final q4 = prefs.getBool('case2_gym_solved_$userId') ?? false;
-    final q5 = prefs.getBool('case2_dean_solved_$userId') ?? false;
+    
+    // We can rely on points which are synchronized from the database.
+    // 5 locations * 100 points = 500 points required to unlock Guidance.
+    final case2Points = PointsController.instance.getPointsForCase('case2');
 
     if (mounted) {
       setState(() {
-        _isGuidanceUnlocked = q1 && q2 && q3 && q4 && q5;
+        _isGuidanceUnlocked = case2Points >= 500;
       });
     }
   }

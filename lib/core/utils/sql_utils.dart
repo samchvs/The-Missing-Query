@@ -6,7 +6,7 @@ class SqlUtils {
     'LIKE', 'BETWEEN', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG',
     'MIN', 'MAX', 'GROUP', 'HAVING', 'JOIN', 'LEFT', 'RIGHT', 'INNER',
      'DESC', 'ASC', 'UNION', 'INSERT', 'INTO', 'VALUES', 'COLUMN',
-    'UPDATE', 'SET', 'DELETE', 'CREATE', 'DROP', 'ALTER', 
+    'UPDATE', 'SET', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'VARCHAR', 'INT', 'PRIMARY KEY'
   };
 
   static String formatSql(String input, [TextRange? _]) {

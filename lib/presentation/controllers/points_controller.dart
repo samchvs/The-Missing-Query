@@ -8,12 +8,16 @@ class PointsController extends ChangeNotifier {
   PointsController._internal();
 
   final Map<String, int> _casePoints = {};
+  final Set<String> _solvedLocations = {};
   String _activeCaseId = 'case1';
   String? _currentUserId;
   bool _initialized = false;
 
   /// Callback set by AuthController to sync case points to Supabase.
   Future<void> Function(String caseId, int points)? _onCasePointsChanged;
+  
+  /// Callback to sync individual location scores to Supabase.
+  Future<void> Function(String locationId, String caseId, int points)? _onLocationScoreAdded;
 
   int get currentPoints => _casePoints[_activeCaseId] ?? 0;
 
@@ -38,16 +42,23 @@ class PointsController extends ChangeNotifier {
     _onCasePointsChanged = callback;
   }
 
+  void setLocationSyncCallback(
+      Future<void> Function(String locationId, String caseId, int points)? callback) {
+    _onLocationScoreAdded = callback;
+  }
+
   /// Loads points for all known cases from local storage, then syncs from
   /// Supabase remote values if they are higher.
   Future<void> initializeForUser(
     String? userId, {
     Map<String, int>? remoteCasePoints,
+    List<String>? solvedLocations,
   }) async {
     _currentUserId = userId;
 
     if (userId == null) {
       _casePoints.clear();
+      _solvedLocations.clear();
       _initialized = true;
       notifyListeners();
       return;
@@ -82,6 +93,28 @@ class PointsController extends ChangeNotifier {
       }
     }
 
+    _solvedLocations.clear();
+    if (solvedLocations != null) {
+      _solvedLocations.addAll(solvedLocations);
+      // Backwards compatibility: write them to SharedPreferences so individual screens
+      // don't need to be rewritten to check PointsController explicitly.
+      for (final locId in solvedLocations) {
+        await prefs.setBool('${locId}_solved_$userId', true);
+      }
+    } else {
+      // Load local location flags if we have none remotely
+      final keys = prefs.getKeys();
+      for (final key in keys) {
+        if (key.startsWith('case') && key.contains('_solved_') && key.endsWith(userId)) {
+          if (prefs.getBool(key) == true) {
+            // Reconstruct locationId: "case1_viore" from "case1_viore_solved_UUID"
+            final locationId = key.split('_solved_').first;
+            _solvedLocations.add(locationId);
+          }
+        }
+      }
+    }
+
     _initialized = true;
     notifyListeners();
   }
@@ -104,6 +137,30 @@ class PointsController extends ChangeNotifier {
     if (_onCasePointsChanged != null) {
       await _onCasePointsChanged!(_activeCaseId, _casePoints[_activeCaseId]!);
     }
+  }
+
+  /// Adds points for a specific location and records it as solved.
+  Future<void> addLocationScore(String locationId, int points) async {
+    if (_solvedLocations.contains(locationId)) return;
+    
+    _solvedLocations.add(locationId);
+    
+    // Also save to local SharedPreferences for legacy compatibility and immediate offline access
+    if (_currentUserId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('${locationId}_solved_$_currentUserId', true);
+    }
+    
+    await addPoints(points);
+    
+    if (_onLocationScoreAdded != null && _currentUserId != null) {
+      await _onLocationScoreAdded!(locationId, _activeCaseId, points);
+    }
+  }
+
+  /// Checks if a specific location has been solved.
+  bool isLocationSolved(String locationId) {
+    return _solvedLocations.contains(locationId);
   }
 
   /// Returns points for a specific case.

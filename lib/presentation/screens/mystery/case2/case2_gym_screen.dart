@@ -315,7 +315,7 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(100);
+        await PointsController.instance.addLocationScore('case2_gym', 100);
         await prefs.setBool(solveKey, true);
         if (mounted) {
           setState(() {
@@ -920,8 +920,8 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                   ),
                   child: TextField(
                     controller: _sqlController,
-                    textCapitalization: TextCapitalization.characters,
-                    inputFormatters: [UpperCaseTextFormatter()],
+                    textCapitalization: TextCapitalization.none,
+                    inputFormatters: const [],
                     autofocus: true,
                     maxLines: null,
                     minLines: 12,
@@ -946,15 +946,7 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                       border: InputBorder.none,
                       isCollapsed: true,
                     ),
-                    onChanged: (value) {
-                      if (value != value.toUpperCase()) {
-                        _sqlController.value = _sqlController.value.copyWith(
-                          text: value.toUpperCase(),
-                          selection: _sqlController.selection,
-                        );
-                      }
-                      setState(() {});
-                    },
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
               ),

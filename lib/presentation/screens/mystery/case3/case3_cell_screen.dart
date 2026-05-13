@@ -171,7 +171,7 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_cell', 200);
 
 
     } else {

@@ -172,6 +172,40 @@ class SupabaseAuthDataSource {
     }
   }
 
+  /// Saves the score for an individual location and prevents duplicates.
+  Future<void> saveLocationScore({
+    required String userId,
+    required String locationId,
+    required String caseId,
+    required int points,
+  }) async {
+    try {
+      await _client.from('user_location_scores').upsert({
+        'user_id': userId,
+        'location_id': locationId,
+        'case_id': caseId,
+        'points': points,
+      });
+    } catch (e) {
+      debugPrint('Error saving location score: $e');
+    }
+  }
+
+  /// Fetches a list of all location IDs solved by the user.
+  Future<List<String>> getSolvedLocations(String userId) async {
+    try {
+      final response = await _client
+          .from('user_location_scores')
+          .select('location_id')
+          .eq('user_id', userId);
+
+      return (response as List).map((row) => row['location_id'] as String).toList();
+    } catch (e) {
+      debugPrint('Error fetching solved locations: $e');
+      return [];
+    }
+  }
+
   Future<void> submitScore({
     required String userId,
     required int score,

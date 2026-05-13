@@ -66,4 +66,21 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<String?> fetchUsername(String userId) =>
       _dataSource.fetchUsername(userId);
+
+  @override
+  Future<void> saveLocationScore({
+    required String userId,
+    required String locationId,
+    required String caseId,
+    required int points,
+  }) => _dataSource.saveLocationScore(
+        userId: userId,
+        locationId: locationId,
+        caseId: caseId,
+        points: points,
+      );
+
+  @override
+  Future<List<String>> getSolvedLocations(String userId) =>
+      _dataSource.getSolvedLocations(userId);
 }

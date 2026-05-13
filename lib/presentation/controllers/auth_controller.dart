@@ -105,10 +105,12 @@ class AuthController extends ChangeNotifier {
 
     // Load per-case points from Supabase and initialize controllers
     Map<String, int>? remoteCasePoints;
+    List<String>? solvedLocations;
     int remoteTotal = 0;
     if (_currentUser != null) {
       remoteCasePoints = await _authRepo.getCasePoints(_currentUser!.id);
       remoteTotal = remoteCasePoints.values.fold(0, (s, v) => s + v);
+      solvedLocations = await _authRepo.getSolvedLocations(_currentUser!.id);
     }
 
     // Register the Supabase sync callback in PointsController
@@ -117,6 +119,7 @@ class AuthController extends ChangeNotifier {
     await PointsController.instance.initializeForUser(
       _currentUser?.id,
       remoteCasePoints: remoteCasePoints,
+      solvedLocations: solvedLocations,
     );
     await LivesController.instance.initializeForUser(_currentUser?.id);
 
@@ -156,6 +159,20 @@ class AuthController extends ChangeNotifier {
               } catch (_) {
                 // Never crash the game over a sync failure
               }
+            },
+    );
+    PointsController.instance.setLocationSyncCallback(
+      _currentUser == null
+          ? null
+          : (locationId, caseId, points) async {
+              try {
+                await _authRepo.saveLocationScore(
+                  userId: _currentUser!.id,
+                  locationId: locationId,
+                  caseId: caseId,
+                  points: points,
+                );
+              } catch (_) {}
             },
     );
   }

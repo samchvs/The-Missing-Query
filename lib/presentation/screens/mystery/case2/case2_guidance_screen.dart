@@ -103,7 +103,7 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
 
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(200);
+        await PointsController.instance.addLocationScore('case2_guidance', 200);
         await prefs.setBool(solveKey, true);
         if (mounted) {
           setState(() {
@@ -439,7 +439,7 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
                               );
                             },
                           ),
-                          (route) => false,
+                          (route) => route.isFirst,
                         );
                       },
                     );

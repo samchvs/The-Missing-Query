@@ -322,7 +322,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_city_police', 200);
 
 
     } else {
@@ -721,7 +721,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
                               );
                             },
                           ),
-                          (route) => false,
+                          (route) => route.isFirst,
                         );
                       },
                     );

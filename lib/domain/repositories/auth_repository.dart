@@ -38,4 +38,15 @@ abstract class AuthRepository {
 
   /// Fetches the current display username from the profiles table.
   Future<String?> fetchUsername(String userId);
+
+  /// Saves the score for an individual location
+  Future<void> saveLocationScore({
+    required String userId,
+    required String locationId,
+    required String caseId,
+    required int points,
+  });
+
+  /// Fetches a list of all location IDs solved by the user
+  Future<List<String>> getSolvedLocations(String userId);
 }

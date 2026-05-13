@@ -173,7 +173,7 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_waste_corp', 200);
 
 
     } else {
@@ -348,7 +348,7 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
                 child: _buildOverlayIcon(
                   'assets/mystery/investigate.png',
                   40,
-                  "A large grey sorting machine labeled â€œBALDWIN CITY WASTE MANAGEMENT CORP. - SORTING ZONEâ€",
+                  "A large grey sorting machine labeled \"BALDWIN CITY WASTE MANAGEMENT CORP. - SORTING ZONE\"",
                   'audio/case3/wasteCorp/1.mp3',
                   const Duration(seconds: 6),
                 ),

@@ -22,7 +22,7 @@ class TutorialCase6Screen extends StatefulWidget {
 class _TutorialCase6ScreenState extends State<TutorialCase6Screen>
     with TickerProviderStateMixin {
   static const String _targetQuery =
-      "SELECT trans_id FROM Tablet WHERE status = 'Completed';";
+      "SELECT trans_id, status, mac_address FROM tablet WHERE status = 'Completed';";
 
   late AnimationController _moveController;
   late Animation<double> _moveAnimation;

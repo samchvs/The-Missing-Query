@@ -346,7 +346,23 @@ class SimpleSqlEngine {
     debugPrint('SQL Engine: Evaluating WHERE: "$clause"');
     String processedClause = clause.trim();
 
-    // Basic support for one level of parentheses
+    // Step 1: Protect IN(...) lists BEFORE any paren resolution.
+    // The general paren resolver below would otherwise consume
+    // e.g. ('Ethan Serrano', 'Jose De Leon') and evaluate it as a clause.
+    final inLists = <String>[];
+    final inRegex = RegExp(r'\bIN\s*\(([^()]+)\)', caseSensitive: false);
+    int listCounter = 0;
+    while (inRegex.hasMatch(processedClause)) {
+      final match = inRegex.firstMatch(processedClause)!;
+      final fullIn = match.group(0)!;
+      final placeholder = '___IN_LIST_${listCounter}___';
+      inLists.add(fullIn);
+      processedClause = processedClause.replaceFirst(fullIn, placeholder);
+      listCounter++;
+    }
+
+    // Step 2: Resolve remaining parentheses (grouped AND/OR logic).
+    // IN lists are already protected so their parens won't be consumed here.
     final parenRegex = RegExp(r'\(([^()]+)\)');
     while (parenRegex.hasMatch(processedClause)) {
       final match = parenRegex.firstMatch(processedClause)!;
@@ -354,7 +370,7 @@ class SimpleSqlEngine {
 
       // If it starts with SELECT, it's a subquery, don't evaluate it here
       if (inner.trim().toUpperCase().startsWith('SELECT ')) {
-        break; // Stop processing these parentheses as logical ones
+        break;
       }
 
       processedClause = processedClause.replaceFirstMapped(parenRegex, (match) {
@@ -363,23 +379,8 @@ class SimpleSqlEngine {
       });
     }
 
-    // Temporary placeholders for IN lists
-    final inLists = <String>[];
-    String protectedClause = processedClause;
-    final inRegex = RegExp(r'\bIN\s*\(([^()]+)\)', caseSensitive: false);
-
-    int listCounter = 0;
-    while (inRegex.hasMatch(protectedClause)) {
-      final match = inRegex.firstMatch(protectedClause)!;
-      final fullIn = match.group(0)!;
-      final placeholder = '___IN_LIST_${listCounter}___';
-      inLists.add(fullIn);
-      protectedClause = protectedClause.replaceFirst(fullIn, placeholder);
-      listCounter++;
-    }
-
-    // Handle OR parts
-    final orParts = protectedClause.split(
+    // Step 3: Handle OR parts
+    final orParts = processedClause.split(
       RegExp(r'\s+OR\s+', caseSensitive: false),
     );
 
@@ -516,7 +517,7 @@ class SimpleSqlEngine {
         final actual = _normalizeTimeValue(row[column] ?? '');
         final lower = _normalizeTimeValue(lowerRaw);
         final upper = _normalizeTimeValue(upperRaw);
-        
+
         if (lower.compareTo(upper) > 0) {
           // Crosses midnight (e.g. 23:00 to 03:00)
           return actual.compareTo(lower) >= 0 || actual.compareTo(upper) <= 0;

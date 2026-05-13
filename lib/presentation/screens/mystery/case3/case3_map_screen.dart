@@ -178,14 +178,14 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
               title: 'CONGRATULATIONS!',
               message: 'Lorem Impsum Dolor Sit Amet',
               onOkPressed: () {
-                final auth = context.read<AuthController>();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                     builder: (context) => HomeScreen(
-                      username: auth.displayUsername,
-                      authController: auth,
+                      username: context.read<AuthController>().displayUsername,
+                      authController: context.read<AuthController>(),
                     ),
+                    settings: const RouteSettings(name: '/home'),
                   ),
                   (route) => false,
                 );

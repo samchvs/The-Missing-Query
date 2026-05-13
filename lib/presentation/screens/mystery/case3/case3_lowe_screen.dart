@@ -172,7 +172,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addPoints(200);
+      await PointsController.instance.addLocationScore('case3_lowe', 200);
 
 
     } else {
@@ -358,7 +358,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
                 child: _buildOverlayIcon(
                   'assets/mystery/investigate.png',
                   40,
-                  "A framed poster titled â€œART OF WARâ€.",
+                  "A framed poster titled \"ART OF WAR\".",
                   'audio/case3/lowe/2.mp3',
                   const Duration(seconds: 3),
                 ),
@@ -437,7 +437,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the action and timestamp of the override event that occurred between the 911 call and Mark Loweâ€™s official arrival. Which location did this unknown entity use to enter the premises?",
+                  "Identify the action and timestamp of the override event that occurred between the 911 call and Mark Lowe's official arrival. Which location did this unknown entity use to enter the premises?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',

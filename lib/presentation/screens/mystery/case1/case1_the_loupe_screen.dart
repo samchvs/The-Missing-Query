@@ -167,7 +167,7 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(80);
+        await PointsController.instance.addLocationScore('case1_the_loupe', 80);
         await prefs.setBool(solveKey, true);
       }
 
@@ -217,11 +217,11 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
   }
 
   Widget _buildAsteriskIcon(double width) {
-    return GlowingClue(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        color: Colors.transparent,
-        child: FloatingBubble(
+    return FloatingBubble(
+      child: GlowingClue(
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          color: Colors.transparent,
           child: GestureDetector(
             onTap: () async {
               await playButtonSound();
@@ -233,12 +233,6 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
 
               final prefs = await SharedPreferences.getInstance();
               final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-/*
-              if (alreadySolved) {
-                showAlreadySolvedPopup();
-                return;
-              }
-*/
 
               if (!_hasLives) {
                 showNoLivesPopup();
@@ -845,8 +839,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
     String audioPath,
     Duration typingDuration,
   ) {
-    return GlowingClue(
-      child: FloatingBubble(
+    return FloatingBubble(
+      child: GlowingClue(
         child: GestureDetector(
           onTap: () async {
             await playButtonSound();
@@ -883,16 +877,12 @@ class FloatingBubble extends StatefulWidget {
 class _FloatingBubbleState extends State<FloatingBubble>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration)
       ..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0, end: widget.offset).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
   }
 
   @override
@@ -904,10 +894,10 @@ class _FloatingBubbleState extends State<FloatingBubble>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _controller,
       builder: (context, child) {
         return Transform.translate(
-          offset: Offset(0, -_animation.value),
+          offset: Offset(0, widget.offset * _controller.value),
           child: child,
         );
       },
@@ -927,7 +917,7 @@ class GlowingClue extends StatefulWidget {
 class _GlowingClueState extends State<GlowingClue>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final Animation<double> _animation;
+  late final Animation<double> _glow;
 
   @override
   void initState() {
@@ -937,7 +927,7 @@ class _GlowingClueState extends State<GlowingClue>
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 1.0, end: 1.4).animate(
+    _glow = Tween<double>(begin: 0.3, end: 0.9).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -951,27 +941,25 @@ class _GlowingClueState extends State<GlowingClue>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _glow,
       builder: (context, child) {
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 40 * _animation.value,
-              height: 40 * _animation.value,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.yellowAccent.withValues(alpha: 0.3),
-                    blurRadius: 20 * _animation.value,
-                    spreadRadius: 10 * _animation.value,
-                  ),
-                ],
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.yellowAccent.withValues(alpha: _glow.value * 0.55),
+                blurRadius: 18 + (_glow.value * 10),
+                spreadRadius: 3 + (_glow.value * 3),
               ),
-            ),
-            child!,
-          ],
+              BoxShadow(
+                color: const Color(0xFFB388FF).withValues(alpha: _glow.value * 0.30),
+                blurRadius: 28 + (_glow.value * 12),
+                spreadRadius: 2 + (_glow.value * 2),
+              ),
+            ],
+          ),
+          child: child,
         );
       },
       child: widget.child,

@@ -167,7 +167,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
       final prefs = await SharedPreferences.getInstance();
       final bool alreadySolved = prefs.getBool(solveKey) ?? false;
       if (!alreadySolved) {
-        await PointsController.instance.addPoints(80);
+        await PointsController.instance.addLocationScore('case1_pearl_district', 80);
         await prefs.setBool(solveKey, true);
       }
 

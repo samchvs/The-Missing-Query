@@ -61,6 +61,7 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
   late AnimationController _exitController;
   late Animation<double> _exitAnimation;
   final bool _isTransitioning = false;
+  bool _hintAlreadyShown = false;
 
   @override
   void didChangeDependencies() {
@@ -166,8 +167,9 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
 
     _userFadeController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        if (!_isTableUnlocked) {
+        if (!_isTableUnlocked && !_hintAlreadyShown) {
           _popupUserFadeController.forward();
+          _hintAlreadyShown = true;
         }
       }
     });
@@ -646,6 +648,28 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                       const SizedBox(width: 8),
                                       BouncingButton(
                                         onPressed: () {
+                                          final input =
+                                              _queryController.text.trim();
+                                          if (input.isEmpty) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  "Query cannot be empty!",
+                                                  style:
+                                                      GoogleFonts.londrinaSolid(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                backgroundColor: Colors.red,
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+
                                           if (_isQueryCorrect()) {
                                             setState(() {
                                               _isRunHintFinished = true;
@@ -654,6 +678,22 @@ class _TutorialCase3ScreenState extends State<TutorialCase3Screen>
                                               _isTableUnlocked = true;
                                             });
                                           } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  "Incorrect Query!",
+                                                  style:
+                                                      GoogleFonts.londrinaSolid(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                backgroundColor: Colors.red,
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                              ),
+                                            );
                                             _runHintController.stop();
                                           }
                                         },
