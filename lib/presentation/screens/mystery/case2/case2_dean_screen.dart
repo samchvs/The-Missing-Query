@@ -149,17 +149,19 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll('\$', '')
-        .replaceAll(RegExp(r'\s*,\s*'), ', ')
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') 
+        .replaceAll(RegExp(r'(\d)\s+(\d)'), r'$1$2') 
+        .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isDeanCorrectAnswer(String input) {
-    String clean(String s) => s.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    final normalized = clean(input);
-    return normalized == clean('MAYA CHEN, 12500');
+    final normalized = _normalizeAnswer(input);
+    final opt1 = _normalizeAnswer('MAYA CHEN, 12500');
+    return normalized == opt1;
   }
 
   void _submitAnswer() async {

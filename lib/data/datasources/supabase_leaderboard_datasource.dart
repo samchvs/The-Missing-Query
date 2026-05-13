@@ -19,7 +19,7 @@ class SupabaseLeaderboardDataSource {
           .count(CountOption.exact);
 
       final List data = response.data as List;
-      final int count = response.count ?? 0;
+      final int count = response.count;
 
       final entries = data
           .map((row) => LeaderboardModel.fromJson(row as Map<String, dynamic>))

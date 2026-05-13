@@ -298,23 +298,18 @@ class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') 
+        .replaceAll(' AND ', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isCordovaCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {'31500', '31500.00', '31 500', '31 500.00'};
-
-    return acceptedAnswers.contains(normalized);
+    final numericOnly = normalized.replaceAll(' ', '');
+    return numericOnly == '31500';
   }
 
   void _submitAnswer() async {

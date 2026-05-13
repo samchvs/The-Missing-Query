@@ -122,30 +122,25 @@ class _WasteCorpScreenState extends State<WasteCorpScreen>
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') // Remove all commas
+        .replaceAll(' AND ', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isWasteCorpCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
+    final opt1 = _normalizeAnswer('T-92 SOUTH WARD');
+    final opt2 = _normalizeAnswer('T92 SOUTH WARD');
+    final opt3 = _normalizeAnswer('TRUCK T-92 SOUTH WARD');
+    final opt4 = _normalizeAnswer('TRUCK T92 SOUTH WARD');
 
-    const acceptedAnswers = {
-      'T-92 SOUTH WARD',
-      'T92 SOUTH WARD',
-      'TRUCK T-92 SOUTH WARD',
-      'TRUCK T92 SOUTH WARD',
-      'T-92 SOUTH WARD HIGH_DENSITY_ORGANIC',
-      'T92 SOUTH WARD HIGH DENSITY ORGANIC',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    return normalized == opt1 ||
+        normalized == opt2 ||
+        normalized == opt3 ||
+        normalized == opt4;
   }
 
   void _submitAnswer() async {

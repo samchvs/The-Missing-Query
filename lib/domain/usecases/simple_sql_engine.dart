@@ -214,7 +214,7 @@ class SimpleSqlEngine {
         rows: [
           {sumAlias!: total.toStringAsFixed(total == total.toInt() ? 0 : 2)},
         ],
-        columns: [sumAlias!],
+        columns: [sumAlias],
       );
     }
 
@@ -342,23 +342,37 @@ class SimpleSqlEngine {
     return TextSpan(style: baseStyle, children: spans);
   }
 
-  bool _evaluateWhereClause(Map<String, String> row, String clause) {
+  bool _evaluateWhereClause(Map<String, String> row, String clause,
+      [List<String>? externalInLists]) {
     debugPrint('SQL Engine: Evaluating WHERE: "$clause"');
     String processedClause = clause.trim();
+    final inLists = externalInLists ?? <String>[];
 
-    // Step 1: Protect IN(...) lists BEFORE any paren resolution.
-    // The general paren resolver below would otherwise consume
-    // e.g. ('Ethan Serrano', 'Jose De Leon') and evaluate it as a clause.
-    final inLists = <String>[];
-    final inRegex = RegExp(r'\bIN\s*\(([^()]+)\)', caseSensitive: false);
-    int listCounter = 0;
-    while (inRegex.hasMatch(processedClause)) {
-      final match = inRegex.firstMatch(processedClause)!;
-      final fullIn = match.group(0)!;
-      final placeholder = '___IN_LIST_${listCounter}___';
-      inLists.add(fullIn);
-      processedClause = processedClause.replaceFirst(fullIn, placeholder);
-      listCounter++;
+    if (externalInLists == null) {
+      // Step 1: Protect IN(...) lists robustly (handling balanced parens)
+      // This only happens at the top-level call.
+      int searchPos = 0;
+      while (true) {
+        final inMatch = RegExp(r'\bIN\s*\(', caseSensitive: false)
+            .firstMatch(processedClause.substring(searchPos));
+        if (inMatch == null) break;
+
+        final startIdx = searchPos + inMatch.start;
+        final openParenIdx = searchPos + inMatch.end - 1;
+        final closeParenIdx = _findClosingParen(processedClause, openParenIdx);
+
+        if (closeParenIdx == -1) {
+          throw const FormatException("Unmatched opening parenthesis in WHERE clause");
+        }
+
+        final fullIn = processedClause.substring(startIdx, closeParenIdx + 1);
+        final placeholder = '___IN_LIST_${inLists.length}___';
+        inLists.add(fullIn);
+        processedClause = processedClause.substring(0, startIdx) +
+            placeholder +
+            processedClause.substring(closeParenIdx + 1);
+        searchPos = startIdx + placeholder.length;
+      }
     }
 
     // Step 2: Resolve remaining parentheses (grouped AND/OR logic).
@@ -373,9 +387,9 @@ class SimpleSqlEngine {
         break;
       }
 
-      processedClause = processedClause.replaceFirstMapped(parenRegex, (match) {
-        final inner = match.group(1)!;
-        return _evaluateWhereClause(row, inner) ? 'TRUE' : 'FALSE';
+      processedClause = processedClause.replaceFirstMapped(parenRegex, (m) {
+        final innerMatch = m.group(1)!;
+        return _evaluateWhereClause(row, innerMatch, inLists) ? 'TRUE' : 'FALSE';
       });
     }
 
@@ -669,5 +683,19 @@ class SimpleSqlEngine {
       return '$h:$m:$s';
     }
     return value;
+  }
+  int _findClosingParen(String text, int openPos) {
+    int closePos = openPos;
+    int counter = 1;
+    while (counter > 0) {
+      closePos++;
+      if (closePos >= text.length) return -1;
+      if (text[closePos] == '(') {
+        counter++;
+      } else if (text[closePos] == ')') {
+        counter--;
+      }
+    }
+    return closePos;
   }
 }

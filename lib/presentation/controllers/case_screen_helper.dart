@@ -257,6 +257,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   Future<void> showCutscene({
     required String videoAsset,
     required VoidCallback onFinished,
+    bool allowSkip = true,
   }) async {
     // Pause gameplay music
     await GameplayMusicController().stop();
@@ -273,6 +274,7 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
       pageBuilder: (context, animation, secondaryAnimation) {
         return _CutscenePlayerDialog(
           videoAsset: videoAsset,
+          allowSkip: allowSkip,
           onFinished: () async {
             // Resume gameplay music
             await GameplayMusicController().play();
@@ -370,10 +372,12 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
 class _CutscenePlayerDialog extends StatefulWidget {
   final String videoAsset;
   final VoidCallback onFinished;
+  final bool allowSkip;
 
   const _CutscenePlayerDialog({
     required this.videoAsset,
     required this.onFinished,
+    this.allowSkip = true,
   });
 
   @override
@@ -399,11 +403,13 @@ class _CutscenePlayerDialogState extends State<_CutscenePlayerDialog> {
               _controller.setVolume(SFXController().volume);
               _controller.play();
               // Show skip button after 20 seconds in cutscenes
-              Future.delayed(const Duration(seconds: 20), () {
-                if (mounted && !_isFadingOut) {
-                  setState(() => _showSkip = true);
-                }
-              });
+              if (widget.allowSkip) {
+                Future.delayed(const Duration(seconds: 20), () {
+                  if (mounted && !_isFadingOut) {
+                    setState(() => _showSkip = true);
+                  }
+                });
+              }
             }
           })
           .catchError((error) {

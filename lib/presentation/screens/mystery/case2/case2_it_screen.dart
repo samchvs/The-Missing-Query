@@ -144,16 +144,17 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
+        .replaceAll(';', '')
         .replaceAll(',', ' ')
+        .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isItCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
     return normalized == 'MORRIS_J 508 510' ||
-        normalized == 'MORRIES_J 508 510';
+        normalized == 'MORRIS_J 508 510';
   }
 
   void _submitAnswer() async {

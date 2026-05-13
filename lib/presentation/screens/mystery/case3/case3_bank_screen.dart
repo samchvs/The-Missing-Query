@@ -122,28 +122,18 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '')
+        .replaceAll(' AND ', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isBankCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      '65000',
-      '65 000',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    final numericOnly = normalized.replaceAll(' ', '');
+    return numericOnly == '65000';
   }
 
   void _submitAnswer() async {
@@ -451,7 +441,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),

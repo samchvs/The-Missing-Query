@@ -13,6 +13,7 @@ import 'package:graphics_project/presentation/controllers/sfx_controller.dart';
 import 'package:graphics_project/core/constants/app_routes.dart';
 import 'package:graphics_project/presentation/screens/mystery/case_selection_screen.dart';
 import 'package:graphics_project/presentation/controllers/gameplay_music_controller.dart';
+import 'package:graphics_project/presentation/widgets/common/app_animations.dart';
 
 class HomeScreen extends StatefulWidget {
   final String username;
@@ -98,6 +99,12 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
         fit: StackFit.expand,
         children: [
           Image.asset(AppAssets.homeScreen, fit: BoxFit.fill, gaplessPlayback: true),
+          // Beanie Animation
+          Positioned(
+            left: 60,
+            bottom: -30,
+            child: AppAnimations.helloBeanie(width: 280),
+          ),
           // Settings Button
           Positioned(
             top: 20,

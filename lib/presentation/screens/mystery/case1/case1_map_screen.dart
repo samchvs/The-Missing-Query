@@ -188,7 +188,8 @@ class _CaseMap1State extends State<CaseMap1> with CaseScreenHelper {
         });
       });
     }
-    final userId = context.read<AuthController>().currentUser!.id;
+    final auth = context.read<AuthController>();
+    final userId = auth.currentUser!.id;
     _diaryController = DiaryController(caseKey: 'case1', userId: userId);
   }
 

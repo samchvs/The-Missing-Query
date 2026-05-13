@@ -170,31 +170,7 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
     _diaryController = DiaryController(caseKey: 'case3', userId: context.read<AuthController>().currentUser!.id);
     _checkCityPoliceStatus();
 
-    if (widget.showSolvedDialog) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 600), () {
-          if (mounted) {
-            showCaseSolvedDialog(
-              title: 'CONGRATULATIONS!',
-              message: 'Lorem Impsum Dolor Sit Amet',
-              onOkPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(
-                      username: context.read<AuthController>().displayUsername,
-                      authController: context.read<AuthController>(),
-                    ),
-                    settings: const RouteSettings(name: '/home'),
-                  ),
-                  (route) => false,
-                );
-              },
-            );
-          }
-        });
-      });
-    }
+
   }
 
   @override

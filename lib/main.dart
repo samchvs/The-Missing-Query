@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Decide the initial route based on persisted state
-    final Widget nextScreen = authController.localUsername != null
+    final Widget nextScreen = authController.isAuthenticated
         ? HomeScreen(
             username: authController.displayUsername,
             authController: authController,
@@ -55,8 +55,12 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthController>.value(value: authController),
-        ChangeNotifierProvider<PointsController>.value(value: PointsController.instance),
-        ChangeNotifierProvider<LivesController>.value(value: LivesController.instance),
+        ChangeNotifierProvider<PointsController>.value(
+          value: PointsController.instance,
+        ),
+        ChangeNotifierProvider<LivesController>.value(
+          value: LivesController.instance,
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -70,7 +74,7 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return Stack(
             children: [
-              ?child,
+              if (child != null) child,
               // This makes the error box available globally
               DeveloperErrorBox(),
             ],

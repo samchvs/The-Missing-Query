@@ -273,28 +273,30 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') 
+        .replaceAll(RegExp(r'\bAND\b'), ' ') 
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isCityPoliceCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {
+    final normalized = _normalizeAnswer(input).replaceAll(' ', '');
+    
+    final options = [
+      'ARON MARK JOSE',
       'ARON HUANG MARK LOWE JOSE DE LEON',
-      'ARON HUANG MARK LOWE AND JOSE DE LEON',
-      'MASTERMINDS ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
       'MASTERMIND ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
-    };
+      'MASTERMINDS ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
+    ];
 
-    return acceptedAnswers.contains(normalized);
+    for (final opt in options) {
+      if (normalized == _normalizeAnswer(opt).replaceAll(' ', '')) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _submitAnswer() async {
@@ -322,7 +324,7 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
       await prefs.setBool(solveKey, true);
 
       // Award points
-      await PointsController.instance.addLocationScore('case3_city_police', 200);
+      await PointsController.instance.addLocationScore('case3_city_police', 300);
 
 
     } else {
@@ -704,24 +706,31 @@ class _CityPoliceScreenState extends State<CityPoliceScreen>
                     if (!mounted) return;
                     await showCutscene(
                       videoAsset: 'assets/mystery/Endings/Case3_Ending.mp4',
-                      onFinished: () {
+                      onFinished: () async {
                         if (!mounted) return;
-                        //Back to map
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                const CaseMap3(showSolvedDialog: true),
-                            transitionDuration: const Duration(milliseconds: 1000),
-                            reverseTransitionDuration: Duration.zero,
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
-                          ),
-                          (route) => route.isFirst,
+                        await showCutscene(
+                          videoAsset: 'assets/Congrats/Congrats_ending.mp4',
+                          allowSkip: false,
+                          onFinished: () {
+                            if (!mounted) return;
+                            //Back to map
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    const CaseMap3(showSolvedDialog: false),
+                                transitionDuration: const Duration(milliseconds: 1000),
+                                reverseTransitionDuration: Duration.zero,
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                              (route) => route.isFirst,
+                            );
+                          },
                         );
                       },
                     );

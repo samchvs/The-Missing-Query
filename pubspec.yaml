@@ -101,6 +101,7 @@ flutter:
   # Mystery Game Assets
     - assets/mystery/
     - assets/mystery/Endings/
+    - assets/Congrats/
     - assets/mystery/audio/
     - assets/mystery/character_profile/
     - assets/mystery/Case2/

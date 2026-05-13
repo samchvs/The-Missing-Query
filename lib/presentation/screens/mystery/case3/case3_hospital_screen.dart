@@ -121,28 +121,20 @@ class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') // Remove all commas
+        .replaceAll(' AND ', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isHospitalCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
+    final opt1 = _normalizeAnswer('BENEDICT HUANG LOYD SHAW');
+    final opt2 = _normalizeAnswer('BENEDICT HUANG LOYD SHAW TOTAL HARVEST');
 
-    const acceptedAnswers = {
-      'BENEDICT HUANG LOYD SHAW',
-      'BENEDICT HUANG AND LOYD SHAW',
-      'BENEDICT HUANG LOYD SHAW TOTAL HARVEST',
-      'BENEDICT HUANG TOTAL HARVEST LOYD SHAW',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    return normalized == opt1 || normalized == opt2;
   }
 
   void _submitAnswer() async {

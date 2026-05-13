@@ -152,30 +152,22 @@ class _LogisticsScreenState extends State<LogisticsScreen>
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') // Remove all commas
+        .replaceAll('_', ' ') // Treat underscores as spaces for maximum flexibility
+        .replaceAll(' AND ', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isLogisticsCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
+    final opt1 = _normalizeAnswer('BIOHAZARD WASTE FACILITY');
+    final opt2 = _normalizeAnswer('BIN 402 BIOHAZARD WASTE FACILITY');
+    final opt3 = _normalizeAnswer('JOSE DE LEON BIOHAZARD WASTE FACILITY');
 
-    const acceptedAnswers = {
-      'BIOHAZARD WASTE_FACILITY',
-      'BIOHAZARD WASTE FACILITY',
-      'BIN_402 BIOHAZARD WASTE_FACILITY',
-      'BIN 402 BIOHAZARD WASTE FACILITY',
-      'JOSE DE LEON BIOHAZARD WASTE_FACILITY',
-      'JOSE DE LEON BIOHAZARD WASTE FACILITY',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    return normalized == opt1 || normalized == opt2 || normalized == opt3;
   }
 
   void _submitAnswer() async {

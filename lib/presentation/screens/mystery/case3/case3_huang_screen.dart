@@ -120,30 +120,20 @@ class _HuangScreenState extends State<HuangScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll(RegExp(r'\s*,\s*'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .replaceAll(', AND ', ', ')
-        .replaceAll(' AND ', ', ')
-        .replaceAll('PHP', '')
-        .replaceAll('₱', '')
-        .replaceAll(r'$', '');
+        .replaceAll(';', '')
+        .replaceAll(r'$', '')
+        .replaceAll(',', '') 
+        .replaceAll(RegExp(r'\bAND\b'), ' ') 
+        .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isHuangCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
+    final normalized = _normalizeAnswer(input).replaceAll(' ', '');
+    final opt1 = _normalizeAnswer('150000 HARVESTED').replaceAll(' ', '');
+    final opt2 = _normalizeAnswer('LOYD SHAW 150000 HARVESTED').replaceAll(' ', '');
 
-    const acceptedAnswers = {
-      '150000 HARVESTED',
-      '150000.00 HARVESTED',
-      '150 000 HARVESTED',
-      '150 000.00 HARVESTED',
-      'LOYD SHAW 150000 HARVESTED',
-      'LOYD SHAW 150 000 HARVESTED',
-    };
-
-    return acceptedAnswers.contains(normalized);
+    return normalized == opt1 || normalized == opt2;
   }
 
   void _submitAnswer() async {

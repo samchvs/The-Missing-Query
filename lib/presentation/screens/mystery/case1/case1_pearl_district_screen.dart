@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:graphics_project/presentation/widgets/common/keyboard_accessory_bar.dart';
 import 'package:graphics_project/domain/usecases/simple_sql_engine.dart';
 import 'package:graphics_project/presentation/controllers/case_screen_helper.dart';
@@ -133,6 +132,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
         .trim()
         .toUpperCase()
         .replaceAll(',', '')
+        .replaceAll(r'$', '')
         .replaceAll(RegExp(r'\s+'), '');
   }
 
@@ -227,18 +227,6 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
               await playButtonSound();
               if (!mounted) return;
 
-              final auth = context.read<AuthController>();
-              final userId = auth.currentUser!.id;
-              final solveKey = 'case1_pearl_district_solved_$userId';
-
-              final prefs = await SharedPreferences.getInstance();
-              final bool alreadySolved = prefs.getBool(solveKey) ?? false;
-/*
-              if (alreadySolved) {
-                showAlreadySolvedPopup();
-                return;
-              }
-*/
               if (!_hasLives) {
                 showNoLivesPopup();
                 return;

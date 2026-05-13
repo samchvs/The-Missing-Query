@@ -61,18 +61,20 @@ class _GuidanceScreenState extends State<GuidanceScreen> with CaseScreenHelper {
   String _normalizeAnswer(String value) {
     return value
         .trim()
-        .replaceAll(';', '')
         .toUpperCase()
-        .replaceAll('\$', '')
-        .replaceAll(' AND ', ', ')
-        .replaceAll(RegExp(r'\s*,\s*'), ', ') // Standardize comma spacing
+        .replaceAll(';', '')
+        .replaceAll(r'$', '') 
+        .replaceAll(',', '') 
+        .replaceAll(RegExp(r'(\d)\s+(\d)'), r'$1$2')
+        .replaceAll(' AND ', ' ')
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
   bool _isPoliceCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
-    return normalized == 'MAYA CHEN, CHEYENNE HART, 12,500' ||
-        normalized == 'MAYA CHEN, CHEYENNE HART, 12500';
+    final opt1 = _normalizeAnswer('MAYA CHEN, CHEYENNE HART, 12500');
+    final opt2 = _normalizeAnswer('CHEYENNE HART, MAYA CHEN, 12500');
+    return normalized == opt1 || normalized == opt2;
   }
 
   void _submitAnswer() async {

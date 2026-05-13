@@ -8,7 +8,7 @@ import 'package:graphics_project/presentation/controllers/auth_controller.dart';
 import 'package:graphics_project/presentation/controllers/points_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:graphics_project/presentation/screens/home/home_screen.dart';
+
 
 // --- SCREEN: CASE SELECTION ---
 class CaseSelectionScreen extends StatefulWidget {
