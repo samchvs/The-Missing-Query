@@ -79,7 +79,7 @@ class DiaryController extends ChangeNotifier {
 
     return const DiaryResult(
       success: false,
-      message: 'Unsupported command. Supported: CREATE TABLE, ALTER TABLE, INSERT INTO, SELECT, UPDATE, DELETE FROM.',
+      message: 'Unsupported command. Supported: CREATE TABLE, ALTER TABLE, INSERT INTO, SELECT, UPDATE, DELETE FROM, DROP TABLE.',
     );
   }
 
